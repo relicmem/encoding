@@ -28,15 +28,15 @@
 ## E03. Profiles, labels, options і metadata
 
 - [x] [ENC-012](tasks/ENC-012-encoding-registry-labels.md) — реалізувати canonical encoding registry і label normalization. Виконано: додано canonical v1 registry, aliases для common labels, `normalizeEncodingLabel`/`tryNormalizeEncodingLabel`, immutable alias lookup, webCompat WHATWG remapping `iso-8859-1`/`latin1` до `windows-1252` і підключення string input до спільного normalizer.
-- [ ] [ENC-013](tasks/ENC-013-options-normalization.md) — реалізувати нормалізацію та валідацію decode/detect options.
-- [ ] [ENC-014](tasks/ENC-014-built-in-profiles.md) — реалізувати `strictUtf8`, `rmem`, `legacyCyrillic` і `webCompat` профілі.
-- [ ] [ENC-015](tasks/ENC-015-metadata-sniffing.md) — реалізувати metadata extraction і правила участі metadata у detection.
-- [ ] [ENC-016](tasks/ENC-016-confidence-policy.md) — реалізувати scoring, candidates, confidence і warning policy.
+- [x] [ENC-013](tasks/ENC-013-options-normalization.md) — реалізувати нормалізацію та валідацію decode/detect options. Виконано: додано спільний normalizer для detect/decode options, validated profile resolution, canonical allowed/default/explicit encoding checks, profile defaults для decode policy/backend/sample size і focused tests для конфліктів опцій.
+- [x] [ENC-014](tasks/ENC-014-built-in-profiles.md) — реалізувати `strictUtf8`, `rmem`, `legacyCyrillic` і `webCompat` профілі. Виконано: винесено immutable built-in profile metadata і profile policies у `src/profile`, зафіксовано default `rmem`, strict UTF-8, legacy Cyrillic focus, webCompat metadata/WHATWG behavior, custom profile validation і focused tests.
+- [x] [ENC-015](tasks/ENC-015-metadata-sniffing.md) — реалізувати metadata extraction і правила участі metadata у detection. Виконано: додано metadata sniffing для `declaredEncoding`, HTTP `content-type` charset і HTML meta charset, нормалізацію labels через registry, immutable metadata candidate/warnings, правила пріоритету explicit/BOM над metadata та focused tests.
+- [x] [ENC-016](tasks/ENC-016-confidence-policy.md) — реалізувати scoring, candidates, confidence і warning policy. Виконано: додано deterministic `ConfidencePolicy` для candidate factory, stable sorting/tie-breaking, fallback candidate, `minConfidence` checks і warnings `ENCODING_LOW_CONFIDENCE`, `ENCODING_FALLBACK_USED`, `ENCODING_AMBIGUOUS_CANDIDATES`; підключено candidate factory до metadata/string input і додано focused tests.
 
 ## E04. Detection pipeline
 
-- [ ] [ENC-017](tasks/ENC-017-bom-detector.md) — реалізувати BOM detector.
-- [ ] [ENC-018](tasks/ENC-018-utf8-validator.md) — реалізувати deterministic UTF-8 validator.
+- [x] [ENC-017](tasks/ENC-017-bom-detector.md) — реалізувати BOM detector. Виконано: додано deterministic BOM detector для UTF-8, UTF-16LE і UTF-16BE, candidate `source: "bom"` з `bomLength`, explicit/BOM conflict warning або fatal policy, disallowed BOM handling і focused tests для коротких inputs та metadata priority.
+- [x] [ENC-018](tasks/ENC-018-utf8-validator.md) — реалізувати deterministic UTF-8 validator. Виконано: додано streaming-friendly UTF-8 validator без декодування, invalid sequence ranges для leading/continuation/incomplete cases, fatal `ENCODING_INVALID_SEQUENCE` policy, `utf8-validation` candidate з confidence `1` для валідного UTF-8 без explicit/BOM сигналу і focused tests для overlong, surrogate, out-of-range та split multibyte сценаріїв.
 - [ ] [ENC-019](tasks/ENC-019-utf16-detector.md) — реалізувати UTF-16 heuristic detector.
 - [ ] [ENC-020](tasks/ENC-020-legacy-detector.md) — реалізувати legacy Cyrillic heuristic detector.
 - [ ] [ENC-021](tasks/ENC-021-composite-detector.md) — реалізувати composite detection decision pipeline.

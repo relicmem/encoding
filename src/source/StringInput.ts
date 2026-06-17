@@ -17,6 +17,7 @@ import type {
   SourceMapMode,
 } from "../contracts/encoding.js";
 import type { EncodingProfile } from "../contracts/profile.js";
+import { createEncodingCandidate } from "../detector/ConfidencePolicy.js";
 import { normalizeEncodingLabel } from "../encoding/EncodingRegistry.js";
 import { createLineIndex } from "./LineIndex.js";
 import { buildSyntheticUtf8StringOffsetMap } from "./OffsetMapBuilder.js";
@@ -156,7 +157,7 @@ function createStringInputDetection(
 function createStringInputCandidate(
   encodingDecision: StringInputEncodingDecision,
 ): EncodingCandidate {
-  return Object.freeze({
+  return createEncodingCandidate({
     encoding: encodingDecision.label.canonical,
     confidence: 1,
     source: "explicit",
