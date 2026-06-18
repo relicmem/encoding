@@ -2,7 +2,14 @@ import type { RmemEncodingName, ReplacementPolicy, SourceMapMode } from "./encod
 import type { EncodingWarning } from "./diagnostics.js";
 import type { OffsetMap, OffsetMapSegment } from "./source.js";
 
-export type DecoderBackendName = "text-decoder" | "iconv-lite" | "exodus-bytes" | "native";
+export const DECODER_BACKEND_NAMES = Object.freeze([
+  "native",
+  "text-decoder",
+  "iconv-lite",
+  "exodus-bytes",
+] as const);
+
+export type DecoderBackendName = (typeof DECODER_BACKEND_NAMES)[number];
 
 export interface DecoderBackendInfo {
   readonly name: DecoderBackendName;

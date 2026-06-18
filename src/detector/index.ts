@@ -5,6 +5,9 @@ export {
   tryValidateUtf8,
   validateUtf8,
 } from "./Utf8Validator.js";
+export { detectUtf16, tryDetectUtf16 } from "./Utf16Detector.js";
+export { detectLegacyEncoding, tryDetectLegacyEncoding } from "./LegacyDetector.js";
+export { detectCompositeEncoding, tryDetectCompositeEncoding } from "./CompositeDetector.js";
 export {
   DEFAULT_AMBIGUITY_THRESHOLD,
   ENCODING_CANDIDATE_SOURCE_PRIORITY,
@@ -20,6 +23,24 @@ export type {
   DetectByteOrderMarkOptions,
   EncodingByteOrderMark,
 } from "./BomDetector.js";
+export type {
+  DetectUtf16Options,
+  Utf16ByteOrderHeuristicScore,
+  Utf16DetectionResult,
+  Utf16HeuristicByteOrder,
+  Utf16HeuristicAnalysis,
+  Utf16HeuristicIgnoredReason,
+} from "./Utf16Detector.js";
+export type { CompositeDetectionInputSample } from "./CompositeDetector.js";
+export type {
+  DetectLegacyEncodingOptions,
+  LegacyEncodingDetectionResult,
+  LegacyEncodingHeuristicAnalysis,
+  LegacyEncodingHeuristicScore,
+  LegacyHeuristicEncodingName,
+  LegacyHeuristicIgnoredReason,
+  LegacyUtf8ValidationSignal,
+} from "./LegacyDetector.js";
 export type {
   Utf8ValidationHigherPrioritySource,
   Utf8ValidationInvalidPolicy,

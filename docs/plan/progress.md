@@ -37,15 +37,15 @@
 
 - [x] [ENC-017](tasks/ENC-017-bom-detector.md) — реалізувати BOM detector. Виконано: додано deterministic BOM detector для UTF-8, UTF-16LE і UTF-16BE, candidate `source: "bom"` з `bomLength`, explicit/BOM conflict warning або fatal policy, disallowed BOM handling і focused tests для коротких inputs та metadata priority.
 - [x] [ENC-018](tasks/ENC-018-utf8-validator.md) — реалізувати deterministic UTF-8 validator. Виконано: додано streaming-friendly UTF-8 validator без декодування, invalid sequence ranges для leading/continuation/incomplete cases, fatal `ENCODING_INVALID_SEQUENCE` policy, `utf8-validation` candidate з confidence `1` для валідного UTF-8 без explicit/BOM сигналу і focused tests для overlong, surrogate, out-of-range та split multibyte сценаріїв.
-- [ ] [ENC-019](tasks/ENC-019-utf16-detector.md) — реалізувати UTF-16 heuristic detector.
-- [ ] [ENC-020](tasks/ENC-020-legacy-detector.md) — реалізувати legacy Cyrillic heuristic detector.
-- [ ] [ENC-021](tasks/ENC-021-composite-detector.md) — реалізувати composite detection decision pipeline.
-- [ ] [ENC-022](tasks/ENC-022-detect-encoding-api.md) — реалізувати public `detectEncoding` API.
+- [x] [ENC-019](tasks/ENC-019-utf16-detector.md) — реалізувати UTF-16 heuristic detector. Виконано: додано UTF-16 detector із BOM-first поведінкою, conservative NUL/printable/parity heuristic для UTF-16LE/BE, profile-gated `utf16Heuristics`, weak/unsupported signal warnings, `tryDetectUtf16` і focused tests.
+- [x] [ENC-020](tasks/ENC-020-legacy-detector.md) — реалізувати legacy Cyrillic heuristic detector. Виконано: додано deterministic legacy detector для `windows-1251`, `koi8-r`, `cp866`, `iso-8859-5` і `windows-1252`, profile/allowed-candidate gating, `rmem` valid UTF-8 suppression, ASCII-only слабкий результат, ambiguous warnings і focused tests.
+- [x] [ENC-021](tasks/ENC-021-composite-detector.md) — реалізувати composite detection decision pipeline. Виконано: додано deterministic composite detector поверх options/profile normalization, BOM, metadata, UTF-8 validation, UTF-16 heuristic, legacy heuristic і fallback policy; результат повертає повний `EncodingDetectionResult` з stable candidates/warnings, BOM-aware label selection і backend placeholder без decoding/OffsetMap; додано focused tests для priority rules, fallback і strict UTF-8 fatal behavior.
+- [x] [ENC-022](tasks/ENC-022-detect-encoding-api.md) — реалізувати public `detectEncoding` API. Виконано: додано root export `detectEncoding`, який синхронно делегує в composite detection pipeline для `Uint8Array`, повертає public `EncodingDetectionResult` без decoding/`OffsetMap` і має focused tests для result shape, byte-only input, sample handling та fatal option conflicts.
 
 ## E05. Decoder backends і controlled decoding
 
-- [ ] [ENC-023](tasks/ENC-023-backend-contract-registry.md) — реалізувати decoder backend contract і registry.
-- [ ] [ENC-024](tasks/ENC-024-native-unicode-backend.md) — реалізувати exact UTF-8/UTF-16 native backend.
+- [x] [ENC-023](tasks/ENC-023-backend-contract-registry.md) — реалізувати decoder backend contract і registry. Виконано: додано runtime `DecoderRegistry` з immutable backend info snapshots, deterministic selection за `backendPreference`, capability checks для `canDecode` і `exactSourceMap`, structured `ENCODING_BACKEND_SUBSTITUTION` warnings та fatal errors для unsupported encoding/source map unavailable.
+- [x] [ENC-024](tasks/ENC-024-native-unicode-backend.md) — реалізувати exact UTF-8/UTF-16 native backend. Виконано: додано `NativeUnicodeBackend` з власним UTF-8/UTF-16LE/BE decoding поверх exact `OffsetMapBuilder`, structured fatal errors для invalid sequences, replacement warnings/segments, BOM handling, sourceMap `none` suppression і focused tests; `check` проходить.
 - [ ] [ENC-025](tasks/ENC-025-single-byte-backend.md) — реалізувати exact single-byte legacy backend.
 - [ ] [ENC-026](tasks/ENC-026-external-backend-adapters.md) — інтегрувати optional external decoder backends.
 - [ ] [ENC-027](tasks/ENC-027-controlled-decoding-policy.md) — реалізувати fatal/replace decoding policy і backend warnings.

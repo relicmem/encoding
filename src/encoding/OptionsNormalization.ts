@@ -1,3 +1,4 @@
+import { DECODER_BACKEND_NAMES } from "../contracts/backend.js";
 import type { DecoderBackendName } from "../contracts/backend.js";
 import type { NormalizedEncodingLabel } from "../contracts/detection.js";
 import { createEncodingError } from "../contracts/diagnostics.js";
@@ -45,13 +46,6 @@ interface CommonNormalizedOptions {
   readonly metadataSniffing: EncodingMetadataSniffingResult;
   readonly sampleSizeBytes: number;
 }
-
-const DECODER_BACKEND_NAMES = Object.freeze([
-  "native",
-  "text-decoder",
-  "iconv-lite",
-  "exodus-bytes",
-] as const satisfies readonly DecoderBackendName[]);
 
 export function normalizeDetectEncodingOptions(
   options?: DetectEncodingOptions,
