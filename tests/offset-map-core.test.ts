@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { createOffsetMap } from "../src/index.js";
 import type { OffsetMapSegment, OffsetMapSegmentKind } from "../src/index.js";
+import { createOffsetMap } from "../src/source/OffsetMap.js";
 
 describe("OffsetMap core", () => {
   it("supports empty documents without manufacturing sentinel segments", () => {

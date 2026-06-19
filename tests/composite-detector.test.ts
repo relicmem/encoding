@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 
+import { EncodingError } from "../src/index.js";
+import type { EncodingProfile } from "../src/index.js";
 import {
-  EncodingError,
-  LEGACY_CYRILLIC_PROFILE,
   detectCompositeEncoding,
   tryDetectCompositeEncoding,
-} from "../src/index.js";
-import type { EncodingProfile } from "../src/index.js";
+} from "../src/detector/CompositeDetector.js";
+import { LEGACY_CYRILLIC_PROFILE } from "../src/profile/EncodingProfiles.js";
 
 const UTF8_FALLBACK_ONLY_PROFILE: EncodingProfile = {
   name: "utf8FallbackOnly",

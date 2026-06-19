@@ -1,14 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  EncodingError,
-  WEB_COMPAT_PROFILE,
-  detectByteOrderMark,
-  normalizeEncodingLabel,
-  sniffEncodingMetadata,
-  tryDetectByteOrderMark,
-} from "../src/index.js";
+import { EncodingError, normalizeEncodingLabel } from "../src/index.js";
 import type { RmemEncodingName } from "../src/index.js";
+import { detectByteOrderMark, tryDetectByteOrderMark } from "../src/detector/BomDetector.js";
+import { sniffEncodingMetadata } from "../src/encoding/MetadataSniffing.js";
+import { WEB_COMPAT_PROFILE } from "../src/profile/EncodingProfiles.js";
 
 describe("BOM detector", () => {
   it.each([

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { buildSyntheticUtf8StringOffsetMap, createDecodedStringDocument } from "../src/index.js";
+import { buildSyntheticUtf8StringOffsetMap } from "../src/source/OffsetMapBuilder.js";
+import { createDecodedStringDocument } from "../src/source/StringInput.js";
 
 const UTF8_ENCODER = new TextEncoder();
 

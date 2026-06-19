@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 
+import { EncodingError } from "../src/index.js";
 import {
   DEFAULT_AMBIGUITY_THRESHOLD,
   ENCODING_CANDIDATE_SOURCE_PRIORITY,
-  EncodingError,
   createEncodingCandidate,
   createFallbackEncodingCandidate,
   resolveEncodingCandidateDecision,
   sortEncodingCandidates,
-} from "../src/index.js";
+} from "../src/detector/ConfidencePolicy.js";
 
 describe("confidence, candidate and warning policy", () => {
   it("creates immutable validated encoding candidates", () => {

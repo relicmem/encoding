@@ -1,6 +1,6 @@
 {
   "name": "@rmem/encoding",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Byte-to-text intake layer for rmem documents.",
   "license": "UNLICENSED",
   "type": "module",
@@ -25,6 +25,10 @@
     "format": "prettier --write . --ignore-unknown",
     "format:check": "prettier --check . --ignore-unknown",
     "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\" --max-warnings=0 --no-error-on-unmatched-pattern",
+    "release:check": "node scripts/release/verify-release-inputs.mjs && npm run check && npm run release:preview",
+    "release:pack": "node scripts/release/verify-release-inputs.mjs && node scripts/release/package-preview.mjs --pack-destination .release",
+    "release:preview": "node scripts/release/verify-release-inputs.mjs && node scripts/release/package-preview.mjs --dry-run",
+    "release:publish": "node scripts/release/verify-release-inputs.mjs --publish-required && node scripts/release/publish-package.mjs .release",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run --passWithNoTests"
   },

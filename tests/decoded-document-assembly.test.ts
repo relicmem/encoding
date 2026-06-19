@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  EncodingError,
-  createEncodingWarning,
-  createOffsetMap,
-  createSourceBuffer,
-} from "../src/index.js";
+import { EncodingError, createEncodingWarning } from "../src/index.js";
 import type {
   EncodingCandidate,
   EncodingDetectionResult,
@@ -14,6 +9,8 @@ import type {
   OffsetMapSegment,
 } from "../src/index.js";
 import { createDecodedDocument } from "../src/source/DecodedDocument.js";
+import { createOffsetMap } from "../src/source/OffsetMap.js";
+import { createSourceBuffer } from "../src/source/SourceBuffer.js";
 
 describe("DecodedDocument assembly", () => {
   it("freezes document layers and protects exposed arrays from caller mutation", () => {

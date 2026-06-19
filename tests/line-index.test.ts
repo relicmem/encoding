@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { buildIdentityOffsetMap, buildUtf8OffsetMap, createLineIndex } from "../src/index.js";
-import type { OffsetMapBuildResult } from "../src/index.js";
+import { createLineIndex } from "../src/source/LineIndex.js";
+import { buildIdentityOffsetMap, buildUtf8OffsetMap } from "../src/source/OffsetMapBuilder.js";
+import type { OffsetMapBuildResult } from "../src/source/OffsetMapBuilder.js";
 
 describe("LineIndex", () => {
   it("indexes empty text as one empty line", () => {

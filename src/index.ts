@@ -3,9 +3,12 @@ export { decodeDocument } from "./DecodeDocument.js";
 export { decodeDocumentSync } from "./DecodeDocumentSync.js";
 export { detectEncoding } from "./DetectEncoding.js";
 export { tryDecodeDocument } from "./TryDecodeDocument.js";
-export * from "./decoder/index.js";
-export * from "./detector/index.js";
-export * from "./encoding/index.js";
-export * from "./profile/index.js";
-export * from "./source/index.js";
-export * from "./stream/index.js";
+export {
+  RMEM_ENCODING_NAMES,
+  aliasesForEncoding,
+  isRmemEncodingName,
+  normalizeEncodingLabel,
+  tryNormalizeEncodingLabel,
+} from "./encoding/EncodingRegistry.js";
+export { BUILT_IN_ENCODING_PROFILES } from "./profile/EncodingProfiles.js";
+export { createDecodingStream } from "./stream/DecodingStream.js";

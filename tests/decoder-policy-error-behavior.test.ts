@@ -1,12 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  EncodingError,
-  decodeDocumentSync,
-  isTextDecoderBackendAvailable,
-  tryDecodeDocument,
-} from "../src/index.js";
+import { EncodingError, decodeDocumentSync, tryDecodeDocument } from "../src/index.js";
 import type { EncodingWarning } from "../src/index.js";
+import { isTextDecoderBackendAvailable } from "../src/decoder/ExternalDecoderBackends.js";
 
 describe("decoder policy, warning and error behavior", () => {
   it("rejects invalid UTF-8 under fatal policy without returning a partial document", async () => {

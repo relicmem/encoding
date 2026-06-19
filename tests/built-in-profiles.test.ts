@@ -1,19 +1,18 @@
 import { describe, expect, it } from "vitest";
 
+import { EncodingError, normalizeEncodingLabel } from "../src/index.js";
+import type { EncodingProfile } from "../src/index.js";
 import {
   BUILT_IN_ENCODING_PROFILE_POLICIES,
   BUILT_IN_ENCODING_PROFILES,
   DEFAULT_ENCODING_PROFILE_NAME,
-  EncodingError,
   LEGACY_CYRILLIC_ENCODINGS,
   LEGACY_CYRILLIC_PROFILE,
   RMEM_PROFILE,
   STRICT_UTF8_PROFILE,
   WEB_COMPAT_PROFILE,
-  normalizeEncodingLabel,
   resolveEncodingProfilePolicy,
-} from "../src/index.js";
-import type { EncodingProfile } from "../src/index.js";
+} from "../src/profile/EncodingProfiles.js";
 
 describe("built-in encoding profiles", () => {
   it("uses rmem as the default CLI/import profile policy", () => {

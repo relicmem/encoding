@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { EncodingError, createUtf8Validator, tryValidateUtf8, validateUtf8 } from "../src/index.js";
+import { EncodingError } from "../src/index.js";
+import {
+  createUtf8Validator,
+  tryValidateUtf8,
+  validateUtf8,
+} from "../src/detector/Utf8Validator.js";
 
 describe("UTF-8 validator", () => {
   it("accepts valid UTF-8 and creates a high-confidence validation candidate", () => {

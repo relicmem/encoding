@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
+import { EncodingError } from "../src/index.js";
 import {
-  EncodingError,
   NATIVE_UNICODE_BACKEND,
   createDecoderRegistry,
   createNativeUnicodeBackend,
-} from "../src/index.js";
+} from "../src/decoder/index.js";
 import type { BackendDecodeOptions, RmemEncodingName, SourceMapMode } from "../src/index.js";
 import { normalizeDecodeDocumentOptions } from "../src/encoding/OptionsNormalization.js";
 

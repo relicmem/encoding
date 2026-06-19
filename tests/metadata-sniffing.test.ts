@@ -1,14 +1,13 @@
 import { describe, expect, it } from "vitest";
 
+import { normalizeEncodingLabel } from "../src/index.js";
 import {
-  RMEM_PROFILE,
-  WEB_COMPAT_PROFILE,
   extractCharsetFromContentType,
   extractHtmlMetadataLabels,
-  normalizeEncodingLabel,
   sniffEncodingMetadata,
-} from "../src/index.js";
+} from "../src/encoding/MetadataSniffing.js";
 import { normalizeDetectEncodingOptions } from "../src/encoding/OptionsNormalization.js";
+import { RMEM_PROFILE, WEB_COMPAT_PROFILE } from "../src/profile/EncodingProfiles.js";
 
 describe("metadata sniffing", () => {
   it("extracts content-type and HTML charset metadata as normalized metadata candidates", () => {

@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { EncodingError, NATIVE_UNICODE_BACKEND, createDecoderRegistry } from "../src/index.js";
+import { EncodingError } from "../src/index.js";
 import type { BackendDecodeOptions, RmemEncodingName, SourceMapMode } from "../src/index.js";
+import { NATIVE_UNICODE_BACKEND, createDecoderRegistry } from "../src/decoder/index.js";
 import {
   SINGLE_BYTE_ENCODING_NAMES,
   decodeSingleByteCodePoint,

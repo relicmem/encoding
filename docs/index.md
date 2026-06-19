@@ -2,6 +2,17 @@
 
 docs/SPEC.md — технічне завдання `@rmem/encoding`, цілі, API, source model, detection pipeline, профілі, backends, stream API, критерії приймання і мінімальні fixtures.
 docs/plan/progress.md — структурований чекліст повної реалізації проекту, правила актуалізації прогресу, меж задач, багфіксів, release automation та позапланових задач.
+README.md — компактний публічний огляд `@rmem/encoding`, основні можливості і посилання на документацію.
+documentation/README.md — індекс публічної документації для людей і агентів.
+documentation/getting-started.md — quick start для decode, detect-only, stream API і правила вибору byte input.
+documentation/api.md — практичний довідник public API, опцій decode/detect/stream і `DecodedDocument`.
+documentation/profiles.md — пояснення built-in profiles `rmem`, `strictUtf8`, `legacyCyrillic`, `webCompat` і custom profile.
+documentation/source-mapping-and-diagnostics.md — source map, line index, warnings/errors і caveat для string input.
+documentation/parser-integration.md — приклад інтеграції з `@rmem/md-parser` і правила вибору parser mode.
+documentation/release-notes-v1.md — release notes v1 candidate: сумісність, public API, dependency footprint, known limitations і readiness checks.
+documentation/release-automation.md — release automation: GitHub workflow, npm scripts, publish gate, secrets, branch policy і recovery steps.
+documentation/contributors.md — contributor notes, межа public API і правило англомовних runtime messages.
+documentation/agents.md — монолітний довідник для агентів із ключовими контрактами, сценаріями та обмеженнями.
 docs/plan/tasks/ENC-001-project-scaffold.md — задача створення package scaffold, структури модулів і базових entrypoints.
 docs/plan/tasks/ENC-002-tooling-quality-gates.md — задача налаштування TypeScript, lint, format, test і CI quality gates.
 docs/plan/tasks/ENC-003-fixture-infrastructure.md — задача створення інфраструктури fixtures і helper APIs для поведінкових тестів.

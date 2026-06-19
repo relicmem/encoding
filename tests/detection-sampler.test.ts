@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { createDetectionSampler, detectEncoding } from "../src/index.js";
+import { detectEncoding } from "../src/index.js";
+import { createDetectionSampler } from "../src/stream/DetectionSampler.js";
 
 describe("DetectionSampler", () => {
   it("collects a bounded sample without losing original buffered chunk boundaries", () => {

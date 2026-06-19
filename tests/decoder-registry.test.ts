@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { DecoderRegistry, EncodingError } from "../src/index.js";
+import { EncodingError } from "../src/index.js";
 import type {
   DecodeDocumentOptions,
   DecoderBackend,
   DecoderBackendName,
   RmemEncodingName,
-  SelectDecoderBackendOptions,
 } from "../src/index.js";
+import { DecoderRegistry } from "../src/decoder/DecoderRegistry.js";
+import type { SelectDecoderBackendOptions } from "../src/decoder/DecoderRegistry.js";
 import { normalizeDecodeDocumentOptions } from "../src/encoding/OptionsNormalization.js";
 
 describe("decoder backend registry", () => {

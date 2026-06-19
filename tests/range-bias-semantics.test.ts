@@ -10,7 +10,7 @@ import {
   resolveOffsetByBias,
   validateSourceByteRange,
   validateTextRange,
-} from "../src/index.js";
+} from "../src/source/ranges.js";
 
 describe("range and bias semantics", () => {
   it("normalizes undefined ranges to full half-open bounds", () => {

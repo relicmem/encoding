@@ -1,13 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  EncodingError,
-  RMEM_PROFILE,
-  STRICT_UTF8_PROFILE,
-  detectUtf16,
-  normalizeEncodingLabel,
-  tryDetectUtf16,
-} from "../src/index.js";
+import { EncodingError, normalizeEncodingLabel } from "../src/index.js";
+import { detectUtf16, tryDetectUtf16 } from "../src/detector/Utf16Detector.js";
+import { RMEM_PROFILE, STRICT_UTF8_PROFILE } from "../src/profile/EncodingProfiles.js";
 
 describe("UTF-16 detector", () => {
   it.each([

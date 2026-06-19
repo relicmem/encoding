@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { createSourceBuffer, createSourceBufferFromChunks } from "../src/index.js";
+import { createSourceBuffer, createSourceBufferFromChunks } from "../src/source/SourceBuffer.js";
 
 describe("SourceBuffer", () => {
   it("owns a copy of Uint8Array input without dropping BOM or invalid bytes", () => {

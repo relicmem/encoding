@@ -78,12 +78,12 @@
 - [x] [ENC-041](tasks/ENC-041-source-map-line-tests.md) — покрити `OffsetMap` і `LineIndex` тестами. Виконано: додано behavior-level suite для fixture key ranges, двостороннього byte/text mapping, `LineIndex`, collapsed BOM boundary bias, replacement і synthetic segments, mixed line endings та UTF-8 bias позиціонування.
 - [x] [ENC-042](tasks/ENC-042-decoder-policy-error-tests.md) — покрити decoder policies, warnings і errors тестами. Виконано: додано behavior-level suite для fatal UTF-8/UTF-16 без partial document, replace policy з warning ranges/replacement segments, backend substitution, exact source map unavailable, unsupported labels/backend selection і англомовних runtime diagnostics; `check` проходить.
 - [x] [ENC-043](tasks/ENC-043-stream-input-tests.md) — покрити stream та async input сценарії. Виконано: додано behavior-level suite для `AsyncIterable`, `ReadableStream`, pre/post-detection `createDecodingStream.write`, split UTF-8/UTF-16/CRLF, fatal і replace finalization incomplete sequence; вузький suite і повний `check` проходять.
-- [ ] [ENC-044](tasks/ENC-044-public-docs-examples.md) — підготувати public usage docs і integration examples.
-- [ ] [ENC-045](tasks/ENC-045-release-readiness.md) — перевірити package quality, exports, CI і release readiness.
+- [x] [ENC-044](tasks/ENC-044-public-docs-examples.md) — підготувати public usage docs і integration examples. Виконано: додано компактний root `README.md`, структуровану публічну документацію в `documentation/`, монолітний agent reference і behavior/type tests для public docs examples.
+- [x] [ENC-045](tasks/ENC-045-release-readiness.md) — перевірити package quality, exports, CI і release readiness. Виконано: root public API звужено до documented entrypoint surface без internal detector/decoder/source exports, додано package release-readiness guard для exports/package metadata/dependency footprint, підготовлено `documentation/release-notes-v1.md`, підтверджено `npm run check`, `npm pack --dry-run`, dist import smoke і install/type-declaration smoke з локального tarball.
 
 ## E09. Інфраструктура автоматизації релізів
 
-- [ ] [ENC-046](tasks/ENC-046-release-automation-infrastructure.md) — розгорнути інфраструктуру автоматизації релізів.
+- [x] [ENC-046](tasks/ENC-046-release-automation-infrastructure.md) — розгорнути інфраструктуру автоматизації релізів. Виконано: додано npm release scripts для input guard, package dry-run, verified tarball і guarded publish; додано manual GitHub Actions workflow з preview/publish режимами, protected `npm-release` environment, npm provenance permissions і artifact preview; задокументовано version/tag policy, secrets, branch policy, release notes source і recovery steps.
 
 ## E98. Відладка та багфікси
 

@@ -1,16 +1,14 @@
 import { describe, expect, it } from "vitest";
 
+import { EncodingError, normalizeEncodingLabel } from "../src/index.js";
+import type { RmemEncodingName } from "../src/index.js";
+import { detectLegacyEncoding, tryDetectLegacyEncoding } from "../src/detector/LegacyDetector.js";
 import {
-  EncodingError,
   LEGACY_CYRILLIC_PROFILE,
   RMEM_PROFILE,
   STRICT_UTF8_PROFILE,
   WEB_COMPAT_PROFILE,
-  detectLegacyEncoding,
-  normalizeEncodingLabel,
-  tryDetectLegacyEncoding,
-} from "../src/index.js";
-import type { RmemEncodingName } from "../src/index.js";
+} from "../src/profile/EncodingProfiles.js";
 
 const CYRILLIC_FIXTURES = Object.freeze([
   {

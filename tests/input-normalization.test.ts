@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 
+import type { SyncEncodingInput } from "../src/index.js";
 import {
   normalizeEncodingInput,
   normalizeEncodingInputSync,
   type NormalizedByteInput,
   type NormalizedEncodingInput,
-} from "../src/index.js";
-import type { SyncEncodingInput } from "../src/index.js";
+} from "../src/source/InputNormalization.js";
 
 describe("input normalization", () => {
   it("normalizes Uint8Array and ArrayBuffer inputs without sharing mutable bytes", () => {

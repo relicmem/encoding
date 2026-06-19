@@ -1,13 +1,13 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 
+import { decodeDocumentSync } from "../src/index.js";
+import type { DecodedDocument, EncodingProfile, RmemEncodingName } from "../src/index.js";
 import {
   ASCII_COMPATIBLE_ENCODINGS,
   BUILT_IN_ENCODING_PROFILES,
   RMEM_PROFILE,
   SINGLE_BYTE_ENCODINGS,
-  decodeDocumentSync,
-} from "../src/index.js";
-import type { DecodedDocument, EncodingProfile, RmemEncodingName } from "../src/index.js";
+} from "../src/profile/EncodingProfiles.js";
 
 type ParserIntegrationMode = "native-byte-safe" | "transcode-compatibility";
 

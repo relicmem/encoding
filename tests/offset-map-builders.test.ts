@@ -7,7 +7,7 @@ import {
   buildUtf16BeOffsetMap,
   buildUtf16LeOffsetMap,
   buildUtf8OffsetMap,
-} from "../src/index.js";
+} from "../src/source/OffsetMapBuilder.js";
 import type { RmemEncodingName } from "../src/index.js";
 
 const SINGLE_BYTE_ENCODINGS = [
