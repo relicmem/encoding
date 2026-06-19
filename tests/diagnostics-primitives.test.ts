@@ -113,6 +113,8 @@ describe("diagnostics primitives", () => {
 
   it("exports the baseline diagnostic code list", () => {
     expect(ENCODING_DIAGNOSTIC_CODES).toContain("ENCODING_SOURCE_MAP_UNAVAILABLE");
+    expect(ENCODING_DIAGNOSTIC_CODES).toContain("ENCODING_UNMAPPABLE_CHARACTER");
+    expect(ENCODING_DIAGNOSTIC_CODES).toContain("ENCODING_UNMAPPABLE_CHARACTER_REPLACED");
     expect(Object.isFrozen(ENCODING_DIAGNOSTIC_CODES)).toBe(true);
   });
 });

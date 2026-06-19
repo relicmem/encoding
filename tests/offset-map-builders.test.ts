@@ -61,6 +61,57 @@ describe("OffsetMap builders", () => {
     }
   });
 
+  it("handles unmapped single-byte values through fatal and replace policies", () => {
+    const fatal = buildExactOffsetMap(new Uint8Array([0x41, 0x81, 0x42]), {
+      encoding: "windows-1252",
+    });
+
+    expect(fatal.ok).toBe(false);
+    if (fatal.ok) {
+      throw new Error("Expected fatal single-byte invalid sequence.");
+    }
+    expect(fatal.error.code).toBe("ENCODING_INVALID_SEQUENCE");
+    expect(fatal.error.byteRange).toEqual({ start: 1, end: 2 });
+
+    const replaced = buildSingleByteOffsetMap(new Uint8Array([0x41, 0x81, 0x42]), {
+      encoding: "windows-1252",
+      replacementPolicy: "replace",
+      replacementCharacter: "??",
+    });
+
+    expect(replaced.ok).toBe(true);
+    if (!replaced.ok) {
+      throw replaced.error;
+    }
+    expect(replaced.value.textLength).toBe(4);
+    expect(replaced.value.warnings[0]).toMatchObject({
+      code: "ENCODING_INVALID_SEQUENCE_REPLACED",
+      byteRange: { start: 1, end: 2 },
+      textRange: { start: 1, end: 3 },
+      details: {
+        encoding: "windows-1252",
+        reason: "Unmapped single-byte value.",
+      },
+    });
+    expect(replaced.value.segments).toEqual([
+      {
+        byteRange: { start: 0, end: 1 },
+        textRange: { start: 0, end: 1 },
+        kind: "identity",
+      },
+      {
+        byteRange: { start: 1, end: 2 },
+        textRange: { start: 1, end: 3 },
+        kind: "replacement",
+      },
+      {
+        byteRange: { start: 2, end: 3 },
+        textRange: { start: 3, end: 4 },
+        kind: "identity",
+      },
+    ]);
+  });
+
   it("builds UTF-8 maps with BOM, ASCII identity and multibyte encoded segments", () => {
     const bytes = new Uint8Array([0xef, 0xbb, 0xbf, 0x41, 0xd0, 0x96, 0xf0, 0x9f, 0x98, 0x80]);
     const result = buildUtf8OffsetMap(bytes);

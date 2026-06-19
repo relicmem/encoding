@@ -1,13 +1,19 @@
 import type { ReplacementPolicy, RmemEncodingName } from "../contracts/encoding.js";
 import {
   createEncodingError,
-  createEncodingWarning,
   encodingFailure,
   encodingSuccess,
   freezeEncodingWarnings,
 } from "../contracts/diagnostics.js";
 import type { EncodingFailure, EncodingResult, EncodingWarning } from "../contracts/diagnostics.js";
 import type { OffsetMap, OffsetMapSegment, OffsetMapSegmentKind } from "../contracts/source.js";
+import {
+  DEFAULT_DECODING_REPLACEMENT_CHARACTER,
+  createInvalidSequenceError,
+  createInvalidSequenceReplacementWarning,
+} from "../encoding/ControlledDecodingPolicy.js";
+import { decodeSingleByteCodePoint, isSingleByteEncoding } from "../encoding/SingleByteEncoding.js";
+import type { SingleByteEncodingName } from "../encoding/SingleByteEncoding.js";
 import { createOffsetMap } from "./OffsetMap.js";
 import { validateSourceByteRange } from "./ranges.js";
 
@@ -25,6 +31,10 @@ export interface ExactOffsetMapBuilderOptions extends OffsetMapBuilderOptions {
 
 export interface Utf16OffsetMapBuilderOptions extends OffsetMapBuilderOptions {
   readonly byteOrder: Utf16ByteOrder;
+}
+
+export interface SingleByteOffsetMapBuilderOptions extends OffsetMapBuilderOptions {
+  readonly encoding?: SingleByteEncodingName;
 }
 
 export interface OffsetMapBuildResult {
@@ -64,7 +74,6 @@ interface Utf8Sequence {
   readonly textLength: number;
 }
 
-const DEFAULT_REPLACEMENT_CHARACTER = "\uFFFD";
 const UTF8_ENCODER = new TextEncoder();
 
 export function buildExactOffsetMap(
@@ -86,7 +95,7 @@ export function buildExactOffsetMap(
     case "iso-8859-5":
     case "koi8-r":
     case "cp866":
-      return buildSingleByteOffsetMap(bytes, options);
+      return buildSingleByteOffsetMap(bytes, { ...options, encoding: options.encoding });
     default:
       return unsupportedEncodingFailure(options.encoding);
   }
@@ -132,12 +141,39 @@ export function buildSyntheticUtf8StringOffsetMap(
 
 export function buildSingleByteOffsetMap(
   bytes: Uint8Array,
-  options: OffsetMapBuilderOptions = {},
+  options: SingleByteOffsetMapBuilderOptions = {},
 ): EncodingResult<OffsetMapBuildResult> {
   assertByteInput(bytes);
-  normalizeBuilderOptions(options);
 
-  return encodingSuccess(buildIdentityOffsetMap(bytes.byteLength));
+  const encoding = normalizeSingleByteEncoding(options.encoding);
+  const context = createBuildContext(encoding, options);
+  let byteOffset = 0;
+
+  while (byteOffset < bytes.byteLength) {
+    const byte = readByte(bytes, byteOffset);
+    const codePoint = decodeSingleByteCodePoint(byte, encoding);
+
+    if (codePoint === undefined) {
+      const invalid = {
+        byteStart: byteOffset,
+        byteEnd: byteOffset + 1,
+        reason: "Unmapped single-byte value.",
+      };
+      const handled = handleInvalidSequence(context, invalid);
+      if (!handled.ok) {
+        return handled;
+      }
+
+      byteOffset = invalid.byteEnd;
+      continue;
+    }
+
+    context.segments.add("identity", byteOffset, byteOffset + 1, context.textOffset, 1);
+    context.textOffset += 1;
+    byteOffset += 1;
+  }
+
+  return encodingSuccess(finishContext(context, 0));
 }
 
 export function buildUtf8OffsetMap(
@@ -364,8 +400,26 @@ function normalizeBuilderOptions(options: OffsetMapBuilderOptions): NormalizedBu
   return {
     stripBom: options.stripBom ?? true,
     replacementPolicy: options.replacementPolicy ?? "fatal",
-    replacementCharacter: options.replacementCharacter ?? DEFAULT_REPLACEMENT_CHARACTER,
+    replacementCharacter: options.replacementCharacter ?? DEFAULT_DECODING_REPLACEMENT_CHARACTER,
   };
+}
+
+function normalizeSingleByteEncoding(encoding: unknown): SingleByteEncodingName {
+  if (encoding === undefined) {
+    return "iso-8859-1";
+  }
+
+  if (!isSingleByteEncoding(encoding)) {
+    throw createEncodingError({
+      code: "ENCODING_UNSUPPORTED_ENCODING",
+      message: "Unsupported single-byte encoding.",
+      details: {
+        encoding,
+      },
+    });
+  }
+
+  return encoding;
 }
 
 function appendBomSegment(context: BuildContext, bomLength: number, hasBom: boolean): void {
@@ -389,14 +443,10 @@ function handleInvalidSequence(
 
   if (context.options.replacementPolicy === "fatal") {
     return encodingFailure(
-      createEncodingError({
-        code: "ENCODING_INVALID_SEQUENCE",
-        message: "Invalid byte sequence.",
+      createInvalidSequenceError({
+        encoding: context.encoding,
+        reason: invalid.reason,
         byteRange,
-        details: {
-          encoding: context.encoding,
-          reason: invalid.reason,
-        },
       }),
     );
   }
@@ -414,15 +464,12 @@ function handleInvalidSequence(
     context.options.replacementCharacter.length,
   );
   context.warnings.push(
-    createEncodingWarning({
-      code: "ENCODING_INVALID_SEQUENCE_REPLACED",
-      message: "Invalid byte sequence was replaced.",
+    createInvalidSequenceReplacementWarning({
+      encoding: context.encoding,
+      reason: invalid.reason,
       byteRange,
       textRange,
-      details: {
-        encoding: context.encoding,
-        reason: invalid.reason,
-      },
+      replacementCharacter: context.options.replacementCharacter,
     }),
   );
   context.textOffset = textRange.end;

@@ -46,15 +46,15 @@
 
 - [x] [ENC-023](tasks/ENC-023-backend-contract-registry.md) — реалізувати decoder backend contract і registry. Виконано: додано runtime `DecoderRegistry` з immutable backend info snapshots, deterministic selection за `backendPreference`, capability checks для `canDecode` і `exactSourceMap`, structured `ENCODING_BACKEND_SUBSTITUTION` warnings та fatal errors для unsupported encoding/source map unavailable.
 - [x] [ENC-024](tasks/ENC-024-native-unicode-backend.md) — реалізувати exact UTF-8/UTF-16 native backend. Виконано: додано `NativeUnicodeBackend` з власним UTF-8/UTF-16LE/BE decoding поверх exact `OffsetMapBuilder`, structured fatal errors для invalid sequences, replacement warnings/segments, BOM handling, sourceMap `none` suppression і focused tests; `check` проходить.
-- [ ] [ENC-025](tasks/ENC-025-single-byte-backend.md) — реалізувати exact single-byte legacy backend.
-- [ ] [ENC-026](tasks/ENC-026-external-backend-adapters.md) — інтегрувати optional external decoder backends.
-- [ ] [ENC-027](tasks/ENC-027-controlled-decoding-policy.md) — реалізувати fatal/replace decoding policy і backend warnings.
-- [ ] [ENC-028](tasks/ENC-028-backend-encode-support.md) — реалізувати encode support у backend layer.
+- [x] [ENC-025](tasks/ENC-025-single-byte-backend.md) — реалізувати exact single-byte legacy backend. Виконано: додано shared mapping tables для `windows-1251`, `windows-1252`, `iso-8859-1`, `iso-8859-5`, `koi8-r` і `cp866`; native exact backend декодує single-byte v1 з one-byte source ranges, fatal/replace політикою для unmapped bytes і smoke tests; `check` проходить.
+- [x] [ENC-026](tasks/ENC-026-external-backend-adapters.md) — інтегрувати optional external decoder backends. Виконано: додано zero-dependency `TextDecoder` adapter і injected `iconv-lite` adapter без обов'язкових runtime dependencies; обидва чесно позначають `exactSourceMap: false`, захищають direct decode від source map requests, підтримують version metadata і покриті focused tests для substitution та unsupported capability; `check` проходить.
+- [x] [ENC-027](tasks/ENC-027-controlled-decoding-policy.md) — реалізувати fatal/replace decoding policy і backend warnings. Виконано: додано shared controlled decoding policy helper для default `fatal`/`"\uFFFD"` і invalid-sequence diagnostics; native backend позначає replacement warnings backend metadata, external adapters проходять native preflight для fatal/replace ranges і відмовляються від replacement output, який не відповідає контрольованому результату; focused tests додано.
+- [x] [ENC-028](tasks/ENC-028-backend-encode-support.md) — реалізувати encode support у backend layer. Виконано: додано controlled encode policy з diagnostics для unmappable characters, native backend кодує UTF-8, UTF-16LE/BE і всі v1 single-byte tables, `canEncode` відображає capabilities, fatal/replace поведінка покрита focused tests; unsupported character behavior задокументовано в `docs/SPEC.md`.
 
 ## E06. High-level decode API
 
-- [ ] [ENC-029](tasks/ENC-029-input-normalization.md) — реалізувати input normalization для bytes, buffers, iterables і streams.
-- [ ] [ENC-030](tasks/ENC-030-sync-decode-pipeline.md) — реалізувати `decodeDocumentSync`.
+- [x] [ENC-029](tasks/ENC-029-input-normalization.md) — реалізувати input normalization для bytes, buffers, iterables і streams. Виконано: додано sync/async нормалізатор для `string`, `Uint8Array`, `ArrayBuffer`, sync/async iterables і `ReadableStream`; byte-input зберігає immutable `SourceBuffer`, chunk boundaries, bounded samples без декодування, defensive copies і runtime validation для async-only sync input, invalid chunks та chunkless iterables.
+- [x] [ENC-030](tasks/ENC-030-sync-decode-pipeline.md) — реалізувати `decodeDocumentSync`. Виконано: додано sync high-level pipeline для string/bytes/ArrayBuffer/iterable inputs, normalizer-driven options, detection, backend selection, controlled decode, `OffsetMap`/`LineIndex` assembly, stable warnings merge і focused tests для fatal станів та `sourceMap` режимів.
 - [ ] [ENC-031](tasks/ENC-031-async-decode-pipeline.md) — реалізувати `decodeDocument`.
 - [ ] [ENC-032](tasks/ENC-032-try-decode-result.md) — реалізувати `tryDecodeDocument`.
 - [ ] [ENC-033](tasks/ENC-033-decoded-document-assembly.md) — складати immutable `DecodedDocument`.

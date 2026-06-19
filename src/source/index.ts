@@ -1,4 +1,15 @@
 export { createLineIndex } from "./LineIndex.js";
+export { normalizeEncodingInput, normalizeEncodingInputSync } from "./InputNormalization.js";
+export type {
+  NormalizedByteInput,
+  NormalizedByteInputKind,
+  NormalizedEncodingInput,
+  NormalizedInputChunk,
+  NormalizedInputKind,
+  NormalizedInputSample,
+  NormalizedInputSourceKind,
+  NormalizedStringInput,
+} from "./InputNormalization.js";
 export {
   buildExactOffsetMap,
   buildIdentityOffsetMap,
@@ -13,6 +24,7 @@ export type {
   ExactOffsetMapBuilderOptions,
   OffsetMapBuilderOptions,
   OffsetMapBuildResult,
+  SingleByteOffsetMapBuilderOptions,
   SyntheticUtf8StringOffsetMapBuildResult,
   Utf16ByteOrder,
   Utf16OffsetMapBuilderOptions,

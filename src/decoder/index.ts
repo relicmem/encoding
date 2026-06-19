@@ -14,3 +14,18 @@ export {
   NativeUnicodeBackend,
   createNativeUnicodeBackend,
 } from "./NativeUnicodeBackend.js";
+export {
+  IconvLiteBackend,
+  TextDecoderBackend,
+  createIconvLiteBackend,
+  createTextDecoderBackend,
+  isTextDecoderBackendAvailable,
+} from "./ExternalDecoderBackends.js";
+export type {
+  IconvLiteBackendOptions,
+  IconvLiteDecodeOptions,
+  IconvLiteLike,
+  TextDecoderBackendOptions,
+  TextDecoderConstructorLike,
+  TextDecoderLike,
+} from "./ExternalDecoderBackends.js";

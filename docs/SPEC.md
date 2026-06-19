@@ -429,6 +429,8 @@ Backend не може бути просто функцією `Uint8Array -> stri
 
 Якщо backend не підтримує exact source map, його можна використовувати тільки при `sourceMap: "none"` або в режимі, де інтегратор явно погодився втратити byte/text mapping. Профіль `rmem` не має приймати такий backend для parser integration.
 
+Encode support у backend layer має бути контрольованим так само, як decoding: `canEncode` чесно відображає підтримані canonical encodings, `replacementPolicy: "fatal"` кидає `ENCODING_UNMAPPABLE_CHARACTER` з `textRange`, а `replacementPolicy: "replace"` повертає bytes із warning `ENCODING_UNMAPPABLE_CHARACTER_REPLACED`. Default replacement character для encode має бути ASCII `?`, щоб він був representable у всіх v1 single-byte encodings.
+
 ## 12. Controlled decoding
 
 Default decoding policy для `rmem` і `strictUtf8`: `replacementPolicy: "fatal"`.
@@ -488,6 +490,8 @@ export interface EncodingError extends Error {
 - `ENCODING_UNSUPPORTED_ENCODING`
 - `ENCODING_INVALID_SEQUENCE`
 - `ENCODING_INVALID_SEQUENCE_REPLACED`
+- `ENCODING_UNMAPPABLE_CHARACTER`
+- `ENCODING_UNMAPPABLE_CHARACTER_REPLACED`
 - `ENCODING_AMBIGUOUS_CANDIDATES`
 - `ENCODING_BACKEND_SUBSTITUTION`
 - `ENCODING_TEXT_INPUT_SYNTHETIC_BYTES`

@@ -10,19 +10,32 @@ import type { BackendDecodeOptions, RmemEncodingName, SourceMapMode } from "../s
 import { normalizeDecodeDocumentOptions } from "../src/encoding/OptionsNormalization.js";
 
 describe("native Unicode backend", () => {
-  it("advertises exact source maps for UTF-8 and UTF-16 decoding only", () => {
+  it("advertises exact source maps for native v1 decoding", () => {
     const backend = createNativeUnicodeBackend();
 
     expect(backend.info).toEqual({
       name: "native",
-      version: "unicode-v1",
+      version: "native-v1",
       exactSourceMap: true,
     });
     expect(backend.canDecode("utf-8")).toBe(true);
     expect(backend.canDecode("utf-16le")).toBe(true);
     expect(backend.canDecode("utf-16be")).toBe(true);
-    expect(backend.canDecode("windows-1251")).toBe(false);
-    expect(backend.canEncode("utf-8")).toBe(false);
+    expect(backend.canDecode("windows-1251")).toBe(true);
+    expect(backend.canDecode("windows-1252")).toBe(true);
+    expect(backend.canDecode("iso-8859-1")).toBe(true);
+    expect(backend.canDecode("iso-8859-5")).toBe(true);
+    expect(backend.canDecode("koi8-r")).toBe(true);
+    expect(backend.canDecode("cp866")).toBe(true);
+    expect(backend.canEncode("utf-8")).toBe(true);
+    expect(backend.canEncode("utf-16le")).toBe(true);
+    expect(backend.canEncode("utf-16be")).toBe(true);
+    expect(backend.canEncode("windows-1251")).toBe(true);
+    expect(backend.canEncode("windows-1252")).toBe(true);
+    expect(backend.canEncode("iso-8859-1")).toBe(true);
+    expect(backend.canEncode("iso-8859-5")).toBe(true);
+    expect(backend.canEncode("koi8-r")).toBe(true);
+    expect(backend.canEncode("cp866")).toBe(true);
     expect(Object.isFrozen(backend)).toBe(true);
     expect(Object.isFrozen(backend.info)).toBe(true);
   });
@@ -40,7 +53,7 @@ describe("native Unicode backend", () => {
     expect(selection.backend).toBe(NATIVE_UNICODE_BACKEND);
     expect(selection.info).toEqual({
       name: "native",
-      version: "unicode-v1",
+      version: "native-v1",
       exactSourceMap: true,
     });
     expect(selection.warnings).toEqual([]);
@@ -164,6 +177,27 @@ describe("native Unicode backend", () => {
     ]);
   });
 
+  it("uses the default replacement character and marks native backend replacement warnings", () => {
+    const result = NATIVE_UNICODE_BACKEND.decode(new Uint8Array([0x41, 0xc3, 0x28]), {
+      encoding: "utf-8",
+      stripBom: true,
+      sourceMap: "exact",
+      replacementPolicy: "replace",
+    } as BackendDecodeOptions);
+
+    expect(result.text).toBe("A\uFFFD(");
+    expect(result.warnings[0]).toMatchObject({
+      code: "ENCODING_INVALID_SEQUENCE_REPLACED",
+      byteRange: { start: 1, end: 2 },
+      textRange: { start: 1, end: 2 },
+      details: {
+        backend: "native",
+        encoding: "utf-8",
+        replacementCharacter: "\uFFFD",
+      },
+    });
+  });
+
   it("decodes UTF-16LE BOM input with surrogate pairs and exact source ranges", () => {
     const result = NATIVE_UNICODE_BACKEND.decode(
       new Uint8Array([0xff, 0xfe, 0x41, 0x00, 0x3d, 0xd8, 0x00, 0xde]),
@@ -270,20 +304,61 @@ describe("native Unicode backend", () => {
     expect(result.offsetMapSegments).toBeUndefined();
   });
 
-  it("does not claim native encode support before the encode task is implemented", () => {
-    expect(() => NATIVE_UNICODE_BACKEND.encode("text", "utf-8")).toThrow(EncodingError);
+  it("encodes UTF-8 and UTF-16 text with canonical v1 bytes", () => {
+    const text = "A\u0416\ud83d\ude00";
+    const utf8 = NATIVE_UNICODE_BACKEND.encode(text, "utf-8");
+    const utf16le = NATIVE_UNICODE_BACKEND.encode(text, "utf-16le");
+    const utf16be = NATIVE_UNICODE_BACKEND.encode(text, "utf-16be");
+
+    expect([...utf8.bytes]).toEqual([0x41, 0xd0, 0x96, 0xf0, 0x9f, 0x98, 0x80]);
+    expect([...utf16le.bytes]).toEqual([0x41, 0x00, 0x16, 0x04, 0x3d, 0xd8, 0x00, 0xde]);
+    expect([...utf16be.bytes]).toEqual([0x00, 0x41, 0x04, 0x16, 0xd8, 0x3d, 0xde, 0x00]);
+    expect(utf8.warnings).toEqual([]);
+    expect(utf16le.warnings).toEqual([]);
+    expect(utf16be.warnings).toEqual([]);
+    expect(NATIVE_UNICODE_BACKEND.decode(utf8.bytes, decodeOptions("utf-8")).text).toBe(text);
+    expect(NATIVE_UNICODE_BACKEND.decode(utf16le.bytes, decodeOptions("utf-16le")).text).toBe(text);
+    expect(NATIVE_UNICODE_BACKEND.decode(utf16be.bytes, decodeOptions("utf-16be")).text).toBe(text);
+    expect(Object.isFrozen(utf8)).toBe(true);
+    expect(Object.isFrozen(utf8.warnings)).toBe(true);
+  });
+
+  it("handles unpaired surrogates during UTF encoding through fatal and replace policies", () => {
+    const input = "A\uD800B";
+
+    expect(() => NATIVE_UNICODE_BACKEND.encode(input, "utf-8")).toThrow(EncodingError);
 
     try {
-      NATIVE_UNICODE_BACKEND.encode("text", "utf-8");
-      throw new Error("Expected native encode support to be unavailable.");
+      NATIVE_UNICODE_BACKEND.encode(input, "utf-8");
+      throw new Error("Expected fatal UTF encode failure.");
     } catch (error) {
       expect(error).toBeInstanceOf(EncodingError);
-      expect((error as EncodingError).code).toBe("ENCODING_UNSUPPORTED_ENCODING");
+      expect((error as EncodingError).code).toBe("ENCODING_UNMAPPABLE_CHARACTER");
+      expect((error as EncodingError).textRange).toEqual({ start: 1, end: 2 });
       expect((error as EncodingError).details).toMatchObject({
         backend: "native",
         encoding: "utf-8",
+        codePoint: "U+D800",
+        reason: "Unpaired UTF-16 high surrogate.",
       });
     }
+
+    const replaced = NATIVE_UNICODE_BACKEND.encode(input, "utf-16le", {
+      replacementPolicy: "replace",
+    });
+
+    expect([...replaced.bytes]).toEqual([0x41, 0x00, 0x3f, 0x00, 0x42, 0x00]);
+    expect(replaced.warnings).toHaveLength(1);
+    expect(replaced.warnings[0]).toMatchObject({
+      code: "ENCODING_UNMAPPABLE_CHARACTER_REPLACED",
+      textRange: { start: 1, end: 2 },
+      details: {
+        backend: "native",
+        encoding: "utf-16le",
+        codePoint: "U+D800",
+        replacementCharacter: "?",
+      },
+    });
   });
 });
 
