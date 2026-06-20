@@ -11,5 +11,5 @@ export async function decodeDocument(
   const normalizedOptions = normalizeDecodeDocumentOptions(options);
   const normalizedInput = await normalizeEncodingInput(input);
 
-  return decodeNormalizedDocument(normalizedInput, normalizedOptions, options);
+  return decodeNormalizedDocument(normalizedInput, normalizedOptions);
 }

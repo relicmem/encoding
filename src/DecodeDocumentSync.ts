@@ -11,5 +11,5 @@ export function decodeDocumentSync(
   const normalizedOptions = normalizeDecodeDocumentOptions(options);
   const normalizedInput = normalizeEncodingInputSync(input);
 
-  return decodeNormalizedDocument(normalizedInput, normalizedOptions, options);
+  return decodeNormalizedDocument(normalizedInput, normalizedOptions);
 }

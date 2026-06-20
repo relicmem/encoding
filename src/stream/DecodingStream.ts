@@ -29,7 +29,7 @@ import { createDecodedDocument } from "../source/DecodedDocument.js";
 import { createOffsetMap } from "../source/OffsetMap.js";
 import { createSourceBufferFromChunks } from "../source/SourceBuffer.js";
 import {
-  createDetectionSampler,
+  createDetectionSamplerFromNormalizedOptions,
   type DetectionSampler,
   type DetectionSamplerChunk,
 } from "./DetectionSampler.js";
@@ -61,7 +61,7 @@ export class DecodingStream implements DecodingStreamContract {
 
   constructor(options?: DecodeDocumentOptions) {
     this.#normalizedOptions = normalizeDecodeDocumentOptions(options);
-    this.#sampler = createDetectionSampler(options);
+    this.#sampler = createDetectionSamplerFromNormalizedOptions(this.#normalizedOptions);
 
     Object.freeze(this);
   }

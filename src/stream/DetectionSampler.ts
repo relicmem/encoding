@@ -1,7 +1,7 @@
 import type { EncodingDetectionResult } from "../contracts/detection.js";
 import type { DecodeDocumentOptions } from "../contracts/encoding.js";
 import type { SourceByteRange } from "../contracts/source.js";
-import { detectCompositeEncoding } from "../detector/CompositeDetector.js";
+import { detectNormalizedCompositeEncoding } from "../detector/CompositeDetector.js";
 import {
   normalizeDecodeDocumentOptions,
   type NormalizedDecodeDocumentOptions,
@@ -45,7 +45,6 @@ const UTF_BOM_PATTERNS = Object.freeze([
 ] as const);
 
 export class DetectionSampler {
-  readonly #options: DecodeDocumentOptions | undefined;
   readonly #normalizedOptions: NormalizedDecodeDocumentOptions;
   readonly #chunks: OwnedSamplerChunk[] = [];
   readonly #sampleChunks: OwnedSamplerChunk[] = [];
@@ -54,9 +53,8 @@ export class DetectionSampler {
   #detection: EncodingDetectionResult | undefined;
   #finished = false;
 
-  constructor(options?: DecodeDocumentOptions) {
-    this.#options = options;
-    this.#normalizedOptions = normalizeDecodeDocumentOptions(options);
+  constructor(normalizedOptions: NormalizedDecodeDocumentOptions) {
+    this.#normalizedOptions = normalizedOptions;
 
     Object.freeze(this);
   }
@@ -182,7 +180,7 @@ export class DetectionSampler {
   }
 
   #commitDetectionFromSample(sampleBytes: Uint8Array): void {
-    this.#detection = detectCompositeEncoding(sampleBytes, this.#options);
+    this.#detection = detectNormalizedCompositeEncoding(sampleBytes, this.#normalizedOptions);
   }
 
   #assertOpen(): void {
@@ -193,6 +191,12 @@ export class DetectionSampler {
 }
 
 export function createDetectionSampler(options?: DecodeDocumentOptions): DetectionSampler {
+  return new DetectionSampler(normalizeDecodeDocumentOptions(options));
+}
+
+export function createDetectionSamplerFromNormalizedOptions(
+  options: NormalizedDecodeDocumentOptions,
+): DetectionSampler {
   return new DetectionSampler(options);
 }
 

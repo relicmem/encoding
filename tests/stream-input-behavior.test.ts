@@ -11,6 +11,7 @@ import type {
   DecodedDocument,
   DecodeDocumentOptions,
   EncodingWarning,
+  RmemEncodingName,
 } from "../src/index.js";
 import { loadFixture } from "./support/fixtures.js";
 
@@ -182,6 +183,23 @@ describe("stream and async input behavior", () => {
       },
     });
   });
+
+  it("keeps an immutable options snapshot after stream construction", () => {
+    const allowedEncodings: RmemEncodingName[] = ["utf-8"];
+    const options: MutableDecodeDocumentOptions = {
+      profile: "strictUtf8",
+      allowedEncodings,
+      replacementPolicy: "fatal",
+      sampleSizeBytes: 2,
+    };
+    const stream = createDecodingStream(options);
+
+    options.profile = "legacyCyrillic";
+    options.replacementPolicy = "replace";
+    allowedEncodings.push("windows-1251");
+
+    expect(() => stream.write(new Uint8Array([0xc3, 0x28]))).toThrow(EncodingError);
+  });
 });
 
 async function* createAsyncChunks(chunks: readonly Uint8Array[]): AsyncIterable<Uint8Array> {
@@ -286,3 +304,7 @@ function assertDocumentsEquivalent(actual: DecodedDocument, expected: DecodedDoc
 function warningCodes(warnings: readonly EncodingWarning[]): readonly string[] {
   return warnings.map((warning) => warning.code);
 }
+
+type MutableDecodeDocumentOptions = {
+  -readonly [Key in keyof DecodeDocumentOptions]: DecodeDocumentOptions[Key];
+};

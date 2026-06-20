@@ -59,3 +59,9 @@ docs/plan/tasks/ENC-043-stream-input-tests.md — задача покриття 
 docs/plan/tasks/ENC-044-public-docs-examples.md — задача підготовки public usage docs і integration examples.
 docs/plan/tasks/ENC-045-release-readiness.md — задача перевірки package quality, exports, CI і release readiness.
 docs/plan/tasks/ENC-046-release-automation-infrastructure.md — задача розгортання інфраструктури автоматизації релізів.
+docs/plan/tasks/ENC-047-immutable-options-snapshot.md — багфікс immutable options snapshot для detection pipeline і захисту profile policy від mutation caller-owned options.
+docs/plan/tasks/ENC-048-preserve-fatal-error-warnings.md — багфікс збереження detection/backend warnings у fatal `EncodingError`.
+docs/plan/tasks/ENC-049-stream-backend-warning-propagation.md — багфікс propagation backend warnings у `DecodingStream.end`, empty stream і finalization paths.
+docs/plan/tasks/ENC-050-webcompat-default-backend-noise.md — багфікс noisy backend substitution warnings у default `webCompat` happy path.
+docs/plan/tasks/ENC-051-empty-iterable-input.md — багфікс поведінки empty iterable, async iterable і readable stream byte input.
+docs/plan/tasks/ENC-052-truncated-sample-confidence.md — багфікс confidence/warning policy для detection за truncated sample.

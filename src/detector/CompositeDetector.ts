@@ -51,6 +51,16 @@ export function detectCompositeEncoding(
   assertByteInput(input);
 
   const normalizedOptions = normalizeDetectEncodingOptions(options);
+
+  return detectNormalizedCompositeEncoding(input, normalizedOptions);
+}
+
+export function detectNormalizedCompositeEncoding(
+  input: Uint8Array,
+  normalizedOptions: NormalizedDetectEncodingOptions,
+): EncodingDetectionResult {
+  assertByteInput(input);
+
   const sample = createCompositeDetectionInputSample(input, normalizedOptions.sampleSizeBytes);
   const explicitCandidate = createExplicitCandidate(normalizedOptions.explicitEncoding);
   const bomResult = detectByteOrderMark(sample.bytes, {

@@ -4,7 +4,6 @@ import type {
   DecoderBackendInfo,
 } from "./contracts/backend.js";
 import { createEncodingError } from "./contracts/diagnostics.js";
-import type { DecodeDocumentOptions } from "./contracts/encoding.js";
 import type { EncodingDetectionResult } from "./contracts/detection.js";
 import type { DecodedDocument } from "./contracts/document.js";
 import type { OffsetMap, OffsetMapSegment } from "./contracts/source.js";
@@ -15,7 +14,7 @@ import {
   isTextDecoderBackendAvailable,
 } from "./decoder/index.js";
 import type { DecoderBackendSelection } from "./decoder/index.js";
-import { detectCompositeEncoding } from "./detector/CompositeDetector.js";
+import { detectNormalizedCompositeEncoding } from "./detector/CompositeDetector.js";
 import type { NormalizedDecodeDocumentOptions } from "./encoding/OptionsNormalization.js";
 import { createDecodedDocument } from "./source/DecodedDocument.js";
 import { createDecodedStringDocument, createOffsetMap } from "./source/index.js";
@@ -30,13 +29,12 @@ export const DEFAULT_DECODER_REGISTRY = createDecoderRegistry(createDefaultDecod
 export function decodeNormalizedDocument(
   input: NormalizedEncodingInput,
   options: NormalizedDecodeDocumentOptions,
-  originalOptions: DecodeDocumentOptions | undefined,
 ): DecodedDocument {
   if (input.kind === "string") {
     return decodeStringInput(input, options);
   }
 
-  return decodeByteInput(input, options, originalOptions);
+  return decodeByteInput(input, options);
 }
 
 function decodeStringInput(
@@ -54,11 +52,10 @@ function decodeStringInput(
 function decodeByteInput(
   input: NormalizedByteInput,
   options: NormalizedDecodeDocumentOptions,
-  originalOptions: DecodeDocumentOptions | undefined,
 ): DecodedDocument {
   const source = input.source;
   const bytes = source.bytes;
-  const detection = detectCompositeEncoding(bytes, originalOptions);
+  const detection = detectNormalizedCompositeEncoding(bytes, options);
   const backendSelection = selectDocumentDecoderBackend(detection, options);
   const backendResult = backendSelection.backend.decode(bytes, {
     encoding: detection.encoding,

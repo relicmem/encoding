@@ -18,9 +18,7 @@ export async function tryDecodeDocument(
   const normalizedInput = await normalizeEncodingInput(input);
 
   try {
-    return encodingSuccess(
-      decodeNormalizedDocument(normalizedInput, normalizedOptions.value, options),
-    );
+    return encodingSuccess(decodeNormalizedDocument(normalizedInput, normalizedOptions.value));
   } catch (error) {
     return encodingFailureOrRethrow(error);
   }

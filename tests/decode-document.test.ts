@@ -1,7 +1,11 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 
 import { EncodingError, decodeDocument, decodeDocumentSync } from "../src/index.js";
-import type { DecodeDocumentFunction } from "../src/index.js";
+import type {
+  DecodeDocumentFunction,
+  DecodeDocumentOptions,
+  RmemEncodingName,
+} from "../src/index.js";
 
 describe("decodeDocument", () => {
   it("exports the asynchronous high-level decode pipeline with the public contract signature", () => {
@@ -60,6 +64,23 @@ describe("decodeDocument", () => {
     expect(asyncDocument.warnings).toEqual(syncDocument.warnings);
   });
 
+  it("keeps an immutable options snapshot while collecting async iterable chunks", async () => {
+    const allowedEncodings: RmemEncodingName[] = ["utf-8"];
+    const options: MutableDecodeDocumentOptions = {
+      profile: "strictUtf8",
+      allowedEncodings,
+      replacementPolicy: "fatal",
+    };
+
+    try {
+      await decodeDocument(createMutatingAsyncChunks(options, allowedEncodings), options);
+      throw new Error("Expected strict UTF-8 detection to fail.");
+    } catch (error) {
+      expect(error).toBeInstanceOf(EncodingError);
+      expect((error as EncodingError).code).toBe("ENCODING_INVALID_SEQUENCE");
+    }
+  });
+
   it("surfaces fatal decoding states as EncodingError rejections", async () => {
     await expect(
       decodeDocument(createAsyncChunks(new Uint8Array([0xc3, 0x28])), {
@@ -108,3 +129,20 @@ function createReadableStream(...chunks: readonly Uint8Array[]): ReadableStream<
     },
   });
 }
+
+async function* createMutatingAsyncChunks(
+  options: MutableDecodeDocumentOptions,
+  allowedEncodings: RmemEncodingName[],
+): AsyncIterable<Uint8Array> {
+  await Promise.resolve();
+
+  options.profile = "legacyCyrillic";
+  options.replacementPolicy = "replace";
+  allowedEncodings.push("windows-1251");
+
+  yield new Uint8Array([0xc3, 0x28]);
+}
+
+type MutableDecodeDocumentOptions = {
+  -readonly [Key in keyof DecodeDocumentOptions]: DecodeDocumentOptions[Key];
+};

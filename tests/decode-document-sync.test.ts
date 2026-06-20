@@ -1,7 +1,11 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 
 import { EncodingError, decodeDocumentSync } from "../src/index.js";
-import type { DecodeDocumentSyncFunction } from "../src/index.js";
+import type {
+  DecodeDocumentOptions,
+  DecodeDocumentSyncFunction,
+  RmemEncodingName,
+} from "../src/index.js";
 
 describe("decodeDocumentSync", () => {
   it("exports the synchronous high-level decode pipeline with the public contract signature", () => {
@@ -83,6 +87,32 @@ describe("decodeDocumentSync", () => {
     );
   });
 
+  it("keeps an immutable options snapshot while collecting sync iterable chunks", () => {
+    const allowedEncodings: RmemEncodingName[] = ["utf-8"];
+    const options: MutableDecodeDocumentOptions = {
+      profile: "strictUtf8",
+      allowedEncodings,
+      replacementPolicy: "fatal",
+    };
+    const chunks: Iterable<Uint8Array> = {
+      *[Symbol.iterator]() {
+        options.profile = "legacyCyrillic";
+        options.replacementPolicy = "replace";
+        allowedEncodings.push("windows-1251");
+
+        yield invalidUtf8Bytes();
+      },
+    };
+
+    try {
+      decodeDocumentSync(chunks, options);
+      throw new Error("Expected strict UTF-8 detection to fail.");
+    } catch (error) {
+      expect(error).toBeInstanceOf(EncodingError);
+      expect((error as EncodingError).code).toBe("ENCODING_INVALID_SEQUENCE");
+    }
+  });
+
   it("merges detection, backend-selection and decoder warnings in stable order", () => {
     const document = decodeDocumentSync(new Uint8Array([0xef, 0xbb, 0xbf, 0xc3, 0x28]), {
       profile: "webCompat",
@@ -156,3 +186,11 @@ describe("decodeDocumentSync", () => {
     expect(() => decodeDocumentSync(asyncOnlyInput as never)).toThrow(TypeError);
   });
 });
+
+type MutableDecodeDocumentOptions = {
+  -readonly [Key in keyof DecodeDocumentOptions]: DecodeDocumentOptions[Key];
+};
+
+function invalidUtf8Bytes(): Uint8Array {
+  return new Uint8Array([0xc3, 0x28]);
+}

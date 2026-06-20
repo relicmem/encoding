@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { detectEncoding } from "../src/index.js";
+import { EncodingError, detectEncoding } from "../src/index.js";
+import type { DecodeDocumentOptions, RmemEncodingName } from "../src/index.js";
 import { createDetectionSampler } from "../src/stream/DetectionSampler.js";
 
 describe("DetectionSampler", () => {
@@ -159,6 +160,23 @@ describe("DetectionSampler", () => {
     expect(() => sampler.write(new Uint8Array([0x21]))).toThrow(RangeError);
   });
 
+  it("keeps an immutable options snapshot after sampler construction", () => {
+    const allowedEncodings: RmemEncodingName[] = ["utf-8"];
+    const options: MutableDecodeDocumentOptions = {
+      profile: "strictUtf8",
+      allowedEncodings,
+      replacementPolicy: "fatal",
+      sampleSizeBytes: 2,
+    };
+    const sampler = createDetectionSampler(options);
+
+    options.profile = "legacyCyrillic";
+    options.replacementPolicy = "replace";
+    allowedEncodings.push("windows-1251");
+
+    expect(() => sampler.write(new Uint8Array([0xc3, 0x28]))).toThrow(EncodingError);
+  });
+
   it("returns defensive snapshots for buffered chunks and samples", () => {
     const sampler = createDetectionSampler({ sampleSizeBytes: 1 });
 
@@ -179,3 +197,7 @@ describe("DetectionSampler", () => {
     expect(Object.isFrozen(sampler.sample().chunks)).toBe(true);
   });
 });
+
+type MutableDecodeDocumentOptions = {
+  -readonly [Key in keyof DecodeDocumentOptions]: DecodeDocumentOptions[Key];
+};

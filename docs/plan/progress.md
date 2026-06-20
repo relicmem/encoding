@@ -87,7 +87,12 @@
 
 ## E98. Відладка та багфікси
 
-Поки порожньо. Сюди додаються окремі задачі на відладку і виправлення багів, які виявлені під час реалізації або перевірки, але виходять за межі поточної задачі.
+- [x] [ENC-047](tasks/ENC-047-immutable-options-snapshot.md) — зафіксувати immutable options snapshot для detection pipeline, щоб mutation caller-owned `options` після старту API call не могла змінити profile, allowed encodings або stream detection behavior. Виконано: byte decode pipeline і `DetectionSampler` переведено на normalized snapshot без повторного читання raw options; `createDecodingStream` передає sampler-у той самий snapshot, а regression tests покривають sync iterable, async iterable, `tryDecodeDocument`, sampler і stream mutation scenarios.
+- [ ] [ENC-048](tasks/ENC-048-preserve-fatal-error-warnings.md) — зберігати detection/backend warnings у fatal `EncodingError`, щоб BOM conflicts, backend substitution та інші попередні diagnostics не губилися при невдалому decoding.
+- [ ] [ENC-049](tasks/ENC-049-stream-backend-warning-propagation.md) — виправити propagation backend warnings у `DecodingStream.end()`, включно з empty stream і finalization error paths.
+- [ ] [ENC-050](tasks/ENC-050-webcompat-default-backend-noise.md) — прибрати noisy `ENCODING_BACKEND_SUBSTITUTION` у happy path default `webCompat` decode при exact source map.
+- [ ] [ENC-051](tasks/ENC-051-empty-iterable-input.md) — узгодити empty iterable/async iterable/readable stream input із empty `Uint8Array` та stream `end()` behavior.
+- [ ] [ENC-052](tasks/ENC-052-truncated-sample-confidence.md) — визначити й реалізувати confidence/warning policy для detection, прийнятого за truncated sample.
 
 ## E99. Позапланові задачі
 
