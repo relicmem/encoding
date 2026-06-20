@@ -345,6 +345,13 @@ Detector має бути deterministic. Якщо профіль, allowed encodin
 9. Застосувати fallback default encoding.
 10. Перевірити `minConfidence` і сформувати warnings або fatal result за політикою профілю.
 
+Якщо byte-derived detection (`utf8-validation`, `utf16-heuristic`, `heuristic` або fallback
+після відсутності сильнішого сигналу) приймається за bounded sample, а не за повним input,
+результат має містити warning `ENCODING_TRUNCATED_SAMPLE`. Для таких sample-limited кандидатів
+confidence не може залишатися `1`: значення cap-иться на `0.99`, щоб не видавати перевірку sample
+за повну валідацію документа. Explicit encoding, BOM і metadata не cap-ляться цим правилом, бо
+їхній сигнал не залежить від повного проходу по байтах документа.
+
 Priority rules:
 
 - Explicit encoding має найвищий пріоритет.
@@ -497,6 +504,7 @@ export interface EncodingError extends Error {
 - `ENCODING_TEXT_INPUT_SYNTHETIC_BYTES`
 - `ENCODING_INCOMPLETE_STREAM_SEQUENCE`
 - `ENCODING_SOURCE_MAP_UNAVAILABLE`
+- `ENCODING_TRUNCATED_SAMPLE`
 
 `@rmem/md-parser` має конвертувати fatal `EncodingError` у parser diagnostic phase `encoding`, а warnings - у warning diagnostics без втрати `byteRange` і `details`.
 
@@ -597,7 +605,7 @@ const result = await parser.parse({
 ## 18. Критерії приймання v1
 
 - `decodeDocument` повертає `DecodedDocument` з text, bytes, detection, lineIndex, offsetMap і warnings.
-- UTF-8 без BOM визначається через validation з confidence `1`, якщо bytes валідні і профіль не має сильнішого explicit/BOM signal.
+- UTF-8 без BOM визначається через validation з confidence `1`, якщо повний byte input валідний і профіль не має сильнішого explicit/BOM signal; для truncated sample detection confidence cap-иться і повертається `ENCODING_TRUNCATED_SAMPLE`.
 - UTF-8 BOM, UTF-16LE BOM і UTF-16BE BOM визначаються до heuristic detection.
 - Invalid UTF-8 у `strictUtf8` дає fatal error.
 - `rmem` профіль не вибирає legacy encoding, якщо UTF-8 валідний.

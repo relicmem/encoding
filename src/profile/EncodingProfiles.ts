@@ -138,7 +138,7 @@ export const BUILT_IN_ENCODING_PROFILE_POLICIES: Readonly<
     sourceMap: "exact",
     replacementPolicy: "replace",
     replacementCharacter: DEFAULT_REPLACEMENT_CHARACTER,
-    backendPreference: ["text-decoder", "exodus-bytes", "native", "iconv-lite"],
+    backendPreference: ["native", "text-decoder", "exodus-bytes", "iconv-lite"],
     sampleSizeBytes: DEFAULT_SAMPLE_SIZE_BYTES,
   }),
 });

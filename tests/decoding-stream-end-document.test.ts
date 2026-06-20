@@ -71,6 +71,101 @@ describe("DecodingStream.end", () => {
     expect(document.lineIndex.lineByteRange(2)).toEqual(expected.lineIndex.lineByteRange(2));
   });
 
+  it("keeps backend selection warnings when end creates an empty document", () => {
+    const options = {
+      backendPreference: ["text-decoder", "native"],
+    } as const;
+    const expected = decodeDocumentSync(new Uint8Array(), options);
+    const stream = createDecodingStream(options);
+
+    const document = stream.end();
+
+    expect(document.text).toBe("");
+    expect(document.warnings).toEqual(expected.warnings);
+    expect(warningCodes(document.warnings)).toContain("ENCODING_BACKEND_SUBSTITUTION");
+  });
+
+  it("keeps backend selection warnings when delayed detection is finalized in end", () => {
+    const bytes = new Uint8Array([0x41, 0x42]);
+    const options = {
+      backendPreference: ["text-decoder", "native"],
+      sampleSizeBytes: 64,
+    } as const;
+    const expected = decodeDocumentSync(bytes, options);
+    const stream = createDecodingStream(options);
+
+    expect(stream.write(bytes)).toEqual([]);
+
+    const document = stream.end();
+
+    expect(document.text).toBe("AB");
+    expect(document.warnings).toEqual(expected.warnings);
+    expect(warningCodes(document.warnings)).toEqual(warningCodes(expected.warnings));
+  });
+
+  it("does not duplicate backend warnings consumed by the first decoded chunk", () => {
+    const stream = createDecodingStream({
+      backendPreference: ["text-decoder", "native"],
+      sampleSizeBytes: 1,
+    });
+
+    const firstChunk = stream.write(new Uint8Array([0x41]));
+    const document = stream.end();
+
+    expect(warningCodes(firstChunk.flatMap((chunk) => chunk.warnings))).toEqual([
+      "ENCODING_BACKEND_SUBSTITUTION",
+    ]);
+    expect(warningCodes(document.warnings)).toEqual(["ENCODING_BACKEND_SUBSTITUTION"]);
+  });
+
+  it("keeps sample-limited detection warnings when later bytes extend beyond the stream sample", () => {
+    const stream = createDecodingStream({
+      profile: "strictUtf8",
+      replacementPolicy: "replace",
+      sampleSizeBytes: 1,
+    });
+
+    const firstChunk = stream.write(new Uint8Array([0x41]));
+
+    expect(firstChunk).toHaveLength(1);
+    expect(stream.detection).toMatchObject({
+      encoding: "utf-8",
+      confidence: 0.99,
+      source: "utf8-validation",
+    });
+    expect(warningCodes(requiredDetection(stream.detection).warnings)).toEqual([
+      "ENCODING_TRUNCATED_SAMPLE",
+      "ENCODING_LOW_CONFIDENCE",
+    ]);
+
+    stream.write(new Uint8Array([0xc3, 0x28]));
+    const document = stream.end();
+
+    expect(document.text).toBe("A\uFFFD(");
+    expect(document.detection).toMatchObject({
+      encoding: "utf-8",
+      confidence: 0.99,
+      source: "utf8-validation",
+    });
+    expect(warningCodes(document.detection.warnings)).toEqual([
+      "ENCODING_TRUNCATED_SAMPLE",
+      "ENCODING_LOW_CONFIDENCE",
+    ]);
+    expect(document.detection.warnings[0]).toMatchObject({
+      details: {
+        sampledByteLength: 1,
+        originalByteLength: 3,
+        inputComplete: true,
+        confidenceCap: 0.99,
+      },
+    });
+    expect(warningCodes(document.warnings)).toEqual([
+      "ENCODING_TRUNCATED_SAMPLE",
+      "ENCODING_LOW_CONFIDENCE",
+      "ENCODING_INVALID_SEQUENCE_REPLACED",
+    ]);
+  });
+
   it("treats CRLF split across chunks as one final line break", () => {
     const stream = createDecodingStream({
       explicitEncoding: "utf-8",
@@ -124,4 +219,42 @@ describe("DecodingStream.end", () => {
       expect((error as EncodingError).byteRange).toEqual({ start: 1, end: 3 });
     }
   });
+
+  it("preserves backend warnings on fatal stream finalization errors", () => {
+    const stream = createDecodingStream({
+      backendPreference: ["text-decoder", "native"],
+      explicitEncoding: "utf-8",
+      sampleSizeBytes: 1,
+    });
+
+    const firstChunk = stream.write(new Uint8Array([0x41]));
+    expect(warningCodes(firstChunk.flatMap((chunk) => chunk.warnings))).toEqual([
+      "ENCODING_BACKEND_SUBSTITUTION",
+    ]);
+    expect(stream.write(new Uint8Array([0xe2, 0x82]))).toEqual([]);
+
+    try {
+      stream.end();
+      throw new Error("Expected stream finalization to fail.");
+    } catch (error) {
+      expect(error).toBeInstanceOf(EncodingError);
+      expect((error as EncodingError).code).toBe("ENCODING_INCOMPLETE_STREAM_SEQUENCE");
+      expect((error as EncodingError).byteRange).toEqual({ start: 1, end: 3 });
+      expect(warningCodes((error as EncodingError).warnings)).toEqual([
+        "ENCODING_BACKEND_SUBSTITUTION",
+      ]);
+    }
+  });
 });
+
+function warningCodes(warnings: readonly { readonly code: string }[]): readonly string[] {
+  return warnings.map((warning) => warning.code);
+}
+
+function requiredDetection<TDetection>(detection: TDetection | undefined): TDetection {
+  if (detection === undefined) {
+    throw new Error("Expected stream detection.");
+  }
+
+  return detection;
+}

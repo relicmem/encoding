@@ -125,6 +125,85 @@ describe("decoder policy, warning and error behavior", () => {
     }
   });
 
+  it("keeps default webCompat exact source map decoding free of backend substitution noise", () => {
+    const document = decodeDocumentSync(new TextEncoder().encode("Cafe"), {
+      profile: "webCompat",
+    });
+
+    expect(document.text).toBe("Cafe");
+    expect(document.detection.backend).toMatchObject({
+      name: "native",
+      exactSourceMap: true,
+    });
+    expect(warningCodes(document.warnings)).not.toContain("ENCODING_BACKEND_SUBSTITUTION");
+    expect(document.warnings).toEqual([]);
+  });
+
+  it("keeps backend substitution warnings for explicit exact-map backend preferences", () => {
+    const document = decodeDocumentSync(new TextEncoder().encode("Cafe"), {
+      profile: "webCompat",
+      backendPreference: ["text-decoder", "native"],
+    });
+
+    expect(document.detection.backend).toMatchObject({
+      name: "native",
+      exactSourceMap: true,
+    });
+    expect(warningCodes(document.warnings)).toEqual(["ENCODING_BACKEND_SUBSTITUTION"]);
+    expect(document.warnings[0]).toMatchObject({
+      details: {
+        requestedBackend: "text-decoder",
+        selectedBackend: "native",
+        reason: "exact-source-map-unavailable",
+      },
+    });
+  });
+
+  it("preserves detection and backend-selection warnings on fatal decode errors", async () => {
+    const bytes = new Uint8Array([0xff, 0xfe, 0xc3, 0x28]);
+    const options = {
+      explicitEncoding: "utf-8",
+      replacementPolicy: "fatal",
+      backendPreference: ["text-decoder", "native"],
+    } as const;
+
+    const thrown = captureEncodingError(() => decodeDocumentSync(bytes, options));
+
+    expect(thrown).toMatchObject({
+      code: "ENCODING_INVALID_SEQUENCE",
+      byteRange: { start: 0, end: 1 },
+      details: {
+        encoding: "utf-8",
+      },
+    });
+    expect(warningCodes(thrown.warnings)).toEqual([
+      "ENCODING_BOM_CONFLICT",
+      "ENCODING_BACKEND_SUBSTITUTION",
+    ]);
+    expect(thrown.warnings[1]).toMatchObject({
+      details: {
+        requestedBackend: "text-decoder",
+        selectedBackend: "native",
+        reason: "exact-source-map-unavailable",
+      },
+    });
+
+    const result = await tryDecodeDocument(bytes, options);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      throw new Error("Expected failed decode result.");
+    }
+
+    expect(result.error).toMatchObject({
+      code: thrown.code,
+      message: thrown.message,
+      byteRange: thrown.byteRange,
+      details: thrown.details,
+    });
+    expect(result.error.warnings).toEqual(thrown.warnings);
+  });
+
   it("fails when an exact source map is required but the selected backend cannot provide it", () => {
     expect(isTextDecoderBackendAvailable()).toBe(true);
 
@@ -218,6 +297,22 @@ function requireWarning(
   }
 
   return warning;
+}
+
+function warningCodes(warnings: readonly EncodingWarning[]): readonly string[] {
+  return warnings.map((warning) => warning.code);
+}
+
+function captureEncodingError(callback: () => unknown): EncodingError {
+  try {
+    callback();
+  } catch (error) {
+    expect(error).toBeInstanceOf(EncodingError);
+
+    return error as EncodingError;
+  }
+
+  throw new Error("Expected EncodingError.");
 }
 
 function expectEnglishDiagnosticMessage(message: string): void {

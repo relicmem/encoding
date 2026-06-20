@@ -1,7 +1,10 @@
 import type { EncodingDetectionResult } from "../contracts/detection.js";
 import type { DecodeDocumentOptions } from "../contracts/encoding.js";
 import type { SourceByteRange } from "../contracts/source.js";
-import { detectNormalizedCompositeEncoding } from "../detector/CompositeDetector.js";
+import {
+  createCompositeDetectionInputSampleSnapshot,
+  detectNormalizedCompositeEncodingFromSample,
+} from "../detector/CompositeDetector.js";
 import {
   normalizeDecodeDocumentOptions,
   type NormalizedDecodeDocumentOptions,
@@ -88,7 +91,12 @@ export class DetectionSampler {
     this.#chunks.push(ownedChunk);
     this.#byteLength += chunk.byteLength;
     this.#appendSampleChunk(ownedChunk);
-    this.#commitDetectionIfReady();
+
+    if (this.#detection === undefined) {
+      this.#commitDetectionIfReady();
+    } else {
+      this.#refreshDetectionFromCurrentSample(false);
+    }
 
     return createDetectionSamplerWriteResult({
       ...optionalProperty("detection", this.#detection),
@@ -165,22 +173,43 @@ export class DetectionSampler {
       (hasHigherPriorityDetectionSignal(this.#normalizedOptions) &&
         isBomPrefixResolved(sampleBytes))
     ) {
-      this.#commitDetectionFromSample(sampleBytes);
+      this.#commitDetectionFromSample(sampleBytes, false);
     }
   }
 
   #commitDetection(): void {
     if (this.#detection !== undefined) {
+      this.#refreshDetectionFromCurrentSample(true);
       return;
     }
 
     this.#commitDetectionFromSample(
       sampleBytesFromChunks(this.#sampleChunks, this.#sampledByteLength),
+      true,
     );
   }
 
-  #commitDetectionFromSample(sampleBytes: Uint8Array): void {
-    this.#detection = detectNormalizedCompositeEncoding(sampleBytes, this.#normalizedOptions);
+  #commitDetectionFromSample(sampleBytes: Uint8Array, inputComplete: boolean): void {
+    this.#detection = detectNormalizedCompositeEncodingFromSample(
+      createCompositeDetectionInputSampleSnapshot({
+        bytes: sampleBytes,
+        sampledByteLength: this.#sampledByteLength,
+        originalByteLength: this.#byteLength,
+        inputComplete,
+      }),
+      this.#normalizedOptions,
+    );
+  }
+
+  #refreshDetectionFromCurrentSample(inputComplete: boolean): void {
+    if (this.#detection === undefined) {
+      return;
+    }
+
+    this.#commitDetectionFromSample(
+      sampleBytesFromChunks(this.#sampleChunks, this.#sampledByteLength),
+      inputComplete,
+    );
   }
 
   #assertOpen(): void {

@@ -30,6 +30,24 @@ describe("stream and async input behavior", () => {
     assertDocumentsEquivalent(readableStreamDocument, expected);
   });
 
+  it("decodes empty byte containers equivalently to empty Uint8Array input", async () => {
+    const options = { sourceMap: "exact" } satisfies DecodeDocumentOptions;
+    const expected = decodeDocumentSync(new Uint8Array(), options);
+    const syncIterableDocument = decodeDocumentSync([], options);
+    const asyncIterableDocument = await decodeDocument(createAsyncChunks([]), options);
+    const readableStreamDocument = await decodeDocument(createReadableStream([]), options);
+
+    expect(expected.text).toBe("");
+    expect([...expected.bytes]).toEqual([]);
+    expect(expected.offsetMap.segments()).toEqual([]);
+    expect(expected.lineIndex.lineCount).toBe(1);
+    expect(expected.lineIndex.lineTextRange(1, true)).toEqual({ start: 0, end: 0 });
+    expect(expected.lineIndex.lineByteRange(1, true)).toEqual({ start: 0, end: 0 });
+    assertDocumentsEquivalent(syncIterableDocument, expected);
+    assertDocumentsEquivalent(asyncIterableDocument, expected);
+    assertDocumentsEquivalent(readableStreamDocument, expected);
+  });
+
   it("keeps stream write ranges stable across pre-detection buffering and post-detection writes", async () => {
     const fixture = await loadFixture("stream-split-utf8");
     const chunks = splitBytesAt(fixture.bytes, [2, 4, 5]);

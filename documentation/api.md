@@ -64,6 +64,9 @@ console.log(detection.warnings);
 ```
 
 Цей API не будує `OffsetMap` і не декодує весь документ.
+Якщо `sampleSizeBytes` менший за повний byte input і detection спирається на byte validation або
+heuristics, результат містить `ENCODING_TRUNCATED_SAMPLE`, а confidence sample-derived кандидата
+cap-иться на `0.99`.
 
 ## `createDecodingStream(options?)`
 
@@ -82,6 +85,8 @@ const document = stream.end();
 
 `stream.detection` стає доступним після фіксації detection. До цього `write` може буферизувати
 input і повертати `[]`.
+Якщо detection фіксується до повного stream input і наступні bytes виходять за межі sample,
+фінальний `DecodedDocument.detection.warnings` містить `ENCODING_TRUNCATED_SAMPLE`.
 
 ## `DecodedDocument`
 

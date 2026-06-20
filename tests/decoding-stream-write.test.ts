@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 
-import { createDecodingStream } from "../src/index.js";
+import { EncodingError, createDecodingStream } from "../src/index.js";
 import type { CreateDecodingStreamFunction, DecodedChunk } from "../src/index.js";
 
 describe("DecodingStream.write", () => {
@@ -141,6 +141,35 @@ describe("DecodingStream.write", () => {
     });
     expect(secondChunk.warnings).toEqual([]);
   });
+
+  it("preserves sample-limited detection warnings on fatal post-detection write errors", () => {
+    const stream = createDecodingStream({
+      profile: "strictUtf8",
+      sampleSizeBytes: 1,
+    });
+
+    expect(stream.write(new Uint8Array([0x41]))).toHaveLength(1);
+
+    try {
+      stream.write(new Uint8Array([0xc3, 0x28]));
+      throw new Error("Expected post-detection stream write to fail.");
+    } catch (error) {
+      expect(error).toBeInstanceOf(EncodingError);
+      expect((error as EncodingError).code).toBe("ENCODING_INVALID_SEQUENCE");
+      expect(warningCodes((error as EncodingError).warnings)).toEqual([
+        "ENCODING_TRUNCATED_SAMPLE",
+        "ENCODING_LOW_CONFIDENCE",
+      ]);
+      expect((error as EncodingError).warnings[0]).toMatchObject({
+        details: {
+          sampledByteLength: 1,
+          originalByteLength: 3,
+          inputComplete: false,
+          confidenceCap: 0.99,
+        },
+      });
+    }
+  });
 });
 
 function onlyChunk(chunks: readonly DecodedChunk[]): DecodedChunk {
@@ -152,4 +181,8 @@ function onlyChunk(chunks: readonly DecodedChunk[]): DecodedChunk {
   }
 
   return chunk;
+}
+
+function warningCodes(warnings: readonly { readonly code: string }[]): readonly string[] {
+  return warnings.map((warning) => warning.code);
 }

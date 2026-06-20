@@ -211,10 +211,6 @@ class ByteChunkCollector {
   }
 
   finish(): CollectedByteChunks {
-    if (this.chunksValue.length === 0) {
-      throw new RangeError("Encoding byte input must contain at least one chunk.");
-    }
-
     return Object.freeze({
       byteLength: this.byteLengthValue,
       chunks: Object.freeze([...this.chunksValue]),

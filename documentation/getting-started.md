@@ -54,10 +54,14 @@ const detection = detectEncoding(bytes, {
 
 console.log(detection.encoding);
 console.log(detection.label);
+console.log(detection.warnings);
 ```
 
 У `webCompat` HTML/WHATWG label `latin1` може нормалізуватися до `windows-1252`; результат
 зберігає і вхідний label, і canonical encoding.
+Якщо ви зменшуєте `sampleSizeBytes`, перевіряйте `detection.warnings`: sample-limited
+byte-derived detection повертає `ENCODING_TRUNCATED_SAMPLE` замість silent full-document
+confidence.
 
 ## Потокове декодування
 

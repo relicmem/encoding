@@ -1,11 +1,13 @@
 import type { DecoderBackendInfo } from "../contracts/backend.js";
 import type {
   EncodingCandidate,
+  EncodingDetectionSource,
   EncodingDetectionResult,
   NormalizedEncodingLabel,
 } from "../contracts/detection.js";
 import {
   createEncodingError,
+  createEncodingWarning,
   encodingFailure,
   encodingSuccess,
   isEncodingError,
@@ -37,12 +39,19 @@ export interface CompositeDetectionInputSample {
   readonly sampledByteLength: number;
   readonly originalByteLength: number;
   readonly truncated: boolean;
+  readonly inputComplete: boolean;
 }
 
 const DETECTION_BACKEND_PLACEHOLDER = Object.freeze({
   name: "native",
   exactSourceMap: false,
 } as const satisfies DecoderBackendInfo);
+const SAMPLE_LIMITED_CONFIDENCE_CAP = 0.99;
+const SAMPLE_LIMITED_CONFIDENCE_SOURCES = Object.freeze([
+  "utf8-validation",
+  "utf16-heuristic",
+  "heuristic",
+] as const satisfies readonly EncodingDetectionSource[]);
 
 export function detectCompositeEncoding(
   input: Uint8Array,
@@ -62,6 +71,16 @@ export function detectNormalizedCompositeEncoding(
   assertByteInput(input);
 
   const sample = createCompositeDetectionInputSample(input, normalizedOptions.sampleSizeBytes);
+
+  return detectNormalizedCompositeEncodingFromSample(sample, normalizedOptions);
+}
+
+export function detectNormalizedCompositeEncodingFromSample(
+  sample: CompositeDetectionInputSample,
+  normalizedOptions: NormalizedDetectEncodingOptions,
+): EncodingDetectionResult {
+  assertCompositeDetectionInputSample(sample);
+
   const explicitCandidate = createExplicitCandidate(normalizedOptions.explicitEncoding);
   const bomResult = detectByteOrderMark(sample.bytes, {
     allowedEncodings: normalizedOptions.allowedEncodings,
@@ -95,22 +114,31 @@ export function detectNormalizedCompositeEncoding(
     bomResult.bom,
     utf8Result,
   );
+  const hasHigherPriorityCandidate =
+    explicitCandidate !== undefined ||
+    bomResult.candidate !== undefined ||
+    metadataResult.candidate !== undefined;
+  const sampleLimited = shouldApplySampleLimitWarning(sample, hasHigherPriorityCandidate);
   const warnings = mergeEncodingWarnings(
     bomResult.warnings,
     metadataResult.warnings,
     utf8Result.warnings,
     utf16Result.warnings,
     legacyResult.warnings,
+    sampleLimited ? [createTruncatedSampleWarning(sample)] : [],
   );
   const decision = resolveEncodingCandidateDecision({
-    candidates: collectCompositeCandidates({
-      explicitCandidate,
-      bomCandidate: bomResult.candidate,
-      metadataCandidate: metadataResult.candidate,
-      utf8Candidate: utf8Result.candidate,
-      utf16Candidates: utf16Result.candidates,
-      legacyCandidates: legacyResult.candidates,
-    }),
+    candidates: applySampleLimitedConfidenceCap(
+      collectCompositeCandidates({
+        explicitCandidate,
+        bomCandidate: bomResult.candidate,
+        metadataCandidate: metadataResult.candidate,
+        utf8Candidate: utf8Result.candidate,
+        utf16Candidates: utf16Result.candidates,
+        legacyCandidates: legacyResult.candidates,
+      }),
+      sampleLimited,
+    ),
     fallbackCandidate: createFallbackEncodingCandidate({
       encoding: normalizedOptions.defaultEncoding.canonical,
     }),
@@ -148,17 +176,68 @@ export function tryDetectCompositeEncoding(
   }
 }
 
-function createCompositeDetectionInputSample(
+export function createCompositeDetectionInputSample(
   input: Uint8Array,
   sampleSizeBytes: number,
 ): CompositeDetectionInputSample {
   const sampledByteLength = Math.min(input.byteLength, sampleSizeBytes);
 
-  return Object.freeze({
+  return createCompositeDetectionInputSampleSnapshot({
     bytes: input.subarray(0, sampledByteLength),
     sampledByteLength,
     originalByteLength: input.byteLength,
-    truncated: sampledByteLength < input.byteLength,
+    inputComplete: true,
+  });
+}
+
+export function createCompositeDetectionInputSampleSnapshot(options: {
+  readonly bytes: Uint8Array;
+  readonly sampledByteLength: number;
+  readonly originalByteLength: number;
+  readonly inputComplete: boolean;
+}): CompositeDetectionInputSample {
+  assertByteInput(options.bytes);
+  assertNonNegativeSafeInteger(options.sampledByteLength, "sampledByteLength");
+  assertNonNegativeSafeInteger(options.originalByteLength, "originalByteLength");
+
+  if (options.bytes.byteLength !== options.sampledByteLength) {
+    throw createEncodingError({
+      code: "ENCODING_UNSUPPORTED_ENCODING",
+      message: "Detection sample byte length must match the sampled byte length.",
+      details: {
+        byteLength: options.bytes.byteLength,
+        sampledByteLength: options.sampledByteLength,
+      },
+    });
+  }
+
+  if (options.sampledByteLength > options.originalByteLength) {
+    throw createEncodingError({
+      code: "ENCODING_UNSUPPORTED_ENCODING",
+      message: "Detection sample cannot be longer than the original byte length.",
+      details: {
+        sampledByteLength: options.sampledByteLength,
+        originalByteLength: options.originalByteLength,
+      },
+    });
+  }
+
+  if (typeof options.inputComplete !== "boolean") {
+    throw createEncodingError({
+      code: "ENCODING_UNSUPPORTED_ENCODING",
+      message: "Detection sample inputComplete flag must be a boolean.",
+      details: {
+        inputComplete: options.inputComplete,
+      },
+    });
+  }
+
+  return Object.freeze({
+    bytes: options.bytes,
+    sampledByteLength: options.sampledByteLength,
+    originalByteLength: options.originalByteLength,
+    truncated: options.sampledByteLength < options.originalByteLength,
+    inputComplete: options.inputComplete,
   });
 }
 
@@ -235,6 +314,61 @@ function collectCompositeCandidates(options: {
     ...options.utf16Candidates,
     ...options.legacyCandidates,
   ];
+}
+
+function applySampleLimitedConfidenceCap(
+  candidates: readonly EncodingCandidate[],
+  sampleLimited: boolean,
+): readonly EncodingCandidate[] {
+  if (!sampleLimited) {
+    return candidates;
+  }
+
+  return Object.freeze(
+    candidates.map((candidate) => {
+      if (
+        !isSampleLimitedConfidenceSource(candidate.source) ||
+        candidate.confidence <= SAMPLE_LIMITED_CONFIDENCE_CAP
+      ) {
+        return candidate;
+      }
+
+      return createEncodingCandidate({
+        encoding: candidate.encoding,
+        confidence: SAMPLE_LIMITED_CONFIDENCE_CAP,
+        source: candidate.source,
+        reason: `${candidate.reason} Confidence was capped because detection used a bounded byte sample.`,
+        bomLength: candidate.bomLength,
+      });
+    }),
+  );
+}
+
+function isSampleLimitedConfidenceSource(source: EncodingDetectionSource): boolean {
+  return SAMPLE_LIMITED_CONFIDENCE_SOURCES.includes(
+    source as (typeof SAMPLE_LIMITED_CONFIDENCE_SOURCES)[number],
+  );
+}
+
+function shouldApplySampleLimitWarning(
+  sample: CompositeDetectionInputSample,
+  hasHigherPriorityCandidate: boolean,
+): boolean {
+  return !hasHigherPriorityCandidate && (sample.truncated || !sample.inputComplete);
+}
+
+function createTruncatedSampleWarning(sample: CompositeDetectionInputSample): EncodingWarning {
+  return createEncodingWarning({
+    code: "ENCODING_TRUNCATED_SAMPLE",
+    message:
+      "Detection is based on a bounded byte sample; bytes outside the sample were not validated.",
+    details: {
+      sampledByteLength: sample.sampledByteLength,
+      originalByteLength: sample.originalByteLength,
+      inputComplete: sample.inputComplete,
+      confidenceCap: SAMPLE_LIMITED_CONFIDENCE_CAP,
+    },
+  });
 }
 
 function labelForSelectedCandidate(
@@ -430,6 +564,71 @@ function assertByteInput(input: unknown): asserts input is Uint8Array {
       message: "Composite detection input must be a Uint8Array.",
       details: {
         inputType: typeof input,
+      },
+    });
+  }
+}
+
+function assertCompositeDetectionInputSample(
+  sample: CompositeDetectionInputSample,
+): asserts sample is CompositeDetectionInputSample {
+  assertByteInput(sample.bytes);
+  assertNonNegativeSafeInteger(sample.sampledByteLength, "sampledByteLength");
+  assertNonNegativeSafeInteger(sample.originalByteLength, "originalByteLength");
+
+  if (sample.bytes.byteLength !== sample.sampledByteLength) {
+    throw createEncodingError({
+      code: "ENCODING_UNSUPPORTED_ENCODING",
+      message: "Detection sample byte length must match the sampled byte length.",
+      details: {
+        byteLength: sample.bytes.byteLength,
+        sampledByteLength: sample.sampledByteLength,
+      },
+    });
+  }
+
+  if (sample.sampledByteLength > sample.originalByteLength) {
+    throw createEncodingError({
+      code: "ENCODING_UNSUPPORTED_ENCODING",
+      message: "Detection sample cannot be longer than the original byte length.",
+      details: {
+        sampledByteLength: sample.sampledByteLength,
+        originalByteLength: sample.originalByteLength,
+      },
+    });
+  }
+
+  if (sample.truncated !== sample.sampledByteLength < sample.originalByteLength) {
+    throw createEncodingError({
+      code: "ENCODING_UNSUPPORTED_ENCODING",
+      message: "Detection sample truncated flag does not match sample lengths.",
+      details: {
+        sampledByteLength: sample.sampledByteLength,
+        originalByteLength: sample.originalByteLength,
+        truncated: sample.truncated,
+      },
+    });
+  }
+
+  if (typeof sample.inputComplete !== "boolean") {
+    throw createEncodingError({
+      code: "ENCODING_UNSUPPORTED_ENCODING",
+      message: "Detection sample inputComplete flag must be a boolean.",
+      details: {
+        inputComplete: sample.inputComplete,
+      },
+    });
+  }
+}
+
+function assertNonNegativeSafeInteger(value: unknown, label: string): asserts value is number {
+  if (!Number.isSafeInteger(value) || (value as number) < 0) {
+    throw createEncodingError({
+      code: "ENCODING_UNSUPPORTED_ENCODING",
+      message: "Detection sample lengths must be non-negative safe integers.",
+      details: {
+        option: label,
+        value,
       },
     });
   }

@@ -63,7 +63,11 @@ for (const warning of decoded.warnings) {
 - `ENCODING_BACKEND_SUBSTITUTION`;
 - `ENCODING_TEXT_INPUT_SYNTHETIC_BYTES`;
 - `ENCODING_INVALID_SEQUENCE_REPLACED`;
-- `ENCODING_INCOMPLETE_STREAM_SEQUENCE`.
+- `ENCODING_INCOMPLETE_STREAM_SEQUENCE`;
+- `ENCODING_TRUNCATED_SAMPLE`.
+
+`ENCODING_TRUNCATED_SAMPLE` означає, що byte-derived detection прийняла рішення за bounded
+sample, тому bytes за межами sample не брали участі у validation/heuristics.
 
 ## Errors
 

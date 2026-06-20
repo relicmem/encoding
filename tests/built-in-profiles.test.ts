@@ -95,7 +95,12 @@ describe("built-in encoding profiles", () => {
     expect(policy.profile.defaultEncoding).toBe("windows-1252");
     expect(policy.profile.metadataSniffing).toBe(true);
     expect(policy.profile.legacyHeuristics).toBe(true);
-    expect(policy.backendPreference.slice(0, 2)).toEqual(["text-decoder", "exodus-bytes"]);
+    expect(policy.backendPreference).toEqual([
+      "native",
+      "text-decoder",
+      "exodus-bytes",
+      "iconv-lite",
+    ]);
     expect(label).toMatchObject({
       inputLabel: "iso-8859-1",
       canonical: "windows-1252",

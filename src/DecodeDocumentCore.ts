@@ -3,7 +3,12 @@ import type {
   DecoderBackend,
   DecoderBackendInfo,
 } from "./contracts/backend.js";
-import { createEncodingError } from "./contracts/diagnostics.js";
+import {
+  createEncodingError,
+  isEncodingError,
+  mergeEncodingWarnings,
+} from "./contracts/diagnostics.js";
+import type { EncodingError, EncodingWarning } from "./contracts/diagnostics.js";
 import type { EncodingDetectionResult } from "./contracts/detection.js";
 import type { DecodedDocument } from "./contracts/document.js";
 import type { OffsetMap, OffsetMapSegment } from "./contracts/source.js";
@@ -56,33 +61,53 @@ function decodeByteInput(
   const source = input.source;
   const bytes = source.bytes;
   const detection = detectNormalizedCompositeEncoding(bytes, options);
-  const backendSelection = selectDocumentDecoderBackend(detection, options);
-  const backendResult = backendSelection.backend.decode(bytes, {
-    encoding: detection.encoding,
-    stripBom: options.stripBom,
-    sourceMap: options.sourceMap,
-    replacementPolicy: options.replacementPolicy,
-    replacementCharacter: options.replacementCharacter,
-  });
-  const offsetMap = resolveDocumentOffsetMap({
-    backendResult,
-    backendInfo: backendSelection.info,
-    sourceMap: options.sourceMap,
-    byteLength: source.byteLength,
-    textLength: backendResult.text.length,
-  });
+  const backendSelection = withFatalWarnings(
+    () => selectDocumentDecoderBackend(detection, options),
+    detection.warnings,
+  );
+  const backendResult = withFatalWarnings(
+    () =>
+      backendSelection.backend.decode(bytes, {
+        encoding: detection.encoding,
+        stripBom: options.stripBom,
+        sourceMap: options.sourceMap,
+        replacementPolicy: options.replacementPolicy,
+        replacementCharacter: options.replacementCharacter,
+      }),
+    detection.warnings,
+    backendSelection.warnings,
+  );
+  const offsetMap = withFatalWarnings(
+    () =>
+      resolveDocumentOffsetMap({
+        backendResult,
+        backendInfo: backendSelection.info,
+        sourceMap: options.sourceMap,
+        byteLength: source.byteLength,
+        textLength: backendResult.text.length,
+      }),
+    detection.warnings,
+    backendSelection.warnings,
+    backendResult.warnings,
+  );
 
-  return createDecodedDocument({
-    text: backendResult.text,
-    source,
-    detection,
-    backend: backendSelection.info,
-    offsetMap,
-    warnings: {
-      backend: backendSelection.warnings,
-      sourceMap: backendResult.warnings,
-    },
-  });
+  return withFatalWarnings(
+    () =>
+      createDecodedDocument({
+        text: backendResult.text,
+        source,
+        detection,
+        backend: backendSelection.info,
+        offsetMap,
+        warnings: {
+          backend: backendSelection.warnings,
+          sourceMap: backendResult.warnings,
+        },
+      }),
+    detection.warnings,
+    backendSelection.warnings,
+    backendResult.warnings,
+  );
 }
 
 export function selectDocumentDecoderBackend(
@@ -168,6 +193,42 @@ function inputLabelForDetection(
   label: NormalizedDecodeDocumentOptions["explicitEncoding"],
 ): string | undefined {
   return label === undefined ? undefined : (label.inputLabel ?? label.canonical);
+}
+
+function withFatalWarnings<TValue>(
+  operation: () => TValue,
+  ...warningGroups: readonly (readonly EncodingWarning[] | undefined)[]
+): TValue {
+  try {
+    return operation();
+  } catch (error) {
+    if (isEncodingError(error)) {
+      throw enrichEncodingErrorWarnings(error, ...warningGroups);
+    }
+
+    throw error;
+  }
+}
+
+function enrichEncodingErrorWarnings(
+  error: EncodingError,
+  ...warningGroups: readonly (readonly EncodingWarning[] | undefined)[]
+): EncodingError {
+  return createEncodingError({
+    code: error.code,
+    message: error.message,
+    ...optionalProperty("byteRange", error.byteRange),
+    ...optionalProperty("textRange", error.textRange),
+    ...optionalProperty("details", error.details),
+    warnings: mergeEncodingWarnings(...warningGroups, error.warnings),
+    ...optionalProperty("cause", encodingErrorCause(error)),
+  });
+}
+
+function encodingErrorCause(error: EncodingError): unknown {
+  return Object.prototype.hasOwnProperty.call(error, "cause")
+    ? (error as { readonly cause?: unknown }).cause
+    : undefined;
 }
 
 function optionalProperty<TKey extends string, TValue>(

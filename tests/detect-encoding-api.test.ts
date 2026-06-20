@@ -45,13 +45,32 @@ describe("public detectEncoding API", () => {
 
     expect(result).toMatchObject({
       encoding: "utf-8",
-      confidence: 1,
+      confidence: 0.99,
       source: "utf8-validation",
     });
     expect(result.candidates.map((candidate) => candidate.source)).toEqual([
       "utf8-validation",
       "fallback",
     ]);
+    expect(result.candidates[0]).toMatchObject({
+      confidence: 0.99,
+      reason:
+        "Valid UTF-8 byte sequence. Confidence was capped because detection used a bounded byte sample.",
+    });
+    expect(result.warnings.map((warning) => warning.code)).toEqual([
+      "ENCODING_TRUNCATED_SAMPLE",
+      "ENCODING_LOW_CONFIDENCE",
+    ]);
+    expect(result.warnings[0]).toMatchObject({
+      message:
+        "Detection is based on a bounded byte sample; bytes outside the sample were not validated.",
+      details: {
+        sampledByteLength: 1,
+        originalByteLength: 3,
+        inputComplete: true,
+        confidenceCap: 0.99,
+      },
+    });
   });
 
   it("rejects non-byte input before running detection", () => {

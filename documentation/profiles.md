@@ -64,9 +64,11 @@ const decoded = await decodeDocument(bytes, {
 ```
 
 Профіль підтримує metadata sniffing і WHATWG label behavior. Наприклад, `latin1` або
-`iso-8859-1` у web-compatible контексті може нормалізуватися до `windows-1252`. Якщо exact
-source map не потрібен, `sourceMap: "none"` дозволяє використовувати не-exact backends без
-source-map fatal error.
+`iso-8859-1` у web-compatible контексті може нормалізуватися до `windows-1252`. За замовчуванням
+профіль зберігає `sourceMap: "exact"` і спершу обирає exact backend, тому нормальний decode не
+створює backend substitution warning лише через profile default. Якщо exact source map не потрібен,
+`sourceMap: "none"` разом із явним `backendPreference` дозволяє використовувати не-exact backends
+без source-map fatal error.
 
 ## Custom profile
 

@@ -112,6 +112,41 @@ describe("input normalization", () => {
     expect(streamInput.chunks()).toEqual(asyncInput.chunks());
   });
 
+  it("normalizes empty byte containers without inventing chunks or bytes", async () => {
+    const emptyIterable = expectByteInput(normalizeEncodingInputSync([]));
+
+    expect(emptyIterable.inputKind).toBe("iterable");
+    expect(emptyIterable.byteLength).toBe(0);
+    expect([...emptyIterable.source.bytes]).toEqual([]);
+    expect(emptyIterable.chunks()).toEqual([]);
+    expect(emptyIterable.sample(4)).toEqual({
+      bytes: new Uint8Array(),
+      chunks: [],
+      sampledByteLength: 0,
+      originalByteLength: 0,
+      truncated: false,
+    });
+
+    const emptyAsyncIterable = expectByteInput(await normalizeEncodingInput(createAsyncChunks()));
+
+    expect(emptyAsyncIterable.inputKind).toBe("async-iterable");
+    expect(emptyAsyncIterable.byteLength).toBe(0);
+    expect([...emptyAsyncIterable.source.bytes]).toEqual([]);
+    expect(emptyAsyncIterable.chunks()).toEqual([]);
+
+    const emptyStream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.close();
+      },
+    });
+    const emptyStreamInput = expectByteInput(await normalizeEncodingInput(emptyStream));
+
+    expect(emptyStreamInput.inputKind).toBe("readable-stream");
+    expect(emptyStreamInput.byteLength).toBe(0);
+    expect([...emptyStreamInput.source.bytes]).toEqual([]);
+    expect(emptyStreamInput.chunks()).toEqual([]);
+  });
+
   it("keeps string inputs separate from byte normalization", async () => {
     const syncInput = normalizeEncodingInputSync("Документ");
     const asyncInput = await normalizeEncodingInput("Документ");
@@ -132,17 +167,15 @@ describe("input normalization", () => {
     expect(() => normalizeEncodingInputSync(streamInput)).toThrow(TypeError);
   });
 
-  it("rejects invalid chunk types and chunkless iterable inputs", async () => {
+  it("rejects invalid chunk types and invalid sample sizes", async () => {
     const invalidSyncChunks = [new Uint16Array([0x61])] as unknown as Iterable<Uint8Array>;
 
     expect(() => normalizeEncodingInputSync(invalidSyncChunks)).toThrow(TypeError);
-    expect(() => normalizeEncodingInputSync([])).toThrow(RangeError);
     expect(() => expectByteInput(normalizeEncodingInputSync(new Uint8Array())).sample(0)).toThrow(
       RangeError,
     );
 
     await expect(normalizeEncodingInput(createInvalidAsyncChunks())).rejects.toThrow(TypeError);
-    await expect(normalizeEncodingInput(createAsyncChunks())).rejects.toThrow(RangeError);
   });
 
   it("returns defensive chunk and sample copies", () => {

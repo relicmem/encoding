@@ -4,7 +4,12 @@ import type {
   EncodingDetectionResult,
   NormalizedEncodingLabel,
 } from "../contracts/detection.js";
-import { createEncodingWarning, freezeEncodingWarnings } from "../contracts/diagnostics.js";
+import {
+  createEncodingWarning,
+  freezeEncodingWarnings,
+  isEncodingError,
+  mergeEncodingWarnings,
+} from "../contracts/diagnostics.js";
 import type { EncodingWarning } from "../contracts/diagnostics.js";
 import { createEncodingError } from "../contracts/diagnostics.js";
 import type { DecodedDocument } from "../contracts/document.js";
@@ -56,6 +61,7 @@ export class DecodingStream implements DecodingStreamContract {
   #charOffset = 0;
   #pendingChunk: StreamChunk | undefined;
   #pendingBackendWarnings: readonly EncodingWarning[] = EMPTY_WARNING_LIST;
+  #streamBackendWarnings: readonly EncodingWarning[] = EMPTY_WARNING_LIST;
   #decodedChunks: DecodedChunk[] = [];
   #ended = false;
 
@@ -85,11 +91,15 @@ export class DecodingStream implements DecodingStreamContract {
     );
     const chunks = this.#sampler.chunks();
 
-    if (!hadDecoder) {
-      return this.#flushInitialBufferedChunks(chunks, decoderState);
-    }
+    try {
+      if (!hadDecoder) {
+        return this.#flushInitialBufferedChunks(chunks, decoderState);
+      }
 
-    return this.#flushNewChunks(chunks, decoderState);
+      return this.#flushNewChunks(chunks, decoderState);
+    } catch (error) {
+      this.#throwStreamError(error, decoderState);
+    }
   }
 
   end(): DecodedDocument {
@@ -99,26 +109,31 @@ export class DecodingStream implements DecodingStreamContract {
     const finishResult = this.#sampler.finish();
     const decoderState = this.#ensureDecoderState(finishResult.detection);
 
-    if (this.#nextChunkIndex === 0) {
-      this.#flushInitialBufferedChunks(finishResult.chunks, decoderState);
-    } else {
-      this.#flushNewChunks(finishResult.chunks, decoderState);
+    try {
+      if (this.#nextChunkIndex === 0) {
+        this.#flushInitialBufferedChunks(finishResult.chunks, decoderState);
+      } else {
+        this.#flushNewChunks(finishResult.chunks, decoderState);
+      }
+
+      this.#finalizePendingChunk(decoderState);
+
+      const source = createSourceBufferFromChunks(finishResult.chunks.map((chunk) => chunk.bytes));
+
+      return createDecodedDocument({
+        text: this.#decodedChunks.map((chunk) => chunk.text).join(""),
+        source,
+        detection: decoderState.detection,
+        backend: decoderState.backendSelection.info,
+        offsetMap: createOffsetMap(this.#globalOffsetMapSegments()),
+        warnings: {
+          backend: this.#streamBackendWarnings,
+          sourceMap: this.#decodedChunks.flatMap((chunk) => chunk.warnings),
+        },
+      });
+    } catch (error) {
+      this.#throwStreamError(error, decoderState);
     }
-
-    this.#finalizePendingChunk(decoderState);
-
-    const source = createSourceBufferFromChunks(finishResult.chunks.map((chunk) => chunk.bytes));
-
-    return createDecodedDocument({
-      text: this.#decodedChunks.map((chunk) => chunk.text).join(""),
-      source,
-      detection: decoderState.detection,
-      backend: decoderState.backendSelection.info,
-      offsetMap: createOffsetMap(this.#globalOffsetMapSegments()),
-      warnings: {
-        sourceMap: this.#decodedChunks.flatMap((chunk) => chunk.warnings),
-      },
-    });
   }
 
   #flushInitialBufferedChunks(
@@ -169,6 +184,8 @@ export class DecodingStream implements DecodingStreamContract {
 
   #ensureDecoderState(detection: EncodingDetectionResult): StreamDecoderState {
     if (this.#decoderState !== undefined) {
+      this.#decoderState = updateDecoderStateDetection(this.#decoderState, detection);
+
       return this.#decoderState;
     }
 
@@ -180,6 +197,7 @@ export class DecodingStream implements DecodingStreamContract {
 
     this.#decoderState = decoderState;
     this.#pendingBackendWarnings = backendSelection.warnings;
+    this.#streamBackendWarnings = backendSelection.warnings;
 
     return decoderState;
   }
@@ -282,6 +300,31 @@ export class DecodingStream implements DecodingStreamContract {
     return decodedChunks.length === 0 ? EMPTY_DECODED_CHUNKS : Object.freeze(decodedChunks);
   }
 
+  #throwStreamError(error: unknown, state: StreamDecoderState): never {
+    if (!isEncodingError(error)) {
+      throw error;
+    }
+
+    throw createEncodingError({
+      code: error.code,
+      message: error.message,
+      ...optionalProperty("byteRange", error.byteRange),
+      ...optionalProperty("textRange", error.textRange),
+      ...optionalProperty("details", error.details),
+      warnings: mergeEncodingWarnings(this.#knownEndWarnings(state), error.warnings),
+      ...optionalProperty("cause", encodingErrorCause(error)),
+    });
+  }
+
+  #knownEndWarnings(state: StreamDecoderState): readonly EncodingWarning[] {
+    const decodedWarnings = this.#decodedChunks.flatMap((chunk) => chunk.warnings);
+    const backendWarnings = containsBackendSelectionWarning(decodedWarnings)
+      ? EMPTY_WARNING_LIST
+      : this.#streamBackendWarnings;
+
+    return mergeEncodingWarnings(state.detection.warnings, backendWarnings, decodedWarnings);
+  }
+
   #globalOffsetMapSegments(): readonly OffsetMapSegment[] {
     return Object.freeze(
       this.#decodedChunks.flatMap((chunk) =>
@@ -299,6 +342,20 @@ export class DecodingStream implements DecodingStreamContract {
 
 export function createDecodingStream(options?: DecodeDocumentOptions): DecodingStreamContract {
   return new DecodingStream(options);
+}
+
+function updateDecoderStateDetection(
+  state: StreamDecoderState,
+  detection: EncodingDetectionResult,
+): StreamDecoderState {
+  if (detection.encoding !== state.detection.encoding) {
+    throw new RangeError("Decoding stream detection encoding cannot change after decoding starts.");
+  }
+
+  return Object.freeze({
+    detection: freezeDetectionResult(detection, state.backendSelection.info),
+    backendSelection: state.backendSelection,
+  });
 }
 
 function combineSamplerChunks(chunks: readonly DetectionSamplerChunk[]): StreamChunk | undefined {
@@ -614,6 +671,16 @@ function shiftEncodingWarnings(
       }),
     ),
   );
+}
+
+function containsBackendSelectionWarning(warnings: readonly EncodingWarning[]): boolean {
+  return warnings.some((warning) => warning.code === "ENCODING_BACKEND_SUBSTITUTION");
+}
+
+function encodingErrorCause(error: Error): unknown {
+  return Object.prototype.hasOwnProperty.call(error, "cause")
+    ? (error as { readonly cause?: unknown }).cause
+    : undefined;
 }
 
 function shiftRange<TRange extends SourceByteRange | TextRange>(
