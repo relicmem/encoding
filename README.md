@@ -1,19 +1,19 @@
 # @relicmem/encoding
 
-`@relicmem/encoding` — byte-to-text intake layer для `RelicMEM`-документів. Пакет визначає
-кодування, декодує bytes за вибраною політикою, зберігає raw source bytes і повертає source
-mapping data, на які можуть спиратися вищі parser layers.
+`@relicmem/encoding` is the byte-to-text intake layer for `RelicMEM` documents. The package
+detects encoding, decodes bytes with the selected policy, preserves raw source bytes, and returns
+source mapping data for higher-level parser layers.
 
-Пакет не є Markdown parser. Його задача — дати `@relicmem/md-parser` та іншим інтеграторам
-decoded document із:
+The package is not a Markdown parser. Its job is to provide `@relicmem/md-parser` and other
+integrators with a decoded document that includes:
 
-- canonical encoding detection і confidence data;
-- exact byte-to-text source maps там, де active profile цього вимагає;
-- line index без нормалізації line endings;
-- BOM, backend, warning і error metadata;
-- stream-safe decoding для split multibyte sequences.
+- canonical encoding detection and confidence data;
+- exact byte-to-text source maps where the active profile requires them;
+- a line index without line ending normalization;
+- BOM, backend, warning, and error metadata;
+- stream-safe decoding for split multibyte sequences.
 
-## Швидкий приклад
+## Quick Example
 
 ```ts
 import { decodeDocument } from "@relicmem/encoding";
@@ -28,22 +28,22 @@ console.log(decoded.detection.encoding);
 console.log(decoded.lineIndex.positionAtTextOffset(0));
 ```
 
-Використовуйте byte input (`Uint8Array`, `ArrayBuffer`, iterables або streams), коли важливі
-source ranges. String input уже декодований; для нього створюються synthetic UTF-8 bytes, тому
-він не є source-perfect.
+Use byte input (`Uint8Array`, `ArrayBuffer`, iterables, or streams) when source ranges matter.
+String input has already been decoded before this package sees it; the library creates synthetic
+UTF-8 bytes for it, so it is not source-perfect.
 
-## Документація
+## Documentation
 
-- [Індекс документації](documentation/README.md)
-- [Швидкий старт](documentation/getting-started.md)
-- [Довідник API](documentation/api.md)
-- [Профілі кодування](documentation/profiles.md)
-- [Source mapping і diagnostics](documentation/source-mapping-and-diagnostics.md)
-- [Інтеграція parser](documentation/parser-integration.md)
+- [Documentation index](documentation/README.md)
+- [Getting started](documentation/getting-started.md)
+- [API reference](documentation/api.md)
+- [Encoding profiles](documentation/profiles.md)
+- [Source mapping and diagnostics](documentation/source-mapping-and-diagnostics.md)
+- [Parser integration](documentation/parser-integration.md)
 - [Release notes v1 candidate](documentation/release-notes-v1.md)
 - [Release automation](documentation/release-automation.md)
-- [Нотатки для contributors](documentation/contributors.md)
-- [Довідник для агентів](documentation/agents.md)
+- [Contributor notes](documentation/contributors.md)
+- [Agent reference](documentation/agents.md)
 
-Приклади віддзеркалені в `tests/public-docs-examples.test.ts`, тому вони перевіряються
-звичайними TypeScript і test gates.
+Examples are mirrored in `tests/public-docs-examples.test.ts`, so they are checked by the regular
+TypeScript and test gates.

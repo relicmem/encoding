@@ -5,3 +5,7 @@ coverage/
 .npm-cache/
 *.tsbuildinfo
 *.log
+
+# Local agent instructions and project-memory files stay on disk but out of Git.
+AGENTS.md
+docs/

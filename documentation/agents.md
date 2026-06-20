@@ -1,15 +1,16 @@
-# Довідник для агентів `@relicmem/encoding`
+# Agent Reference for `@relicmem/encoding`
 
-Це монолітний довідник для агентів. Для користувацької документації дивись структуровані
-файли в цьому ж каталозі.
+This is a single reference for agents. For user-facing documentation, see the structured files in
+this directory.
 
-## Призначення
+## Purpose
 
-`@relicmem/encoding` — byte-to-text intake layer для `RelicMEM` documents. Бібліотека не парсить
-Markdown. Вона визначає encoding, декодує bytes, зберігає raw source, будує `OffsetMap` і
-`LineIndex`, повертає detection metadata, backend metadata, warnings і fatal `EncodingError`.
+`@relicmem/encoding` is the byte-to-text intake layer for `RelicMEM` documents. The library does
+not parse Markdown. It detects encoding, decodes bytes, preserves raw source, builds `OffsetMap`
+and `LineIndex`, and returns detection metadata, backend metadata, warnings, and fatal
+`EncodingError`.
 
-## Основні public imports
+## Core Public Imports
 
 ```ts
 import {
@@ -22,10 +23,10 @@ import {
 } from "@relicmem/encoding";
 ```
 
-Публічні приклади мають імпортувати з package root. Не документуй internal modules як contract
-для інтеграторів.
+Public examples should import from the package root. Do not document internal modules as a contract
+for integrators.
 
-## Decode API верхнього рівня
+## High-level Decode API
 
 ```ts
 const decoded = await decodeDocument(bytes, {
@@ -34,9 +35,9 @@ const decoded = await decodeDocument(bytes, {
 });
 ```
 
-`decodeDocument` приймає `string`, `Uint8Array`, `ArrayBuffer`, `Iterable<Uint8Array>`,
-`AsyncIterable<Uint8Array>` і `ReadableStream<Uint8Array>`. `decodeDocumentSync` приймає тільки
-sync input. Fatal encoding states кидають `EncodingError`.
+`decodeDocument` accepts `string`, `Uint8Array`, `ArrayBuffer`, `Iterable<Uint8Array>`,
+`AsyncIterable<Uint8Array>`, and `ReadableStream<Uint8Array>`. `decodeDocumentSync` accepts only
+sync input. Fatal encoding states throw `EncodingError`.
 
 ## Detect-only API
 
@@ -49,8 +50,8 @@ const detection = detectEncoding(bytes, {
 });
 ```
 
-Detect-only не декодує весь документ і не будує source map. Використовуй його для routing,
-logging, diagnostics і tests.
+Detect-only does not decode the full document and does not build a source map. Use it for routing,
+logging, diagnostics, and tests.
 
 ## Stream API
 
@@ -64,19 +65,19 @@ const chunks = stream.write(chunk);
 const document = stream.end();
 ```
 
-`write` може повернути `[]` до завершення sampling/detection або коли decoder тримає pending
-multibyte sequence. `end` фіналізує stream і повертає повний `DecodedDocument`, або кидає
-`ENCODING_INCOMPLETE_STREAM_SEQUENCE` при fatal policy.
+`write` can return `[]` until sampling/detection completes or when the decoder is holding a
+pending multibyte sequence. `end` finalizes the stream and returns the complete `DecodedDocument`,
+or throws `ENCODING_INCOMPLETE_STREAM_SEQUENCE` under fatal policy.
 
-## Профілі
+## Profiles
 
-- `relicmem` — default для CLI/import і parser integration; exact source map, UTF-8 validation
-  сильніший за legacy heuristics, default `minConfidence: 0.75`.
-- `strictUtf8` — для нових документів; legacy heuristics вимкнені, invalid UTF-8 fatal.
-- `legacyCyrillic` — імпорт старих Cyrillic documents; focus `windows-1251`, `koi8-r`,
-  `cp866`, `iso-8859-5`; ambiguous close scores дають warning.
-- `webCompat` — web/HTML джерела; metadata sniffing і WHATWG label behavior, наприклад
-  `latin1` може стати `windows-1252`.
+- `relicmem` - default for CLI/import and parser integration; exact source maps, UTF-8 validation
+  stronger than legacy heuristics, default `minConfidence: 0.75`.
+- `strictUtf8` - for new documents; legacy heuristics disabled, invalid UTF-8 fatal.
+- `legacyCyrillic` - import of old Cyrillic documents; focus on `windows-1251`, `koi8-r`,
+  `cp866`, `iso-8859-5`; ambiguous close scores produce a warning.
+- `webCompat` - web/HTML sources; metadata sniffing and WHATWG label behavior, for example
+  `latin1` can become `windows-1252`.
 
 ## Source model
 
@@ -92,19 +93,19 @@ decoded.lineIndex;
 decoded.warnings;
 ```
 
-Ranges half-open: `[start, end)`. `CharacterOffset` — JavaScript UTF-16 code unit offset.
-`LineIndex` не нормалізує line endings. BOM при `stripBom: true` лишається в raw bytes і
-представлений collapsed `bom` segment.
+Ranges are half-open: `[start, end)`. `CharacterOffset` is a JavaScript UTF-16 code unit offset.
+`LineIndex` does not normalize line endings. Under `stripBom: true`, BOM remains in raw bytes and
+is represented by a collapsed `bom` segment.
 
-## Caveat для string input
+## Caveat for String Input
 
-String input уже декодований. Для нього бібліотека створює synthetic UTF-8 bytes. Якщо
-запитано exact source map, очікуй warning `ENCODING_TEXT_INPUT_SYNTHETIC_BYTES`. Для
-source-perfect parser workflows завжди передавай byte input.
+String input has already been decoded. The library creates synthetic UTF-8 bytes for it. If an
+exact source map is requested, expect the warning `ENCODING_TEXT_INPUT_SYNTHETIC_BYTES`. For
+source-perfect parser workflows, always pass byte input.
 
-## Інтеграція parser
+## Parser Integration
 
-Parser має приймати public `DecodedDocument`:
+The parser should accept the public `DecodedDocument`:
 
 ```ts
 const decoded = await decodeDocument(input, {
@@ -118,19 +119,21 @@ const mode = profile.nativeByteSafeEncodings.includes(decoded.detection.encoding
   : "transcode-compatibility";
 ```
 
-Native byte-safe encodings у v1: `utf-8`, `windows-1251`, `windows-1252`, `iso-8859-1`,
-`iso-8859-5`, `koi8-r`, `cp866`. UTF-16 variants мають іти через transcode compatibility з
-range mapping через `DecodedDocument.offsetMap`.
+Native byte-safe encodings in v1: `utf-8`, `windows-1251`, `windows-1252`, `iso-8859-1`,
+`iso-8859-5`, `koi8-r`, `cp866`. UTF-16 variants should go through transcode compatibility with
+range mapping through `DecodedDocument.offsetMap`.
 
 ## Diagnostics
 
-Runtime diagnostic messages мають бути англійською мовою. Документація та кодові коментарі —
-українською.
+Runtime diagnostic messages must be English. Public documentation in `README.md` and
+`documentation/*` is English. Internal project memory under `docs/*` and code comments are
+Ukrainian.
 
-Warnings/errors не можна перетворювати на plain strings у public integration. Зберігай
-`code`, `byteRange`, `textRange`, `details` і `warnings`.
+Warnings/errors must not be converted to plain strings in public integration. Preserve `code`,
+`byteRange`, `textRange`, `details`, and `warnings`.
 
-## Перевірка документації
+## Documentation Verification
 
-Public examples мають бути покриті `tests/public-docs-examples.test.ts`. Після зміни examples
-запускай `npm run typecheck` і релевантні tests, а перед завершенням задачі — `npm run check`.
+Public examples should be covered by `tests/public-docs-examples.test.ts`. After changing
+examples, run `npm run typecheck` and relevant tests; before finishing the task, run
+`npm run check`.

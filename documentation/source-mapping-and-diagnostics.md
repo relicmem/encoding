@@ -1,20 +1,20 @@
-# Source Mapping і Diagnostics
+# Source Mapping and Diagnostics
 
 ## Offset semantics
 
-Усі ranges є half-open інтервалами `[start, end)`.
+All ranges are half-open intervals: `[start, end)`.
 
 ```ts
 const byteRange = decoded.offsetMap.byteRangeForTextRange({ start: 0, end: 1 });
 const textRange = decoded.offsetMap.textRangeForByteRange({ start: 3, end: 4 });
 ```
 
-`CharacterOffset` означає JavaScript UTF-16 code unit offset, сумісний із `string.length` і
+`CharacterOffset` means a JavaScript UTF-16 code unit offset, compatible with `string.length` and
 `slice`.
 
 ## `OffsetMap`
 
-`OffsetMap` segment-based. Він не є per-character масивом за замовчуванням.
+`OffsetMap` is segment-based. It is not a per-character array by default.
 
 ```ts
 for (const segment of decoded.offsetMap.segments()) {
@@ -22,18 +22,18 @@ for (const segment of decoded.offsetMap.segments()) {
 }
 ```
 
-Типові segment kinds:
+Typical segment kinds:
 
-- `identity` — byte offsets і text offsets рухаються 1:1;
-- `encoded` — один символ займає кілька bytes або mapping не 1:1;
-- `bom` — BOM bytes, які можуть мати collapsed text range при `stripBom: true`;
-- `replacement` — invalid bytes, замінені `replacementCharacter`;
-- `synthetic` — bytes, створені для already-decoded string input.
+- `identity` - byte offsets and text offsets move 1:1;
+- `encoded` - one character takes multiple bytes, or mapping is not 1:1;
+- `bom` - BOM bytes that can have a collapsed text range under `stripBom: true`;
+- `replacement` - invalid bytes replaced by `replacementCharacter`;
+- `synthetic` - bytes created for already-decoded string input.
 
 ## `LineIndex`
 
-`LineIndex` не нормалізує line endings. `\r\n` рахується як один line break, окремі `\r` і
-`\n` також підтримуються.
+`LineIndex` does not normalize line endings. `\r\n` counts as one line break, and standalone `\r`
+and `\n` are also supported.
 
 ```ts
 const firstLineText = decoded.lineIndex.lineTextRange(1);
@@ -41,11 +41,11 @@ const firstLineBytes = decoded.lineIndex.lineByteRange(1, true);
 const position = decoded.lineIndex.positionAtByteOffset(10, "nearest");
 ```
 
-Line і column numbering починаються з `1`.
+Line and column numbering starts at `1`.
 
 ## Warnings
 
-Warnings є structured values, а не plain strings.
+Warnings are structured values, not plain strings.
 
 ```ts
 for (const warning of decoded.warnings) {
@@ -53,7 +53,7 @@ for (const warning of decoded.warnings) {
 }
 ```
 
-Поширені codes:
+Common codes:
 
 - `ENCODING_LOW_CONFIDENCE`;
 - `ENCODING_FALLBACK_USED`;
@@ -66,12 +66,12 @@ for (const warning of decoded.warnings) {
 - `ENCODING_INCOMPLETE_STREAM_SEQUENCE`;
 - `ENCODING_TRUNCATED_SAMPLE`.
 
-`ENCODING_TRUNCATED_SAMPLE` означає, що byte-derived detection прийняла рішення за bounded
-sample, тому bytes за межами sample не брали участі у validation/heuristics.
+`ENCODING_TRUNCATED_SAMPLE` means byte-derived detection made a decision from a bounded sample, so
+bytes outside the sample did not participate in validation/heuristics.
 
 ## Errors
 
-Fatal states представлені `EncodingError`.
+Fatal states are represented by `EncodingError`.
 
 ```ts
 try {
@@ -86,19 +86,19 @@ try {
 }
 ```
 
-`tryDecodeDocument` повертає ті самі fatal diagnostics у `EncodingResult` без throw.
+`tryDecodeDocument` returns the same fatal diagnostics in `EncodingResult` without throwing.
 
-## Caveat для string input
+## Caveat for String Input
 
-`string` input уже декодований до виклику `@relicmem/encoding`.
+`string` input has already been decoded before `@relicmem/encoding` is called.
 
 ```ts
-const decoded = decodeDocumentSync("Привіт", {
+const decoded = decodeDocumentSync("Hello", {
   sourceMap: "exact",
 });
 
 console.log(decoded.warnings.map((warning) => warning.code));
 ```
 
-Для exact source workflows передавайте original bytes. String input створює synthetic UTF-8
-bytes і не може відновити original byte ranges, BOM або legacy byte representation.
+For exact source workflows, pass original bytes. String input creates synthetic UTF-8 bytes and
+cannot recover original byte ranges, BOM, or legacy byte representation.

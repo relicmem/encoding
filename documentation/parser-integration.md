@@ -1,9 +1,9 @@
-# Інтеграція parser
+# Parser Integration
 
-`@relicmem/md-parser` має залежати від public `DecodedDocument`, а не від internal detector,
-decoder, source model або profile policy classes.
+`@relicmem/md-parser` should depend on the public `DecodedDocument`, not on internal detector,
+decoder, source model, or profile policy classes.
 
-## Базовий flow
+## Basic Flow
 
 ```ts
 import { BUILT_IN_ENCODING_PROFILES, decodeDocument } from "@relicmem/encoding";
@@ -30,9 +30,9 @@ const result = await parser.parse({
 });
 ```
 
-## Вибір mode
+## Mode Selection
 
-`native-byte-safe` підходить для UTF-8 і ASCII-compatible single-byte encodings:
+`native-byte-safe` is suitable for UTF-8 and ASCII-compatible single-byte encodings:
 
 - `utf-8`;
 - `windows-1251`;
@@ -42,21 +42,21 @@ const result = await parser.parse({
 - `koi8-r`;
 - `cp866`.
 
-`utf-16le` і `utf-16be` мають іти через `transcode-compatibility`, де parser працює з
-decoded text, а source ranges мапляться назад через `DecodedDocument.offsetMap`.
+`utf-16le` and `utf-16be` should go through `transcode-compatibility`, where the parser works with
+decoded text and source ranges map back through `DecodedDocument.offsetMap`.
 
 ## Diagnostics
 
-Parser має конвертувати:
+The parser should convert:
 
-- fatal `EncodingError` у parser diagnostic phase `encoding`;
-- `DecodedDocument.warnings` у warning diagnostics без втрати `byteRange`, `textRange` і
+- fatal `EncodingError` into parser diagnostic phase `encoding`;
+- `DecodedDocument.warnings` into warning diagnostics without losing `byteRange`, `textRange`, and
   `details`;
-- `tryDecodeDocument` failure branch у той самий diagnostic path, що й thrown
+- the `tryDecodeDocument` failure branch into the same diagnostic path as thrown
   `EncodingError`.
 
-## Важливе обмеження
+## Important Constraint
 
-У source-perfect parser mode не передавайте `string` input. Передавайте bytes, інакше
-`@relicmem/encoding` поверне synthetic byte source з warning
+In source-perfect parser mode, do not pass `string` input. Pass bytes; otherwise
+`@relicmem/encoding` returns a synthetic byte source with the warning
 `ENCODING_TEXT_INPUT_SYNTHETIC_BYTES`.

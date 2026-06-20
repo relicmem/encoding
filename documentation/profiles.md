@@ -1,10 +1,10 @@
-# Профілі кодування
+# Encoding Profiles
 
-Профілі — це політики detection/decoding, а не короткі aliases. Default profile — `relicmem`.
+Profiles are detection/decoding policies, not short aliases. The default profile is `relicmem`.
 
 ## `relicmem`
 
-Default для CLI/import і майбутньої інтеграції з `@relicmem/md-parser`.
+Default for CLI/import flows and future `@relicmem/md-parser` integration.
 
 ```ts
 const decoded = await decodeDocument(bytes, {
@@ -13,18 +13,19 @@ const decoded = await decodeDocument(bytes, {
 });
 ```
 
-Властивості:
+Properties:
 
-- explicit encoding має найвищий пріоритет;
-- BOM перемагає metadata/heuristics, якщо explicit encoding не заданий;
-- UTF-8 validation сильніший сигнал за legacy heuristics;
-- `windows-1251` і `windows-1252` не вибираються для valid UTF-8 без explicit/metadata signal;
-- default `minConfidence` — `0.75`;
-- exact source map required за замовчуванням.
+- explicit encoding has the highest priority;
+- BOM beats metadata/heuristics when explicit encoding is not set;
+- UTF-8 validation is a stronger signal than legacy heuristics;
+- `windows-1251` and `windows-1252` are not selected for valid UTF-8 without an
+  explicit/metadata signal;
+- default `minConfidence` is `0.75`;
+- exact source maps are required by default.
 
 ## `strictUtf8`
 
-Для нових документів, де legacy fallback є помилкою.
+For new documents where legacy fallback is an error.
 
 ```ts
 const decoded = decodeDocumentSync(bytes, {
@@ -32,11 +33,11 @@ const decoded = decodeDocumentSync(bytes, {
 });
 ```
 
-Invalid UTF-8 є fatal за замовчуванням. Legacy heuristics вимкнені.
+Invalid UTF-8 is fatal by default. Legacy heuristics are disabled.
 
 ## `legacyCyrillic`
 
-Для імпорту старих українських і російських документів.
+For importing old Ukrainian and Russian documents.
 
 ```ts
 const decoded = await decodeDocument(bytes, {
@@ -45,13 +46,13 @@ const decoded = await decodeDocument(bytes, {
 });
 ```
 
-Профіль фокусується на `windows-1251`, `koi8-r`, `cp866` і `iso-8859-5`, але не перебиває
-explicit encoding або BOM. Якщо кілька legacy candidates близькі за score, результат містить
-warning `ENCODING_AMBIGUOUS_CANDIDATES`.
+The profile focuses on `windows-1251`, `koi8-r`, `cp866`, and `iso-8859-5`, but it does not
+override explicit encoding or BOM. If several legacy candidates have close scores, the result
+contains the warning `ENCODING_AMBIGUOUS_CANDIDATES`.
 
 ## `webCompat`
 
-Для HTML/Markdown із web-джерел.
+For HTML/Markdown from web sources.
 
 ```ts
 const decoded = await decodeDocument(bytes, {
@@ -63,17 +64,17 @@ const decoded = await decodeDocument(bytes, {
 });
 ```
 
-Профіль підтримує metadata sniffing і WHATWG label behavior. Наприклад, `latin1` або
-`iso-8859-1` у web-compatible контексті може нормалізуватися до `windows-1252`. За замовчуванням
-профіль зберігає `sourceMap: "exact"` і спершу обирає exact backend, тому нормальний decode не
-створює backend substitution warning лише через profile default. Якщо exact source map не потрібен,
-`sourceMap: "none"` разом із явним `backendPreference` дозволяє використовувати не-exact backends
-без source-map fatal error.
+The profile supports metadata sniffing and WHATWG label behavior. For example, `latin1` or
+`iso-8859-1` in a web-compatible context can normalize to `windows-1252`. By default, the profile
+keeps `sourceMap: "exact"` and selects an exact backend first, so a normal decode does not create a
+backend substitution warning only because of the profile default. If an exact source map is not
+needed, `sourceMap: "none"` together with explicit `backendPreference` allows non-exact backends
+without a source-map fatal error.
 
 ## Custom profile
 
-Custom profile має явно описувати allowed encodings, native byte-safe encodings і policies.
-Використовуйте його тільки коли built-in profiles не відповідають продуктному режиму.
+A custom profile must explicitly describe allowed encodings, native byte-safe encodings, and
+policies. Use it only when the built-in profiles do not match the product mode.
 
 ```ts
 const customProfile = {

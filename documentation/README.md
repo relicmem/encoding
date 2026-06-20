@@ -1,31 +1,31 @@
-# Документація `@relicmem/encoding`
+# `@relicmem/encoding` Documentation
 
-Цей каталог містить практичну публічну документацію. `docs/SPEC.md` залишається
-архітектурною специфікацією, а файли тут описують, як безпечно інтегрувати бібліотеку.
+This directory contains practical public documentation. `docs/SPEC.md` remains the architectural
+specification; the files here describe how to integrate the library safely.
 
-## Для людей
+## For Users
 
-- [Швидкий старт](getting-started.md) — найкоротший шлях до decode, detect-only і stream API.
-- [Довідник API](api.md) — основні функції, опції та очікувана форма результату.
-- [Профілі кодування](profiles.md) — коли використовувати `relicmem`, `strictUtf8`,
-  `legacyCyrillic` і `webCompat`.
-- [Source mapping і diagnostics](source-mapping-and-diagnostics.md) — `OffsetMap`,
-  `LineIndex`, warnings/errors і caveat для string input.
-- [Інтеграція parser](parser-integration.md) — контракт для `@relicmem/md-parser` без internal
-  imports.
-- [Release notes v1 candidate](release-notes-v1.md) — сумісність, public API, dependency
-  footprint і known limitations перед v1 delivery.
-- [Release automation](release-automation.md) — GitHub workflow, npm scripts, publish gate,
-  secrets і recovery steps.
-- [Нотатки для contributors](contributors.md) — правила для contributors, включно з мовою
-  runtime messages.
+- [Getting started](getting-started.md) - the shortest path to the decode, detect-only, and
+  stream APIs.
+- [API reference](api.md) - core functions, options, and expected result shape.
+- [Encoding profiles](profiles.md) - when to use `relicmem`, `strictUtf8`,
+  `legacyCyrillic`, and `webCompat`.
+- [Source mapping and diagnostics](source-mapping-and-diagnostics.md) - `OffsetMap`,
+  `LineIndex`, warnings/errors, and the string input caveat.
+- [Parser integration](parser-integration.md) - the contract for `@relicmem/md-parser` without
+  internal imports.
+- [Release notes v1 candidate](release-notes-v1.md) - compatibility, public API, dependency
+  footprint, and known limitations before v1 delivery.
+- [Release automation](release-automation.md) - GitHub workflow, npm scripts, publish gate,
+  secrets, and recovery steps.
+- [Contributor notes](contributors.md) - contributor rules, including runtime message language.
 
-## Для агентів
+## For Agents
 
-- [Довідник для агентів](agents.md) — монолітний довідник із ключовими контрактами,
-  сценаріями та обмеженнями для автоматизованої роботи.
+- [Agent reference](agents.md) - a single reference with key contracts, scenarios, and
+  constraints for automated work.
 
-## Перевірка прикладів
+## Example Verification
 
-Приклади з документації підтримуються тестом `tests/public-docs-examples.test.ts`.
-Під час зміни публічного API оновлюйте документацію і цей тест в одному наборі змін.
+Documentation examples are backed by `tests/public-docs-examples.test.ts`.
+When the public API changes, update the documentation and this test in the same change set.

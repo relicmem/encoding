@@ -1,8 +1,8 @@
-# Швидкий старт
+# Getting Started
 
-## Встановлення
+## Installation
 
-Пакет очікує Node.js `>=20.19` і ESM runtime.
+The package expects Node.js `>=20.19` and an ESM runtime.
 
 ```ts
 import {
@@ -13,10 +13,10 @@ import {
 } from "@relicmem/encoding";
 ```
 
-## Декодування byte input
+## Decode Byte Input
 
-`decodeDocument` — основний асинхронний API. Він приймає bytes, buffers, sync/async
-iterables і `ReadableStream<Uint8Array>`.
+`decodeDocument` is the main async API. It accepts bytes, buffers, sync/async iterables, and
+`ReadableStream<Uint8Array>`.
 
 ```ts
 const decoded = await decodeDocument(bytes, {
@@ -29,7 +29,7 @@ console.log(decoded.detection.encoding);
 console.log(decoded.detection.confidence);
 ```
 
-Для синхронних джерел використовуйте `decodeDocumentSync`.
+Use `decodeDocumentSync` for synchronous sources.
 
 ```ts
 const decoded = decodeDocumentSync(new Uint8Array([0xef, 0xbb, 0xbf, 0x23]), {
@@ -39,10 +39,10 @@ const decoded = decodeDocumentSync(new Uint8Array([0xef, 0xbb, 0xbf, 0x23]), {
 console.log(decoded.text);
 ```
 
-## Тільки визначення кодування
+## Detect Only
 
-`detectEncoding` не декодує весь документ і не будує `OffsetMap`. Його варто
-використовувати для routing, logging, diagnostics або тестування detection pipeline.
+`detectEncoding` does not decode the full document and does not build an `OffsetMap`. Use it for
+routing, logging, diagnostics, or testing the detection pipeline.
 
 ```ts
 const detection = detectEncoding(bytes, {
@@ -57,16 +57,15 @@ console.log(detection.label);
 console.log(detection.warnings);
 ```
 
-У `webCompat` HTML/WHATWG label `latin1` може нормалізуватися до `windows-1252`; результат
-зберігає і вхідний label, і canonical encoding.
-Якщо ви зменшуєте `sampleSizeBytes`, перевіряйте `detection.warnings`: sample-limited
-byte-derived detection повертає `ENCODING_TRUNCATED_SAMPLE` замість silent full-document
-confidence.
+Under `webCompat`, the HTML/WHATWG label `latin1` can normalize to `windows-1252`; the result
+keeps both the input label and the canonical encoding.
+If you reduce `sampleSizeBytes`, check `detection.warnings`: sample-limited byte-derived detection
+returns `ENCODING_TRUNCATED_SAMPLE` instead of silently reporting full-document confidence.
 
-## Потокове декодування
+## Stream Decoding
 
-`createDecodingStream` потрібен, коли input приходить chunks, а інтегратор хоче отримувати
-decoded chunks без втрати byte ranges.
+Use `createDecodingStream` when input arrives in chunks and the integrator wants decoded chunks
+without losing byte ranges.
 
 ```ts
 const stream = createDecodingStream({
@@ -84,13 +83,12 @@ const document = stream.end();
 console.log(document.text);
 ```
 
-`write` може повертати порожній масив до завершення sampling/detection або коли chunk
-закінчується всередині multibyte sequence. `end` фіналізує pending state і повертає повний
-`DecodedDocument`.
+`write` can return an empty array until sampling/detection completes or when a chunk ends inside a
+multibyte sequence. `end` finalizes pending state and returns the complete `DecodedDocument`.
 
-## Byte input проти string input
+## Byte Input vs. String Input
 
-Передавайте bytes, якщо потрібні original byte ranges, BOM metadata або source-perfect
-інтеграція з parser. `string` input уже декодований до виклику бібліотеки; для нього
-створюються synthetic UTF-8 bytes, а при exact source map додається warning
+Pass bytes when you need original byte ranges, BOM metadata, or source-perfect parser integration.
+`string` input has already been decoded before the library is called; the library creates synthetic
+UTF-8 bytes for it, and exact source maps add the warning
 `ENCODING_TEXT_INPUT_SYNTHETIC_BYTES`.

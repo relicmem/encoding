@@ -1,8 +1,8 @@
-# Довідник API
+# API Reference
 
 ## `decodeDocument(input, options?)`
 
-Асинхронно декодує `EncodingInput` у `DecodedDocument`.
+Asynchronously decodes an `EncodingInput` into a `DecodedDocument`.
 
 ```ts
 const decoded = await decodeDocument(input, {
@@ -14,14 +14,14 @@ const decoded = await decodeDocument(input, {
 });
 ```
 
-Fatal states кидають `EncodingError`: unsupported encoding, invalid byte sequence при
-`replacementPolicy: "fatal"`, неможливість exact source map, конфлікт опцій або incomplete
+Fatal states throw `EncodingError`: unsupported encoding, an invalid byte sequence under
+`replacementPolicy: "fatal"`, unavailable exact source maps, option conflicts, or an incomplete
 stream sequence.
 
 ## `decodeDocumentSync(input, options?)`
 
-Синхронний варіант для `string`, `Uint8Array`, `ArrayBuffer` і `Iterable<Uint8Array>`.
-Асинхронні джерела потрібно декодувати через `decodeDocument`.
+Synchronous variant for `string`, `Uint8Array`, `ArrayBuffer`, and `Iterable<Uint8Array>`.
+Decode asynchronous sources through `decodeDocument`.
 
 ```ts
 const decoded = decodeDocumentSync(bytes, {
@@ -31,8 +31,8 @@ const decoded = decodeDocumentSync(bytes, {
 
 ## `tryDecodeDocument(input, options?)`
 
-No-throw wrapper для очікуваних fatal encoding states. Він корисний для parser diagnostics,
-де encoding failure треба перетворити на structured diagnostic без `throw`.
+No-throw wrapper for expected fatal encoding states. It is useful for parser diagnostics where an
+encoding failure should become a structured diagnostic without `throw`.
 
 ```ts
 const result = await tryDecodeDocument(bytes, {
@@ -47,11 +47,11 @@ if (!result.ok) {
 }
 ```
 
-Помилки читання async input не маскуються як encoding failures.
+Async input read errors are not masked as encoding failures.
 
 ## `detectEncoding(input, options?)`
 
-Синхронний detect-only API для `Uint8Array`.
+Synchronous detect-only API for `Uint8Array`.
 
 ```ts
 const detection = detectEncoding(bytes, {
@@ -63,14 +63,14 @@ console.log(detection.candidates);
 console.log(detection.warnings);
 ```
 
-Цей API не будує `OffsetMap` і не декодує весь документ.
-Якщо `sampleSizeBytes` менший за повний byte input і detection спирається на byte validation або
-heuristics, результат містить `ENCODING_TRUNCATED_SAMPLE`, а confidence sample-derived кандидата
-cap-иться на `0.99`.
+This API does not build an `OffsetMap` and does not decode the whole document.
+If `sampleSizeBytes` is smaller than the full byte input and detection relies on byte validation or
+heuristics, the result contains `ENCODING_TRUNCATED_SAMPLE`, and the confidence of the
+sample-derived candidate is capped at `0.99`.
 
 ## `createDecodingStream(options?)`
 
-Інкрементальний API для stream workflows.
+Incremental API for stream workflows.
 
 ```ts
 const stream = createDecodingStream({
@@ -83,10 +83,10 @@ const chunks = stream.write(firstChunk);
 const document = stream.end();
 ```
 
-`stream.detection` стає доступним після фіксації detection. До цього `write` може буферизувати
-input і повертати `[]`.
-Якщо detection фіксується до повного stream input і наступні bytes виходять за межі sample,
-фінальний `DecodedDocument.detection.warnings` містить `ENCODING_TRUNCATED_SAMPLE`.
+`stream.detection` becomes available after detection is fixed. Until then, `write` may buffer input
+and return `[]`.
+If detection is fixed before the full stream input and later bytes fall outside the sample, the
+final `DecodedDocument.detection.warnings` contains `ENCODING_TRUNCATED_SAMPLE`.
 
 ## `DecodedDocument`
 
@@ -100,6 +100,6 @@ decoded.warnings;
 decoded.source;
 ```
 
-`bytes` і `source.bytes` зберігають original bytes. `text` не нормалізує line endings.
-`warnings` містить diagnostics із detection, backend selection, decoding, source map builder і
-stream finalization у стабільному порядку.
+`bytes` and `source.bytes` preserve the original bytes. `text` does not normalize line endings.
+`warnings` contains diagnostics from detection, backend selection, decoding, source map building,
+and stream finalization in a stable order.
