@@ -1,10 +1,10 @@
-# @rmem/encoding
+# @relicmem/encoding
 
-`@rmem/encoding` — byte-to-text intake layer для `rmem`-документів. Пакет визначає
+`@relicmem/encoding` — byte-to-text intake layer для `RelicMEM`-документів. Пакет визначає
 кодування, декодує bytes за вибраною політикою, зберігає raw source bytes і повертає source
 mapping data, на які можуть спиратися вищі parser layers.
 
-Пакет не є Markdown parser. Його задача — дати `@rmem/md-parser` та іншим інтеграторам
+Пакет не є Markdown parser. Його задача — дати `@relicmem/md-parser` та іншим інтеграторам
 decoded document із:
 
 - canonical encoding detection і confidence data;
@@ -16,10 +16,10 @@ decoded document із:
 ## Швидкий приклад
 
 ```ts
-import { decodeDocument } from "@rmem/encoding";
+import { decodeDocument } from "@relicmem/encoding";
 
 const decoded = await decodeDocument(bytes, {
-  profile: "rmem",
+  profile: "relicmem",
   sourceMap: "exact",
 });
 
