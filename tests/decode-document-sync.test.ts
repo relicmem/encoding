@@ -4,7 +4,7 @@ import { EncodingError, decodeDocumentSync } from "../src/index.js";
 import type {
   DecodeDocumentOptions,
   DecodeDocumentSyncFunction,
-  RmemEncodingName,
+  RelicMEMEncodingName,
 } from "../src/index.js";
 
 describe("decodeDocumentSync", () => {
@@ -88,7 +88,7 @@ describe("decodeDocumentSync", () => {
   });
 
   it("keeps an immutable options snapshot while collecting sync iterable chunks", () => {
-    const allowedEncodings: RmemEncodingName[] = ["utf-8"];
+    const allowedEncodings: RelicMEMEncodingName[] = ["utf-8"];
     const options: MutableDecodeDocumentOptions = {
       profile: "strictUtf8",
       allowedEncodings,

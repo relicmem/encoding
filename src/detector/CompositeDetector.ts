@@ -14,7 +14,7 @@ import {
   mergeEncodingWarnings,
 } from "../contracts/diagnostics.js";
 import type { EncodingResult, EncodingWarning } from "../contracts/diagnostics.js";
-import type { DetectEncodingOptions, RmemEncodingName } from "../contracts/encoding.js";
+import type { DetectEncodingOptions, RelicMEMEncodingName } from "../contracts/encoding.js";
 import { aliasesForEncoding } from "../encoding/EncodingRegistry.js";
 import { normalizeDetectEncodingOptions } from "../encoding/OptionsNormalization.js";
 import type { NormalizedDetectEncodingOptions } from "../encoding/OptionsNormalization.js";
@@ -453,7 +453,7 @@ function requiredLabel(
 }
 
 function createProfileCanonicalLabel(
-  encoding: RmemEncodingName,
+  encoding: RelicMEMEncodingName,
   options: NormalizedDetectEncodingOptions,
 ): NormalizedEncodingLabel {
   return Object.freeze({

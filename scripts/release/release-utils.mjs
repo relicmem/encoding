@@ -4,7 +4,7 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 
-export const PACKAGE_NAME = "@rmem/encoding";
+export const PACKAGE_NAME = "@relicmem/encoding";
 export const PACKAGE_ROOT = path.resolve(fileURLToPath(new URL("../..", import.meta.url)));
 
 const SEMVER_PATTERN =

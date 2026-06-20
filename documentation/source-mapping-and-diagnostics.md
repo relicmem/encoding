@@ -90,7 +90,7 @@ try {
 
 ## Caveat для string input
 
-`string` input уже декодований до виклику `@rmem/encoding`.
+`string` input уже декодований до виклику `@relicmem/encoding`.
 
 ```ts
 const decoded = decodeDocumentSync("Привіт", {

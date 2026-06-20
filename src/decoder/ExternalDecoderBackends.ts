@@ -14,8 +14,12 @@ import {
   isEncodingError,
 } from "../contracts/diagnostics.js";
 import type { EncodingWarning } from "../contracts/diagnostics.js";
-import type { ReplacementPolicy, RmemEncodingName, SourceMapMode } from "../contracts/encoding.js";
-import { RMEM_ENCODING_NAMES, isRmemEncodingName } from "../encoding/EncodingRegistry.js";
+import type {
+  ReplacementPolicy,
+  RelicMEMEncodingName,
+  SourceMapMode,
+} from "../contracts/encoding.js";
+import { RELICMEM_ENCODING_NAMES, isRelicMEMEncodingName } from "../encoding/EncodingRegistry.js";
 import {
   DEFAULT_DECODING_REPLACEMENT_CHARACTER,
   addEncodingWarningDetails,
@@ -33,27 +37,15 @@ const TEXT_DECODER_DEFAULT_ENCODINGS = Object.freeze([
   "iso-8859-5",
   "koi8-r",
   "cp866",
-] as const satisfies readonly RmemEncodingName[]);
+] as const satisfies readonly RelicMEMEncodingName[]);
 
 const TEXT_DECODER_FATAL_SAFE_ENCODINGS = Object.freeze([
   "utf-8",
   "utf-16le",
   "utf-16be",
-] as const satisfies readonly RmemEncodingName[]);
+] as const satisfies readonly RelicMEMEncodingName[]);
 
-const TEXT_DECODER_LABELS: Readonly<Record<RmemEncodingName, string | undefined>> = Object.freeze({
-  "utf-8": "utf-8",
-  "utf-16le": "utf-16le",
-  "utf-16be": "utf-16be",
-  "windows-1251": "windows-1251",
-  "windows-1252": "windows-1252",
-  "iso-8859-1": undefined,
-  "iso-8859-5": "iso-8859-5",
-  "koi8-r": "koi8-r",
-  cp866: "cp866",
-});
-
-const TEXT_DECODER_NORMALIZED_ENCODINGS: Readonly<Record<RmemEncodingName, string | undefined>> =
+const TEXT_DECODER_LABELS: Readonly<Record<RelicMEMEncodingName, string | undefined>> =
   Object.freeze({
     "utf-8": "utf-8",
     "utf-16le": "utf-16le",
@@ -63,8 +55,22 @@ const TEXT_DECODER_NORMALIZED_ENCODINGS: Readonly<Record<RmemEncodingName, strin
     "iso-8859-1": undefined,
     "iso-8859-5": "iso-8859-5",
     "koi8-r": "koi8-r",
-    cp866: "ibm866",
+    cp866: "cp866",
   });
+
+const TEXT_DECODER_NORMALIZED_ENCODINGS: Readonly<
+  Record<RelicMEMEncodingName, string | undefined>
+> = Object.freeze({
+  "utf-8": "utf-8",
+  "utf-16le": "utf-16le",
+  "utf-16be": "utf-16be",
+  "windows-1251": "windows-1251",
+  "windows-1252": "windows-1252",
+  "iso-8859-1": undefined,
+  "iso-8859-5": "iso-8859-5",
+  "koi8-r": "koi8-r",
+  cp866: "ibm866",
+});
 
 export interface TextDecoderLike {
   readonly encoding?: string;
@@ -79,7 +85,7 @@ export type TextDecoderConstructorLike = new (
 export interface TextDecoderBackendOptions {
   readonly textDecoder?: TextDecoderConstructorLike;
   readonly version?: string;
-  readonly supportedEncodings?: readonly RmemEncodingName[];
+  readonly supportedEncodings?: readonly RelicMEMEncodingName[];
 }
 
 export interface IconvLiteDecodeOptions {
@@ -94,11 +100,11 @@ export interface IconvLiteLike {
 
 export interface IconvLiteBackendOptions {
   readonly version?: string;
-  readonly supportedEncodings?: readonly RmemEncodingName[];
+  readonly supportedEncodings?: readonly RelicMEMEncodingName[];
 }
 
 interface NormalizedExternalDecodeOptions {
-  readonly encoding: RmemEncodingName;
+  readonly encoding: RelicMEMEncodingName;
   readonly stripBom: boolean;
   readonly sourceMap: SourceMapMode;
   readonly replacementPolicy: ReplacementPolicy;
@@ -109,7 +115,7 @@ export class TextDecoderBackend implements DecoderBackend {
   readonly info: DecoderBackendInfo;
 
   private readonly textDecoder: TextDecoderConstructorLike;
-  private readonly supportedEncodings: readonly RmemEncodingName[];
+  private readonly supportedEncodings: readonly RelicMEMEncodingName[];
 
   constructor(options: TextDecoderBackendOptions = {}) {
     const textDecoder = resolveTextDecoderConstructor(options.textDecoder);
@@ -143,11 +149,11 @@ export class TextDecoderBackend implements DecoderBackend {
     Object.freeze(this);
   }
 
-  canDecode(encoding: RmemEncodingName): boolean {
+  canDecode(encoding: RelicMEMEncodingName): boolean {
     return this.supportedEncodings.includes(encoding);
   }
 
-  canEncode(encoding: RmemEncodingName): boolean {
+  canEncode(encoding: RelicMEMEncodingName): boolean {
     void encoding;
 
     return false;
@@ -201,7 +207,7 @@ export class TextDecoderBackend implements DecoderBackend {
     }
   }
 
-  encode(input: string, encoding: RmemEncodingName, options?: EncodeOptions): EncodeResult {
+  encode(input: string, encoding: RelicMEMEncodingName, options?: EncodeOptions): EncodeResult {
     void input;
     void options;
 
@@ -220,13 +226,13 @@ export class IconvLiteBackend implements DecoderBackend {
   readonly info: DecoderBackendInfo;
 
   private readonly iconvLite: IconvLiteLike;
-  private readonly supportedEncodings: readonly RmemEncodingName[];
+  private readonly supportedEncodings: readonly RelicMEMEncodingName[];
 
   constructor(iconvLite: IconvLiteLike, options: IconvLiteBackendOptions = {}) {
     assertIconvLiteLike(iconvLite);
 
     const requestedEncodings = normalizeSupportedEncodings(
-      options.supportedEncodings ?? RMEM_ENCODING_NAMES,
+      options.supportedEncodings ?? RELICMEM_ENCODING_NAMES,
       "iconv-lite",
     );
     const supportedEncodings = Object.freeze(
@@ -255,11 +261,11 @@ export class IconvLiteBackend implements DecoderBackend {
     Object.freeze(this);
   }
 
-  canDecode(encoding: RmemEncodingName): boolean {
+  canDecode(encoding: RelicMEMEncodingName): boolean {
     return this.supportedEncodings.includes(encoding);
   }
 
-  canEncode(encoding: RmemEncodingName): boolean {
+  canEncode(encoding: RelicMEMEncodingName): boolean {
     void encoding;
 
     return false;
@@ -317,7 +323,7 @@ export class IconvLiteBackend implements DecoderBackend {
     }
   }
 
-  encode(input: string, encoding: RmemEncodingName, options?: EncodeOptions): EncodeResult {
+  encode(input: string, encoding: RelicMEMEncodingName, options?: EncodeOptions): EncodeResult {
     void input;
     void options;
 
@@ -371,7 +377,7 @@ function resolveTextDecoderConstructor(
 
 function textDecoderSupportsEncoding(
   textDecoder: TextDecoderConstructorLike,
-  encoding: RmemEncodingName,
+  encoding: RelicMEMEncodingName,
 ): boolean {
   const label = TEXT_DECODER_LABELS[encoding];
   const expectedEncoding = TEXT_DECODER_NORMALIZED_ENCODINGS[encoding];
@@ -389,7 +395,7 @@ function textDecoderSupportsEncoding(
   }
 }
 
-function textDecoderLabel(encoding: RmemEncodingName): string {
+function textDecoderLabel(encoding: RelicMEMEncodingName): string {
   const label = TEXT_DECODER_LABELS[encoding];
 
   if (label === undefined) {
@@ -410,7 +416,10 @@ function normalizeTextDecoderEncoding(encoding: string): string {
   return encoding.trim().toLowerCase();
 }
 
-function iconvLiteSupportsEncoding(iconvLite: IconvLiteLike, encoding: RmemEncodingName): boolean {
+function iconvLiteSupportsEncoding(
+  iconvLite: IconvLiteLike,
+  encoding: RelicMEMEncodingName,
+): boolean {
   if (iconvLite.encodingExists === undefined) {
     return true;
   }
@@ -418,14 +427,14 @@ function iconvLiteSupportsEncoding(iconvLite: IconvLiteLike, encoding: RmemEncod
   return iconvLite.encodingExists(iconvLiteLabel(encoding));
 }
 
-function iconvLiteLabel(encoding: RmemEncodingName): string {
+function iconvLiteLabel(encoding: RelicMEMEncodingName): string {
   return encoding;
 }
 
 function normalizeExternalDecodeOptions(
   options: BackendDecodeOptions,
   backend: "text-decoder" | "iconv-lite",
-  supportedEncodings: readonly RmemEncodingName[],
+  supportedEncodings: readonly RelicMEMEncodingName[],
 ): NormalizedExternalDecodeOptions {
   assertOptionsObject(options, backend);
 
@@ -451,9 +460,9 @@ function normalizeExternalDecodeOptions(
 function normalizeExternalEncoding(
   encoding: unknown,
   backend: "text-decoder" | "iconv-lite",
-  supportedEncodings: readonly RmemEncodingName[],
-): RmemEncodingName {
-  if (typeof encoding !== "string" || !isRmemEncodingName(encoding)) {
+  supportedEncodings: readonly RelicMEMEncodingName[],
+): RelicMEMEncodingName {
+  if (typeof encoding !== "string" || !isRelicMEMEncodingName(encoding)) {
     throw createEncodingError({
       code: "ENCODING_UNSUPPORTED_ENCODING",
       message: "External backend cannot decode the requested encoding.",
@@ -511,8 +520,8 @@ function assertTextDecoderReplacementPolicy(options: NormalizedExternalDecodeOpt
   });
 }
 
-function isTextDecoderFatalSafeEncoding(encoding: RmemEncodingName): boolean {
-  return (TEXT_DECODER_FATAL_SAFE_ENCODINGS as readonly RmemEncodingName[]).includes(encoding);
+function isTextDecoderFatalSafeEncoding(encoding: RelicMEMEncodingName): boolean {
+  return (TEXT_DECODER_FATAL_SAFE_ENCODINGS as readonly RelicMEMEncodingName[]).includes(encoding);
 }
 
 function assertDefaultReplacementCharacter(
@@ -553,9 +562,9 @@ function assertReplacementPolicy(
 }
 
 function normalizeSupportedEncodings(
-  encodings: readonly RmemEncodingName[],
+  encodings: readonly RelicMEMEncodingName[],
   backend: "text-decoder" | "iconv-lite",
-): readonly RmemEncodingName[] {
+): readonly RelicMEMEncodingName[] {
   if (!Array.isArray(encodings)) {
     throw createEncodingError({
       code: "ENCODING_UNSUPPORTED_ENCODING",
@@ -567,10 +576,10 @@ function normalizeSupportedEncodings(
     });
   }
 
-  const normalized: RmemEncodingName[] = [];
+  const normalized: RelicMEMEncodingName[] = [];
 
   for (const encoding of encodings) {
-    if (typeof encoding !== "string" || !isRmemEncodingName(encoding)) {
+    if (typeof encoding !== "string" || !isRelicMEMEncodingName(encoding)) {
       throw createEncodingError({
         code: "ENCODING_UNSUPPORTED_ENCODING",
         message: "External backend supportedEncodings contains an unsupported encoding.",

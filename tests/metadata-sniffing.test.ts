@@ -7,7 +7,7 @@ import {
   sniffEncodingMetadata,
 } from "../src/encoding/MetadataSniffing.js";
 import { normalizeDetectEncodingOptions } from "../src/encoding/OptionsNormalization.js";
-import { RMEM_PROFILE, WEB_COMPAT_PROFILE } from "../src/profile/EncodingProfiles.js";
+import { RELICMEM_PROFILE, WEB_COMPAT_PROFILE } from "../src/profile/EncodingProfiles.js";
 
 describe("metadata sniffing", () => {
   it("extracts content-type and HTML charset metadata as normalized metadata candidates", () => {
@@ -57,8 +57,8 @@ describe("metadata sniffing", () => {
 
   it("keeps metadata disabled for profiles that do not opt into metadata sniffing", () => {
     const result = sniffEncodingMetadata({
-      profile: RMEM_PROFILE,
-      allowedEncodings: RMEM_PROFILE.allowedEncodings,
+      profile: RELICMEM_PROFILE,
+      allowedEncodings: RELICMEM_PROFILE.allowedEncodings,
       metadata: {
         declaredEncoding: "windows-1251",
       },

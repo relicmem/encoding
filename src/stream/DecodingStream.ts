@@ -13,7 +13,7 @@ import {
 import type { EncodingWarning } from "../contracts/diagnostics.js";
 import { createEncodingError } from "../contracts/diagnostics.js";
 import type { DecodedDocument } from "../contracts/document.js";
-import type { DecodeDocumentOptions, RmemEncodingName } from "../contracts/encoding.js";
+import type { DecodeDocumentOptions, RelicMEMEncodingName } from "../contracts/encoding.js";
 import type {
   OffsetMap,
   OffsetMapSegment,
@@ -401,7 +401,7 @@ function combineStreamChunks(first: StreamChunk, second: StreamChunk): StreamChu
 
 function splitChunkForPendingState(
   chunk: StreamChunk,
-  encoding: RmemEncodingName,
+  encoding: RelicMEMEncodingName,
 ): {
   readonly complete?: StreamChunk;
   readonly pending?: StreamChunk;
@@ -423,7 +423,7 @@ function splitChunkForPendingState(
   });
 }
 
-function findPendingByteStart(bytes: Uint8Array, encoding: RmemEncodingName): number {
+function findPendingByteStart(bytes: Uint8Array, encoding: RelicMEMEncodingName): number {
   switch (encoding) {
     case "utf-8":
       return findUtf8PendingByteStart(bytes);
@@ -630,7 +630,7 @@ function incompleteStreamSequenceDetails(
   });
 }
 
-function incompleteStreamSequenceReason(bytes: Uint8Array, encoding: RmemEncodingName): string {
+function incompleteStreamSequenceReason(bytes: Uint8Array, encoding: RelicMEMEncodingName): string {
   switch (encoding) {
     case "utf-8":
       return "Incomplete UTF-8 sequence.";

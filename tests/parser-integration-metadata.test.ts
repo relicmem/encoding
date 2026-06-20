@@ -1,11 +1,11 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 
 import { decodeDocumentSync } from "../src/index.js";
-import type { DecodedDocument, EncodingProfile, RmemEncodingName } from "../src/index.js";
+import type { DecodedDocument, EncodingProfile, RelicMEMEncodingName } from "../src/index.js";
 import {
   ASCII_COMPATIBLE_ENCODINGS,
   BUILT_IN_ENCODING_PROFILES,
-  RMEM_PROFILE,
+  RELICMEM_PROFILE,
   SINGLE_BYTE_ENCODINGS,
 } from "../src/profile/EncodingProfiles.js";
 
@@ -23,18 +23,18 @@ function parserIntegrationModeFor(
 describe("parser integration metadata", () => {
   it("exposes the public metadata shape needed to select a parser integration mode", () => {
     expectTypeOf<EncodingProfile>().toExtend<{
-      readonly allowedEncodings: readonly RmemEncodingName[];
-      readonly asciiCompatibleEncodings: readonly RmemEncodingName[];
-      readonly nativeByteSafeEncodings: readonly RmemEncodingName[];
+      readonly allowedEncodings: readonly RelicMEMEncodingName[];
+      readonly asciiCompatibleEncodings: readonly RelicMEMEncodingName[];
+      readonly nativeByteSafeEncodings: readonly RelicMEMEncodingName[];
     }>();
-    expectTypeOf<DecodedDocument["detection"]["encoding"]>().toExtend<RmemEncodingName>();
+    expectTypeOf<DecodedDocument["detection"]["encoding"]>().toExtend<RelicMEMEncodingName>();
   });
 
   it("marks UTF-8 and ASCII-compatible single-byte encodings as native byte-safe", () => {
     expect(ASCII_COMPATIBLE_ENCODINGS).toEqual(["utf-8", ...SINGLE_BYTE_ENCODINGS]);
-    expect(RMEM_PROFILE.nativeByteSafeEncodings).toEqual(ASCII_COMPATIBLE_ENCODINGS);
-    expect(RMEM_PROFILE.asciiCompatibleEncodings).toEqual(ASCII_COMPATIBLE_ENCODINGS);
-    expect(RMEM_PROFILE.allowedEncodings).toEqual([
+    expect(RELICMEM_PROFILE.nativeByteSafeEncodings).toEqual(ASCII_COMPATIBLE_ENCODINGS);
+    expect(RELICMEM_PROFILE.asciiCompatibleEncodings).toEqual(ASCII_COMPATIBLE_ENCODINGS);
+    expect(RELICMEM_PROFILE.allowedEncodings).toEqual([
       "utf-8",
       "utf-16le",
       "utf-16be",
@@ -46,19 +46,19 @@ describe("parser integration metadata", () => {
       "cp866",
     ]);
 
-    expect(RMEM_PROFILE.nativeByteSafeEncodings).not.toContain("utf-16le");
-    expect(RMEM_PROFILE.nativeByteSafeEncodings).not.toContain("utf-16be");
+    expect(RELICMEM_PROFILE.nativeByteSafeEncodings).not.toContain("utf-16le");
+    expect(RELICMEM_PROFILE.nativeByteSafeEncodings).not.toContain("utf-16be");
   });
 
   it("lets parser integrations choose mode from DecodedDocument detection and public profile metadata", () => {
     const singleByteDocument = decodeDocumentSync(new Uint8Array([0xcf, 0xf0]), {
-      profile: "rmem",
+      profile: "relicmem",
       explicitEncoding: "windows-1251",
     });
     const utf16Document = decodeDocumentSync(new Uint8Array([0xff, 0xfe, 0x23, 0x00]), {
-      profile: "rmem",
+      profile: "relicmem",
     });
-    const profile = BUILT_IN_ENCODING_PROFILES.rmem;
+    const profile = BUILT_IN_ENCODING_PROFILES.relicmem;
 
     expect(singleByteDocument.text).toBe("Пр");
     expect(singleByteDocument.detection.encoding).toBe("windows-1251");

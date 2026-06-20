@@ -3,7 +3,7 @@ import { describe, expect, expectTypeOf, it } from "vitest";
 import { EncodingError, tryDecodeDocument } from "../src/index.js";
 import type {
   DecodeDocumentOptions,
-  RmemEncodingName,
+  RelicMEMEncodingName,
   TryDecodeDocumentFunction,
 } from "../src/index.js";
 
@@ -75,7 +75,7 @@ describe("tryDecodeDocument", () => {
   });
 
   it("keeps an immutable options snapshot while collecting async iterable chunks", async () => {
-    const allowedEncodings: RmemEncodingName[] = ["utf-8"];
+    const allowedEncodings: RelicMEMEncodingName[] = ["utf-8"];
     const options: MutableDecodeDocumentOptions = {
       profile: "strictUtf8",
       allowedEncodings,
@@ -110,7 +110,7 @@ describe("tryDecodeDocument", () => {
 
 async function* createMutatingAsyncChunks(
   options: MutableDecodeDocumentOptions,
-  allowedEncodings: RmemEncodingName[],
+  allowedEncodings: RelicMEMEncodingName[],
 ): AsyncIterable<Uint8Array> {
   await Promise.resolve();
 

@@ -51,7 +51,7 @@
       "id": "utf8-no-bom",
       "description": "UTF-8 Markdown without BOM, with Cyrillic multi-byte ranges and trailing LF.",
       "bytesPath": "bytes/utf8-no-bom.md",
-      "tags": ["spec-minimal", "utf-8", "profile:rmem"],
+      "tags": ["spec-minimal", "utf-8", "profile:relicmem"],
       "expected": {
         "text": "# UTF-8\nПривіт, світ.\nLine 3\n",
         "detection": {
@@ -153,7 +153,7 @@
       "id": "utf8-bom",
       "description": "UTF-8 Markdown with BOM stripped from decoded text while raw bytes remain mapped.",
       "bytesPath": "bytes/utf8-bom.md",
-      "tags": ["spec-minimal", "utf-8", "bom", "profile:rmem"],
+      "tags": ["spec-minimal", "utf-8", "bom", "profile:relicmem"],
       "expected": {
         "text": "# BOM\ntext\n",
         "detection": {
@@ -297,7 +297,7 @@
       "id": "utf16le-bom",
       "description": "UTF-16LE Markdown accepted through BOM detection and exact two-byte code-unit mapping.",
       "bytesPath": "bytes/utf16le-bom.md",
-      "tags": ["spec-minimal", "utf-16le", "bom", "profile:rmem"],
+      "tags": ["spec-minimal", "utf-16le", "bom", "profile:relicmem"],
       "expected": {
         "text": "# UTF-16LE\nЖ\n",
         "detection": {
@@ -377,7 +377,7 @@
       "id": "utf16be-bom",
       "description": "UTF-16BE Markdown accepted through BOM detection and exact two-byte code-unit mapping.",
       "bytesPath": "bytes/utf16be-bom.md",
-      "tags": ["spec-minimal", "utf-16be", "bom", "profile:rmem"],
+      "tags": ["spec-minimal", "utf-16be", "bom", "profile:relicmem"],
       "expected": {
         "text": "# UTF-16BE\nЖ\n",
         "detection": {
@@ -846,7 +846,7 @@
       "id": "ambiguous-ascii",
       "description": "ASCII-only Markdown that is byte-valid across UTF-8 and single-byte encodings.",
       "bytesPath": "bytes/ambiguous-ascii.md",
-      "tags": ["spec-minimal", "ascii", "ambiguous", "profile:rmem"],
+      "tags": ["spec-minimal", "ascii", "ambiguous", "profile:relicmem"],
       "expected": {
         "text": "# ASCII\nplain text\n",
         "detection": {

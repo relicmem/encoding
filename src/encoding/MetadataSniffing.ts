@@ -5,7 +5,7 @@ import {
   isEncodingError,
 } from "../contracts/diagnostics.js";
 import type { EncodingWarning } from "../contracts/diagnostics.js";
-import type { EncodingMetadata, RmemEncodingName } from "../contracts/encoding.js";
+import type { EncodingMetadata, RelicMEMEncodingName } from "../contracts/encoding.js";
 import type { EncodingProfile } from "../contracts/profile.js";
 import { createEncodingCandidate } from "../detector/ConfidencePolicy.js";
 import { normalizeEncodingLabel } from "./EncodingRegistry.js";
@@ -29,7 +29,7 @@ export interface EncodingMetadataLabel {
 }
 
 export interface EncodingMetadataBomSignal {
-  readonly encoding: RmemEncodingName;
+  readonly encoding: RelicMEMEncodingName;
   readonly bomLength: number;
   readonly label?: NormalizedEncodingLabel;
 }
@@ -37,7 +37,7 @@ export interface EncodingMetadataBomSignal {
 export interface SniffEncodingMetadataOptions {
   readonly metadata?: EncodingMetadata;
   readonly profile: EncodingProfile;
-  readonly allowedEncodings: readonly RmemEncodingName[];
+  readonly allowedEncodings: readonly RelicMEMEncodingName[];
   readonly explicitEncoding?: NormalizedEncodingLabel;
   readonly bom?: EncodingMetadataBomSignal;
 }
@@ -347,7 +347,7 @@ function createInternalMetadataConflictWarnings(
 
 function createHigherPriorityMetadataConflictWarnings(options: {
   readonly higherPrioritySource: "explicit" | "bom";
-  readonly higherPriorityEncoding: RmemEncodingName;
+  readonly higherPriorityEncoding: RelicMEMEncodingName;
   readonly higherPriorityLabel?: string | undefined;
   readonly bomLength?: number | undefined;
   readonly selectedLabel: EncodingMetadataLabel;

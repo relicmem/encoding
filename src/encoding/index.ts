@@ -1,7 +1,7 @@
 export {
-  RMEM_ENCODING_NAMES,
+  RELICMEM_ENCODING_NAMES,
   aliasesForEncoding,
-  isRmemEncodingName,
+  isRelicMEMEncodingName,
   normalizeEncodingLabel,
   tryNormalizeEncodingLabel,
 } from "./EncodingRegistry.js";

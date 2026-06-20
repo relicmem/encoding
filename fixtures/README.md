@@ -1,6 +1,6 @@
 # Fixtures
 
-Цей каталог зберігає byte fixtures для поведінкових тестів `@rmem/encoding`.
+Цей каталог зберігає byte fixtures для поведінкових тестів `@relicmem/encoding`.
 
 ## Структура
 

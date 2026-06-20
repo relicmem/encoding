@@ -1,4 +1,4 @@
-import type { RmemEncodingName } from "../contracts/encoding.js";
+import type { RelicMEMEncodingName } from "../contracts/encoding.js";
 
 export const SINGLE_BYTE_ENCODING_NAMES = Object.freeze([
   "windows-1251",
@@ -7,7 +7,7 @@ export const SINGLE_BYTE_ENCODING_NAMES = Object.freeze([
   "iso-8859-5",
   "koi8-r",
   "cp866",
-] as const satisfies readonly RmemEncodingName[]);
+] as const satisfies readonly RelicMEMEncodingName[]);
 
 export type SingleByteEncodingName = (typeof SINGLE_BYTE_ENCODING_NAMES)[number];
 

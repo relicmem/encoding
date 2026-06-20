@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { EncodingError, normalizeEncodingLabel } from "../src/index.js";
-import type { RmemEncodingName } from "../src/index.js";
+import type { RelicMEMEncodingName } from "../src/index.js";
 import { detectByteOrderMark, tryDetectByteOrderMark } from "../src/detector/BomDetector.js";
 import { sniffEncodingMetadata } from "../src/encoding/MetadataSniffing.js";
 import { WEB_COMPAT_PROFILE } from "../src/profile/EncodingProfiles.js";
@@ -27,7 +27,7 @@ describe("BOM detector", () => {
       reason: "UTF-16BE byte order mark.",
     },
   ] satisfies readonly {
-    readonly encoding: RmemEncodingName;
+    readonly encoding: RelicMEMEncodingName;
     readonly bytes: readonly number[];
     readonly bomLength: number;
     readonly reason: string;

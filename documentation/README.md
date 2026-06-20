@@ -1,4 +1,4 @@
-# Документація `@rmem/encoding`
+# Документація `@relicmem/encoding`
 
 Цей каталог містить практичну публічну документацію. `docs/SPEC.md` залишається
 архітектурною специфікацією, а файли тут описують, як безпечно інтегрувати бібліотеку.
@@ -7,11 +7,11 @@
 
 - [Швидкий старт](getting-started.md) — найкоротший шлях до decode, detect-only і stream API.
 - [Довідник API](api.md) — основні функції, опції та очікувана форма результату.
-- [Профілі кодування](profiles.md) — коли використовувати `rmem`, `strictUtf8`,
+- [Профілі кодування](profiles.md) — коли використовувати `relicmem`, `strictUtf8`,
   `legacyCyrillic` і `webCompat`.
 - [Source mapping і diagnostics](source-mapping-and-diagnostics.md) — `OffsetMap`,
   `LineIndex`, warnings/errors і caveat для string input.
-- [Інтеграція parser](parser-integration.md) — контракт для `@rmem/md-parser` без internal
+- [Інтеграція parser](parser-integration.md) — контракт для `@relicmem/md-parser` без internal
   imports.
 - [Release notes v1 candidate](release-notes-v1.md) — сумісність, public API, dependency
   footprint і known limitations перед v1 delivery.

@@ -10,9 +10,9 @@ import {
   freezeEncodingWarnings,
 } from "../contracts/diagnostics.js";
 import type { EncodingDiagnosticCode, EncodingWarning } from "../contracts/diagnostics.js";
-import type { RmemEncodingName, SourceMapMode } from "../contracts/encoding.js";
+import type { RelicMEMEncodingName, SourceMapMode } from "../contracts/encoding.js";
 import type { EncodingProfile } from "../contracts/profile.js";
-import { isRmemEncodingName } from "../encoding/EncodingRegistry.js";
+import { isRelicMEMEncodingName } from "../encoding/EncodingRegistry.js";
 
 export type DecoderBackendSkipReason =
   | "not-registered"
@@ -20,7 +20,7 @@ export type DecoderBackendSkipReason =
   | "exact-source-map-unavailable";
 
 export interface SelectDecoderBackendOptions {
-  readonly encoding: RmemEncodingName;
+  readonly encoding: RelicMEMEncodingName;
   readonly profile: EncodingProfile;
   readonly sourceMap: SourceMapMode;
   readonly backendPreference: readonly DecoderBackendName[];
@@ -45,7 +45,7 @@ interface RegisteredDecoderBackend {
 }
 
 interface NormalizedSelectionOptions {
-  readonly encoding: RmemEncodingName;
+  readonly encoding: RelicMEMEncodingName;
   readonly profileName: string;
   readonly sourceMap: SourceMapMode;
   readonly backendPreference: readonly DecoderBackendName[];
@@ -195,8 +195,8 @@ function normalizeSelectionOptions(options: unknown): NormalizedSelectionOptions
   });
 }
 
-function normalizeEncoding(encoding: unknown): RmemEncodingName {
-  if (typeof encoding !== "string" || !isRmemEncodingName(encoding)) {
+function normalizeEncoding(encoding: unknown): RelicMEMEncodingName {
+  if (typeof encoding !== "string" || !isRelicMEMEncodingName(encoding)) {
     throw createEncodingError({
       code: "ENCODING_UNSUPPORTED_ENCODING",
       message: "Decoder backend selection requires a supported canonical encoding.",

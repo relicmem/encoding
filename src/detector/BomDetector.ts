@@ -8,11 +8,11 @@ import {
   isEncodingError,
 } from "../contracts/diagnostics.js";
 import type { EncodingResult, EncodingWarning } from "../contracts/diagnostics.js";
-import type { RmemEncodingName } from "../contracts/encoding.js";
+import type { RelicMEMEncodingName } from "../contracts/encoding.js";
 import type { SourceByteRange } from "../contracts/source.js";
 import {
-  RMEM_ENCODING_NAMES,
-  isRmemEncodingName,
+  RELICMEM_ENCODING_NAMES,
+  isRelicMEMEncodingName,
   normalizeEncodingLabel,
 } from "../encoding/EncodingRegistry.js";
 import { createEncodingCandidate } from "./ConfidencePolicy.js";
@@ -20,13 +20,13 @@ import { createEncodingCandidate } from "./ConfidencePolicy.js";
 export type BomConflictPolicy = "warning" | "fatal";
 
 export interface DetectByteOrderMarkOptions {
-  readonly allowedEncodings?: readonly RmemEncodingName[];
+  readonly allowedEncodings?: readonly RelicMEMEncodingName[];
   readonly explicitEncoding?: NormalizedEncodingLabel;
   readonly conflictPolicy?: BomConflictPolicy;
 }
 
 export interface EncodingByteOrderMark {
-  readonly encoding: RmemEncodingName;
+  readonly encoding: RelicMEMEncodingName;
   readonly bomLength: number;
   readonly byteRange: SourceByteRange;
   readonly label: NormalizedEncodingLabel;
@@ -39,13 +39,13 @@ export interface ByteOrderMarkDetectionResult {
 }
 
 interface BomPattern {
-  readonly encoding: RmemEncodingName;
+  readonly encoding: RelicMEMEncodingName;
   readonly bytes: readonly number[];
   readonly reason: string;
 }
 
 interface NormalizedDetectByteOrderMarkOptions {
-  readonly allowedEncodings: readonly RmemEncodingName[];
+  readonly allowedEncodings: readonly RelicMEMEncodingName[];
   readonly explicitEncoding?: NormalizedEncodingLabel;
   readonly conflictPolicy: BomConflictPolicy;
 }
@@ -255,9 +255,9 @@ function normalizeDetectByteOrderMarkOptions(
   });
 }
 
-function normalizeAllowedEncodings(allowedEncodings: unknown): readonly RmemEncodingName[] {
-  const input = allowedEncodings ?? RMEM_ENCODING_NAMES;
-  const normalized: RmemEncodingName[] = [];
+function normalizeAllowedEncodings(allowedEncodings: unknown): readonly RelicMEMEncodingName[] {
+  const input = allowedEncodings ?? RELICMEM_ENCODING_NAMES;
+  const normalized: RelicMEMEncodingName[] = [];
 
   if (!Array.isArray(input)) {
     throw createEncodingError({
@@ -271,7 +271,7 @@ function normalizeAllowedEncodings(allowedEncodings: unknown): readonly RmemEnco
   }
 
   for (const encoding of input as readonly unknown[]) {
-    if (typeof encoding !== "string" || !isRmemEncodingName(encoding)) {
+    if (typeof encoding !== "string" || !isRelicMEMEncodingName(encoding)) {
       throw createEncodingError({
         code: "ENCODING_UNSUPPORTED_ENCODING",
         message: "Allowed encodings must contain only supported canonical encodings.",

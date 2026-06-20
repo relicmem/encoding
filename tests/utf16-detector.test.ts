@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { EncodingError, normalizeEncodingLabel } from "../src/index.js";
 import { detectUtf16, tryDetectUtf16 } from "../src/detector/Utf16Detector.js";
-import { RMEM_PROFILE, STRICT_UTF8_PROFILE } from "../src/profile/EncodingProfiles.js";
+import { RELICMEM_PROFILE, STRICT_UTF8_PROFILE } from "../src/profile/EncodingProfiles.js";
 
 describe("UTF-16 detector", () => {
   it.each([
@@ -116,7 +116,7 @@ describe("UTF-16 detector", () => {
   it("does not let UTF-16 heuristic override explicit encoding", () => {
     const explicitEncoding = normalizeEncodingLabel("utf-8", {
       source: "explicit",
-      profile: RMEM_PROFILE,
+      profile: RELICMEM_PROFILE,
     });
     const result = detectUtf16(new Uint8Array([0x23, 0x00, 0x20, 0x00, 0x41, 0x00, 0x0a, 0x00]), {
       explicitEncoding,

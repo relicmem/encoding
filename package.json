@@ -1,12 +1,20 @@
 {
-  "name": "@rmem/encoding",
+  "name": "@relicmem/encoding",
   "version": "0.0.1",
-  "description": "Byte-to-text intake layer for rmem documents.",
-  "license": "UNLICENSED",
+  "description": "Byte-to-text intake layer for relicmem documents.",
+  "license": "Apache-2.0",
   "type": "module",
   "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/relicmem/encoding"
+  },
+  "bugs": {
+    "url": "https://github.com/relicmem/encoding/issues"
+  },
+  "homepage": "https://github.com/relicmem/encoding#readme",
   "engines": {
-    "node": ">=22.14"
+    "node": ">=24.17"
   },
   "files": [
     "dist"

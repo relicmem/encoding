@@ -29,7 +29,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  PACKAGE_NAME: "@rmem/encoding"
+  PACKAGE_NAME: "@relicmem/encoding"
   RELEASE_MODE: "${{ inputs.mode }}"
   RELEASE_VERSION: "${{ inputs.version }}"
   NPM_TAG: "${{ inputs.npm_tag }}"
@@ -50,7 +50,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "24"
           cache: "npm"
           registry-url: "https://registry.npmjs.org"
 
@@ -93,7 +93,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "24"
           registry-url: "https://registry.npmjs.org"
 
       - name: Download package preview artifact
@@ -134,5 +134,5 @@ jobs:
         run: |
           gh release create "$TAG_NAME" release-artifacts/*.tgz \
             --target "$GITHUB_SHA" \
-            --title "@rmem/encoding $RELEASE_VERSION" \
+            --title "@relicmem/encoding $RELEASE_VERSION" \
             --notes-file documentation/release-notes-v1.md

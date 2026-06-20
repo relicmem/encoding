@@ -1,4 +1,4 @@
-import type { RmemEncodingName, ReplacementPolicy, SourceMapMode } from "./encoding.js";
+import type { RelicMEMEncodingName, ReplacementPolicy, SourceMapMode } from "./encoding.js";
 import type { EncodingWarning } from "./diagnostics.js";
 import type { OffsetMap, OffsetMapSegment } from "./source.js";
 
@@ -18,7 +18,7 @@ export interface DecoderBackendInfo {
 }
 
 export interface BackendDecodeOptions {
-  readonly encoding: RmemEncodingName;
+  readonly encoding: RelicMEMEncodingName;
   readonly stripBom: boolean;
   readonly sourceMap: SourceMapMode;
   readonly replacementPolicy: ReplacementPolicy;
@@ -44,8 +44,8 @@ export interface EncodeResult {
 
 export interface DecoderBackend {
   readonly info: DecoderBackendInfo;
-  canDecode(encoding: RmemEncodingName): boolean;
-  canEncode(encoding: RmemEncodingName): boolean;
+  canDecode(encoding: RelicMEMEncodingName): boolean;
+  canEncode(encoding: RelicMEMEncodingName): boolean;
   decode(input: Uint8Array, options: BackendDecodeOptions): BackendDecodeResult;
-  encode(input: string, encoding: RmemEncodingName, options?: EncodeOptions): EncodeResult;
+  encode(input: string, encoding: RelicMEMEncodingName, options?: EncodeOptions): EncodeResult;
 }

@@ -20,7 +20,7 @@
 Публічні приклади мають імпортувати з package root:
 
 ```ts
-import { decodeDocument } from "@rmem/encoding";
+import { decodeDocument } from "@relicmem/encoding";
 ```
 
 Не документуйте internal detector/decoder/source classes як integration surface, якщо вони не

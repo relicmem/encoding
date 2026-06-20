@@ -6,7 +6,7 @@
 
 ```ts
 const decoded = await decodeDocument(input, {
-  profile: "rmem",
+  profile: "relicmem",
   minConfidence: 0.75,
   defaultEncoding: "utf-8",
   allowedEncodings: ["utf-8", "utf-16le", "utf-16be", "windows-1251", "windows-1252", "koi8-r"],
@@ -74,7 +74,7 @@ cap-иться на `0.99`.
 
 ```ts
 const stream = createDecodingStream({
-  profile: "rmem",
+  profile: "relicmem",
   sampleSizeBytes: 4096,
   sourceMap: "exact",
 });

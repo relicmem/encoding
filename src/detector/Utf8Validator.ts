@@ -7,9 +7,9 @@ import {
   isEncodingError,
 } from "../contracts/diagnostics.js";
 import type { EncodingResult, EncodingWarning } from "../contracts/diagnostics.js";
-import type { RmemEncodingName } from "../contracts/encoding.js";
+import type { RelicMEMEncodingName } from "../contracts/encoding.js";
 import type { SourceByteRange } from "../contracts/source.js";
-import { RMEM_ENCODING_NAMES, isRmemEncodingName } from "../encoding/EncodingRegistry.js";
+import { RELICMEM_ENCODING_NAMES, isRelicMEMEncodingName } from "../encoding/EncodingRegistry.js";
 import { createEncodingCandidate } from "./ConfidencePolicy.js";
 
 export type Utf8ValidationInvalidPolicy = "collect" | "fatal";
@@ -17,7 +17,7 @@ export type Utf8ValidationInvalidPolicy = "collect" | "fatal";
 export type Utf8ValidationHigherPrioritySource = "explicit" | "bom";
 
 export interface ValidateUtf8Options {
-  readonly allowedEncodings?: readonly RmemEncodingName[];
+  readonly allowedEncodings?: readonly RelicMEMEncodingName[];
   readonly higherPrioritySource?: Utf8ValidationHigherPrioritySource;
   readonly invalidPolicy?: Utf8ValidationInvalidPolicy;
 }
@@ -48,7 +48,7 @@ export interface Utf8ValidationResult {
 }
 
 interface NormalizedValidateUtf8Options {
-  readonly allowedEncodings: readonly RmemEncodingName[];
+  readonly allowedEncodings: readonly RelicMEMEncodingName[];
   readonly higherPrioritySource?: Utf8ValidationHigherPrioritySource;
   readonly invalidPolicy: Utf8ValidationInvalidPolicy;
 }
@@ -384,9 +384,9 @@ function normalizeValidateUtf8Options(
   });
 }
 
-function normalizeAllowedEncodings(allowedEncodings: unknown): readonly RmemEncodingName[] {
-  const input = allowedEncodings ?? RMEM_ENCODING_NAMES;
-  const normalized: RmemEncodingName[] = [];
+function normalizeAllowedEncodings(allowedEncodings: unknown): readonly RelicMEMEncodingName[] {
+  const input = allowedEncodings ?? RELICMEM_ENCODING_NAMES;
+  const normalized: RelicMEMEncodingName[] = [];
 
   if (!Array.isArray(input)) {
     throw createEncodingError({
@@ -400,7 +400,7 @@ function normalizeAllowedEncodings(allowedEncodings: unknown): readonly RmemEnco
   }
 
   for (const encoding of input as readonly unknown[]) {
-    if (typeof encoding !== "string" || !isRmemEncodingName(encoding)) {
+    if (typeof encoding !== "string" || !isRelicMEMEncodingName(encoding)) {
       throw createEncodingError({
         code: "ENCODING_UNSUPPORTED_ENCODING",
         message: "Allowed encodings must contain only supported canonical encodings.",

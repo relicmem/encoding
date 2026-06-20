@@ -4,7 +4,7 @@ import {
   freezeEncodingWarnings,
 } from "../contracts/diagnostics.js";
 import type { EncodingError, EncodingWarning } from "../contracts/diagnostics.js";
-import type { ReplacementPolicy, RmemEncodingName } from "../contracts/encoding.js";
+import type { ReplacementPolicy, RelicMEMEncodingName } from "../contracts/encoding.js";
 import type { TextRange } from "../contracts/source.js";
 
 export const DEFAULT_ENCODING_REPLACEMENT_CHARACTER = "?";
@@ -21,7 +21,7 @@ export interface NormalizeControlledEncodingPolicyOptions {
 }
 
 export interface UnmappableCharacterDiagnosticOptions {
-  readonly encoding: RmemEncodingName;
+  readonly encoding: RelicMEMEncodingName;
   readonly reason: string;
   readonly textRange: TextRange;
   readonly codePoint?: number;

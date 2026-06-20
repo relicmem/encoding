@@ -2,16 +2,16 @@ import { describe, expect, it } from "vitest";
 
 import {
   EncodingError,
-  RMEM_ENCODING_NAMES,
+  RELICMEM_ENCODING_NAMES,
   aliasesForEncoding,
-  isRmemEncodingName,
+  isRelicMEMEncodingName,
   normalizeEncodingLabel,
   tryNormalizeEncodingLabel,
 } from "../src/index.js";
 
 describe("encoding registry and label normalization", () => {
   it("exposes the stable lowercase canonical encoding set", () => {
-    expect(RMEM_ENCODING_NAMES).toEqual([
+    expect(RELICMEM_ENCODING_NAMES).toEqual([
       "utf-8",
       "utf-16le",
       "utf-16be",
@@ -22,10 +22,12 @@ describe("encoding registry and label normalization", () => {
       "koi8-r",
       "cp866",
     ]);
-    expect(Object.isFrozen(RMEM_ENCODING_NAMES)).toBe(true);
-    expect(RMEM_ENCODING_NAMES.every((encoding) => encoding === encoding.toLowerCase())).toBe(true);
-    expect(isRmemEncodingName("windows-1251")).toBe(true);
-    expect(isRmemEncodingName("utf8")).toBe(false);
+    expect(Object.isFrozen(RELICMEM_ENCODING_NAMES)).toBe(true);
+    expect(RELICMEM_ENCODING_NAMES.every((encoding) => encoding === encoding.toLowerCase())).toBe(
+      true,
+    );
+    expect(isRelicMEMEncodingName("windows-1251")).toBe(true);
+    expect(isRelicMEMEncodingName("utf8")).toBe(false);
   });
 
   it("normalizes common strict labels to canonical names with stable aliases", () => {

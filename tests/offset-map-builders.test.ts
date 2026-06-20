@@ -8,7 +8,7 @@ import {
   buildUtf16LeOffsetMap,
   buildUtf8OffsetMap,
 } from "../src/source/OffsetMapBuilder.js";
-import type { RmemEncodingName } from "../src/index.js";
+import type { RelicMEMEncodingName } from "../src/index.js";
 
 const SINGLE_BYTE_ENCODINGS = [
   "windows-1251",
@@ -17,7 +17,7 @@ const SINGLE_BYTE_ENCODINGS = [
   "iso-8859-5",
   "koi8-r",
   "cp866",
-] as const satisfies readonly RmemEncodingName[];
+] as const satisfies readonly RelicMEMEncodingName[];
 
 describe("OffsetMap builders", () => {
   it("builds identity maps for byte-safe single-byte spans", () => {

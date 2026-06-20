@@ -11,7 +11,7 @@ import type {
   DecodedDocument,
   DecodeDocumentOptions,
   EncodingWarning,
-  RmemEncodingName,
+  RelicMEMEncodingName,
 } from "../src/index.js";
 import { loadFixture } from "./support/fixtures.js";
 
@@ -203,7 +203,7 @@ describe("stream and async input behavior", () => {
   });
 
   it("keeps an immutable options snapshot after stream construction", () => {
-    const allowedEncodings: RmemEncodingName[] = ["utf-8"];
+    const allowedEncodings: RelicMEMEncodingName[] = ["utf-8"];
     const options: MutableDecodeDocumentOptions = {
       profile: "strictUtf8",
       allowedEncodings,

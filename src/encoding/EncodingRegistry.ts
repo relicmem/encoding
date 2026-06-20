@@ -9,33 +9,33 @@ import {
   isEncodingError,
 } from "../contracts/diagnostics.js";
 import type { EncodingResult } from "../contracts/diagnostics.js";
-import type { RmemEncodingName, RmemEncodingProfileName } from "../contracts/encoding.js";
+import type { RelicMEMEncodingName, RelicMEMEncodingProfileName } from "../contracts/encoding.js";
 import type { EncodingProfile } from "../contracts/profile.js";
 
 export type EncodingLabelCompatibility = "strict" | "web";
 
 export interface NormalizeEncodingLabelOptions {
   readonly source?: NormalizedEncodingLabelSource;
-  readonly profile?: RmemEncodingProfileName | EncodingProfile;
+  readonly profile?: RelicMEMEncodingProfileName | EncodingProfile;
   readonly compatibility?: EncodingLabelCompatibility;
 }
 
 export interface EncodingAliasLookupOptions {
-  readonly profile?: RmemEncodingProfileName | EncodingProfile;
+  readonly profile?: RelicMEMEncodingProfileName | EncodingProfile;
   readonly compatibility?: EncodingLabelCompatibility;
 }
 
 interface EncodingRegistryEntry {
-  readonly canonical: RmemEncodingName;
+  readonly canonical: RelicMEMEncodingName;
   readonly aliases: readonly string[];
 }
 
 interface WebCompatRemap {
   readonly labels: readonly string[];
-  readonly canonical: RmemEncodingName;
+  readonly canonical: RelicMEMEncodingName;
 }
 
-export const RMEM_ENCODING_NAMES = Object.freeze([
+export const RELICMEM_ENCODING_NAMES = Object.freeze([
   "utf-8",
   "utf-16le",
   "utf-16be",
@@ -45,7 +45,7 @@ export const RMEM_ENCODING_NAMES = Object.freeze([
   "iso-8859-5",
   "koi8-r",
   "cp866",
-] as const satisfies readonly RmemEncodingName[]);
+] as const satisfies readonly RelicMEMEncodingName[]);
 
 const NORMALIZED_LABEL_SOURCES = Object.freeze([
   "explicit",
@@ -125,15 +125,15 @@ export function tryNormalizeEncodingLabel(
   }
 }
 
-export function isRmemEncodingName(value: string): value is RmemEncodingName {
-  return RMEM_ENCODING_NAMES.includes(value as RmemEncodingName);
+export function isRelicMEMEncodingName(value: string): value is RelicMEMEncodingName {
+  return RELICMEM_ENCODING_NAMES.includes(value as RelicMEMEncodingName);
 }
 
 export function aliasesForEncoding(
   encoding: string,
   options?: EncodingAliasLookupOptions,
 ): readonly string[] {
-  if (!isRmemEncodingName(encoding)) {
+  if (!isRelicMEMEncodingName(encoding)) {
     throw createEncodingError({
       code: "ENCODING_UNSUPPORTED_ENCODING",
       message: "Unsupported encoding.",
@@ -153,7 +153,7 @@ export function aliasesForEncoding(
 
 function createNormalizedEncodingLabel(options: {
   readonly inputLabel: string;
-  readonly canonical: RmemEncodingName;
+  readonly canonical: RelicMEMEncodingName;
   readonly aliases: readonly string[];
   readonly source: NormalizedEncodingLabelSource;
 }): NormalizedEncodingLabel {
@@ -220,7 +220,7 @@ function resolveCanonicalEncoding(
   compatibility: EncodingLabelCompatibility,
   options: Required<Pick<NormalizeEncodingLabelOptions, "source">> &
     Pick<NormalizeEncodingLabelOptions, "profile" | "compatibility">,
-): RmemEncodingName {
+): RelicMEMEncodingName {
   const labelLookup = compatibility === "web" ? WEB_COMPAT_LABELS : STRICT_LABELS;
   const canonical = labelLookup.get(normalizedLabel);
 
@@ -271,7 +271,7 @@ function resolveCompatibility(
 }
 
 function isWebCompatProfile(
-  profile: RmemEncodingProfileName | EncodingProfile | undefined,
+  profile: RelicMEMEncodingProfileName | EncodingProfile | undefined,
 ): boolean {
   if (profile === undefined) {
     return false;
@@ -308,8 +308,8 @@ function assertEncodingLabelCompatibility(
 function buildLabelLookup(
   registry: readonly EncodingRegistryEntry[],
   remaps: readonly WebCompatRemap[],
-): ReadonlyMap<string, RmemEncodingName> {
-  const labels = new Map<string, RmemEncodingName>();
+): ReadonlyMap<string, RelicMEMEncodingName> {
+  const labels = new Map<string, RelicMEMEncodingName>();
 
   for (const entry of registry) {
     labels.set(entry.canonical, entry.canonical);
@@ -331,8 +331,8 @@ function buildLabelLookup(
 function buildAliasLookup(
   registry: readonly EncodingRegistryEntry[],
   remaps: readonly WebCompatRemap[],
-): ReadonlyMap<RmemEncodingName, readonly string[]> {
-  const aliases = new Map<RmemEncodingName, string[]>();
+): ReadonlyMap<RelicMEMEncodingName, readonly string[]> {
+  const aliases = new Map<RelicMEMEncodingName, string[]>();
 
   for (const entry of registry) {
     aliases.set(entry.canonical, [...entry.aliases]);
@@ -362,7 +362,7 @@ function buildAliasLookup(
 }
 
 function registryEntry(
-  canonical: RmemEncodingName,
+  canonical: RelicMEMEncodingName,
   aliases: readonly string[],
 ): EncodingRegistryEntry {
   return Object.freeze({

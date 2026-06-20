@@ -1,6 +1,6 @@
 # Release automation
 
-Release automation для `@rmem/encoding` побудована на npm scripts і GitHub Actions без
+Release automation для `@relicmem/encoding` побудована на npm scripts і GitHub Actions без
 стороннього release tooling. Вона не змінює version сама: версія має бути зафіксована в
 `package.json` окремим reviewed commit, а workflow input `version` є confirmation guard і має
 збігатися з package metadata.

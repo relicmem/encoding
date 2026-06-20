@@ -8,7 +8,7 @@ import {
   createTextDecoderBackend,
   isTextDecoderBackendAvailable,
 } from "../src/decoder/index.js";
-import type { BackendDecodeOptions, RmemEncodingName, SourceMapMode } from "../src/index.js";
+import type { BackendDecodeOptions, RelicMEMEncodingName, SourceMapMode } from "../src/index.js";
 import type { IconvLiteLike } from "../src/decoder/ExternalDecoderBackends.js";
 import { normalizeDecodeDocumentOptions } from "../src/encoding/OptionsNormalization.js";
 
@@ -284,7 +284,7 @@ describe("external decoder backend adapters", () => {
 });
 
 function decodeOptions(
-  encoding: RmemEncodingName,
+  encoding: RelicMEMEncodingName,
   sourceMap: SourceMapMode = "exact",
 ): BackendDecodeOptions {
   return {

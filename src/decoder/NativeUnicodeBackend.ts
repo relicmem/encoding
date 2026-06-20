@@ -12,7 +12,11 @@ import {
   isEncodingError,
 } from "../contracts/diagnostics.js";
 import type { EncodingWarning } from "../contracts/diagnostics.js";
-import type { ReplacementPolicy, RmemEncodingName, SourceMapMode } from "../contracts/encoding.js";
+import type {
+  ReplacementPolicy,
+  RelicMEMEncodingName,
+  SourceMapMode,
+} from "../contracts/encoding.js";
 import type { OffsetMap, OffsetMapSegment } from "../contracts/source.js";
 import {
   createUnmappableCharacterError,
@@ -37,11 +41,11 @@ const NATIVE_UNICODE_ENCODINGS = Object.freeze([
   "utf-8",
   "utf-16le",
   "utf-16be",
-] as const satisfies readonly RmemEncodingName[]);
+] as const satisfies readonly RelicMEMEncodingName[]);
 const NATIVE_DECODER_ENCODINGS = Object.freeze([
   ...NATIVE_UNICODE_ENCODINGS,
   ...SINGLE_BYTE_ENCODING_NAMES,
-] as const satisfies readonly RmemEncodingName[]);
+] as const satisfies readonly RelicMEMEncodingName[]);
 const BYTE_MASK = 0x3f;
 const HIGH_SURROGATE_BASE = 0xd800;
 const HIGH_SURROGATE_END = 0xdbff;
@@ -92,11 +96,11 @@ export class NativeUnicodeBackend implements DecoderBackend {
     Object.freeze(this);
   }
 
-  canDecode(encoding: RmemEncodingName): boolean {
+  canDecode(encoding: RelicMEMEncodingName): boolean {
     return isNativeDecoderEncoding(encoding);
   }
 
-  canEncode(encoding: RmemEncodingName): boolean {
+  canEncode(encoding: RelicMEMEncodingName): boolean {
     return isNativeDecoderEncoding(encoding);
   }
 
@@ -124,7 +128,7 @@ export class NativeUnicodeBackend implements DecoderBackend {
     });
   }
 
-  encode(input: string, encoding: RmemEncodingName, options?: EncodeOptions): EncodeResult {
+  encode(input: string, encoding: RelicMEMEncodingName, options?: EncodeOptions): EncodeResult {
     assertStringInput(input);
 
     const normalizedOptions = normalizeEncodeOptions(encoding, options);
@@ -779,7 +783,7 @@ function normalizeDecodeOptions(options: BackendDecodeOptions): NormalizedNative
 }
 
 function normalizeEncodeOptions(
-  encoding: RmemEncodingName,
+  encoding: RelicMEMEncodingName,
   options: EncodeOptions | undefined,
 ): NormalizedNativeEncodeOptions {
   const normalizedEncoding = normalizeNativeEncoderEncoding(encoding);

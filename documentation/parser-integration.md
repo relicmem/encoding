@@ -1,23 +1,23 @@
 # Інтеграція parser
 
-`@rmem/md-parser` має залежати від public `DecodedDocument`, а не від internal detector,
+`@relicmem/md-parser` має залежати від public `DecodedDocument`, а не від internal detector,
 decoder, source model або profile policy classes.
 
 ## Базовий flow
 
 ```ts
-import { BUILT_IN_ENCODING_PROFILES, decodeDocument } from "@rmem/encoding";
-import { createParser } from "@rmem/md-parser";
+import { BUILT_IN_ENCODING_PROFILES, decodeDocument } from "@relicmem/encoding";
+import { createParser } from "@relicmem/md-parser";
 
 const decoded = await decodeDocument(input, {
-  profile: "rmem",
+  profile: "relicmem",
   minConfidence: 0.75,
   defaultEncoding: "utf-8",
   allowedEncodings: ["utf-8", "utf-16le", "utf-16be", "windows-1251", "windows-1252", "koi8-r"],
   sourceMap: "exact",
 });
 
-const profile = BUILT_IN_ENCODING_PROFILES.rmem;
+const profile = BUILT_IN_ENCODING_PROFILES.relicmem;
 const mode = profile.nativeByteSafeEncodings.includes(decoded.detection.encoding)
   ? "native-byte-safe"
   : "transcode-compatibility";
@@ -58,5 +58,5 @@ Parser має конвертувати:
 ## Важливе обмеження
 
 У source-perfect parser mode не передавайте `string` input. Передавайте bytes, інакше
-`@rmem/encoding` поверне synthetic byte source з warning
+`@relicmem/encoding` поверне synthetic byte source з warning
 `ENCODING_TEXT_INPUT_SYNTHETIC_BYTES`.

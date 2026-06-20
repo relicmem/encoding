@@ -1,0 +1,38 @@
+@relicmem/encoding
+
+Copyright 2026 Андрій Чвиль and RelicMEM contributors.
+
+This product includes software developed as part of the RelicMEM project.
+
+Licensed under the Apache License, Version 2.0.
+
+The contents of this NOTICE file are for informational purposes only and do not modify the License.
+
+The names “RelicMEM” and “@relicmem/encoding”, the RelicMEM project identity, and any associated logos or visual marks are trademarks or project marks of their respective owners. Use of these names or marks does not imply endorsement by the RelicMEM project unless explicitly stated.
+
+Third-party notices:
+
+WHATWG Encoding Standard
+
+This package includes behavior and compact data derived from the WHATWG Encoding Standard for encoding labels, web-compatible label remapping, TextDecoder compatibility expectations, and legacy single-byte encoding indexes used by the native decoder tables.
+
+Covered materials in this package include support data or behavior for `windows-1251`, `windows-1252`, `iso-8859-5`, `koi8-r`, `IBM866`/`cp866`, and the web-compatible remapping of labels such as `iso-8859-1`, `latin1`, `us-ascii`, and related aliases to `windows-1252`.
+
+Source: https://encoding.spec.whatwg.org/
+Repository data: https://github.com/whatwg/encoding
+Copyright: WHATWG (Apple, Google, Mozilla, Microsoft).
+License: Creative Commons Attribution 4.0 International License for the standard text; BSD 3-Clause License for portions incorporated into source code.
+
+Unicode Standard and Unicode data
+
+This package includes behavior and compact data derived from Unicode materials for UTF-8 and UTF-16 handling, scalar value and surrogate rules, BOM-related behavior, Unicode code point assignments used in encoding maps, and replacement character semantics.
+
+Source: https://www.unicode.org/
+License: Unicode License v3.
+Copyright: 1991-2026 Unicode, Inc.
+
+IANA Character Sets registry
+
+This package uses charset names and aliases from the IANA Character Sets registry as compatibility references for accepted encoding labels.
+
+Source: https://www.iana.org/assignments/character-sets/character-sets.xhtml

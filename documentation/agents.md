@@ -1,11 +1,11 @@
-# Довідник для агентів `@rmem/encoding`
+# Довідник для агентів `@relicmem/encoding`
 
 Це монолітний довідник для агентів. Для користувацької документації дивись структуровані
 файли в цьому ж каталозі.
 
 ## Призначення
 
-`@rmem/encoding` — byte-to-text intake layer для `rmem` documents. Бібліотека не парсить
+`@relicmem/encoding` — byte-to-text intake layer для `RelicMEM` documents. Бібліотека не парсить
 Markdown. Вона визначає encoding, декодує bytes, зберігає raw source, будує `OffsetMap` і
 `LineIndex`, повертає detection metadata, backend metadata, warnings і fatal `EncodingError`.
 
@@ -19,7 +19,7 @@ import {
   decodeDocumentSync,
   detectEncoding,
   tryDecodeDocument,
-} from "@rmem/encoding";
+} from "@relicmem/encoding";
 ```
 
 Публічні приклади мають імпортувати з package root. Не документуй internal modules як contract
@@ -29,7 +29,7 @@ import {
 
 ```ts
 const decoded = await decodeDocument(bytes, {
-  profile: "rmem",
+  profile: "relicmem",
   sourceMap: "exact",
 });
 ```
@@ -56,7 +56,7 @@ logging, diagnostics і tests.
 
 ```ts
 const stream = createDecodingStream({
-  profile: "rmem",
+  profile: "relicmem",
   sourceMap: "exact",
 });
 
@@ -70,7 +70,7 @@ multibyte sequence. `end` фіналізує stream і повертає повн
 
 ## Профілі
 
-- `rmem` — default для CLI/import і parser integration; exact source map, UTF-8 validation
+- `relicmem` — default для CLI/import і parser integration; exact source map, UTF-8 validation
   сильніший за legacy heuristics, default `minConfidence: 0.75`.
 - `strictUtf8` — для нових документів; legacy heuristics вимкнені, invalid UTF-8 fatal.
 - `legacyCyrillic` — імпорт старих Cyrillic documents; focus `windows-1251`, `koi8-r`,
@@ -108,11 +108,11 @@ Parser має приймати public `DecodedDocument`:
 
 ```ts
 const decoded = await decodeDocument(input, {
-  profile: "rmem",
+  profile: "relicmem",
   sourceMap: "exact",
 });
 
-const profile = BUILT_IN_ENCODING_PROFILES.rmem;
+const profile = BUILT_IN_ENCODING_PROFILES.relicmem;
 const mode = profile.nativeByteSafeEncodings.includes(decoded.detection.encoding)
   ? "native-byte-safe"
   : "transcode-compatibility";

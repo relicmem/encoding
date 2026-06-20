@@ -16,10 +16,10 @@ const encoder = new TextEncoder();
 type ParserIntegrationMode = "native-byte-safe" | "transcode-compatibility";
 
 describe("public documentation examples", () => {
-  it("decodes byte input with the default rmem integration profile", async () => {
+  it("decodes byte input with the default relicmem integration profile", async () => {
     const bytes = encoder.encode("# Title\nПривіт\n");
     const decoded = await decodeDocument(bytes, {
-      profile: "rmem",
+      profile: "relicmem",
       sourceMap: "exact",
     });
 
@@ -111,7 +111,7 @@ describe("public documentation examples", () => {
 
   it("keeps stream chunks and final document ranges source-aware", () => {
     const stream = createDecodingStream({
-      profile: "rmem",
+      profile: "relicmem",
       sourceMap: "exact",
       sampleSizeBytes: 4,
     });
@@ -134,7 +134,7 @@ describe("public documentation examples", () => {
 
   it("maps decoded text ranges back to original bytes and line positions", () => {
     const decoded = decodeDocumentSync(new Uint8Array([0xef, 0xbb, 0xbf, 0x23, 0x0a, 0xd0, 0x96]), {
-      profile: "rmem",
+      profile: "relicmem",
       sourceMap: "exact",
     });
 
@@ -167,12 +167,12 @@ describe("public documentation examples", () => {
 
   it("selects parser integration mode from public document and profile metadata", () => {
     const byteSafeDocument = decodeDocumentSync(encoder.encode("# UTF-8"), {
-      profile: "rmem",
+      profile: "relicmem",
     });
     const utf16Document = decodeDocumentSync(new Uint8Array([0xff, 0xfe, 0x23, 0x00]), {
-      profile: "rmem",
+      profile: "relicmem",
     });
-    const profile = BUILT_IN_ENCODING_PROFILES.rmem;
+    const profile = BUILT_IN_ENCODING_PROFILES.relicmem;
 
     expect(parserIntegrationModeFor(byteSafeDocument, profile)).toBe("native-byte-safe");
     expect(parserIntegrationModeFor(utf16Document, profile)).toBe("transcode-compatibility");

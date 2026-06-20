@@ -5,7 +5,7 @@ import type {
   DecodeDocumentOptions,
   DecoderBackend,
   DecoderBackendName,
-  RmemEncodingName,
+  RelicMEMEncodingName,
 } from "../src/index.js";
 import { DecoderRegistry } from "../src/decoder/DecoderRegistry.js";
 import type { SelectDecoderBackendOptions } from "../src/decoder/DecoderRegistry.js";
@@ -69,7 +69,7 @@ describe("decoder backend registry", () => {
 
     const selection = registry.selectDecoderBackend(
       selectionOptions("utf-8", {
-        profile: "rmem",
+        profile: "relicmem",
         backendPreference: ["text-decoder", "native"],
       }),
     );
@@ -91,7 +91,7 @@ describe("decoder backend registry", () => {
       message: "Decoder backend was substituted.",
       details: {
         encoding: "utf-8",
-        profile: "rmem",
+        profile: "relicmem",
         sourceMap: "exact",
         requestedBackend: "text-decoder",
         selectedBackend: "native",
@@ -115,7 +115,7 @@ describe("decoder backend registry", () => {
 
     const selection = registry.selectDecoderBackend(
       selectionOptions("utf-8", {
-        profile: "rmem",
+        profile: "relicmem",
         sourceMap: "none",
         backendPreference: ["text-decoder", "native"],
       }),
@@ -202,7 +202,7 @@ describe("decoder backend registry", () => {
       expect((error as EncodingError).code).toBe("ENCODING_SOURCE_MAP_UNAVAILABLE");
       expect((error as EncodingError).details).toMatchObject({
         encoding: "utf-8",
-        profile: "rmem",
+        profile: "relicmem",
         sourceMap: "exact",
         exactSourceMapRequired: true,
         requestedBackends: ["text-decoder"],
@@ -234,7 +234,7 @@ describe("decoder backend registry", () => {
 });
 
 function selectionOptions(
-  encoding: RmemEncodingName,
+  encoding: RelicMEMEncodingName,
   options?: DecodeDocumentOptions,
 ): SelectDecoderBackendOptions {
   const normalizedOptions = normalizeDecodeDocumentOptions(options);
@@ -250,7 +250,7 @@ function selectionOptions(
 function createTestBackend(options: {
   readonly name: DecoderBackendName;
   readonly exactSourceMap: boolean;
-  readonly supportedDecodings: readonly RmemEncodingName[];
+  readonly supportedDecodings: readonly RelicMEMEncodingName[];
 }): DecoderBackend {
   const supportedDecodings = new Set(options.supportedDecodings);
 

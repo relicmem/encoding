@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://rmem.local/encoding/fixtures.schema.json",
-  "title": "@rmem/encoding fixture manifest",
+  "$id": "https://relicmem.local/encoding/fixtures.schema.json",
+  "title": "@relicmem/encoding fixture manifest",
   "type": "object",
   "additionalProperties": false,
   "required": ["fixtures"],

@@ -1,14 +1,14 @@
 # Профілі кодування
 
-Профілі — це політики detection/decoding, а не короткі aliases. Default profile — `rmem`.
+Профілі — це політики detection/decoding, а не короткі aliases. Default profile — `relicmem`.
 
-## `rmem`
+## `relicmem`
 
-Default для CLI/import і майбутньої інтеграції з `@rmem/md-parser`.
+Default для CLI/import і майбутньої інтеграції з `@relicmem/md-parser`.
 
 ```ts
 const decoded = await decodeDocument(bytes, {
-  profile: "rmem",
+  profile: "relicmem",
   sourceMap: "exact",
 });
 ```

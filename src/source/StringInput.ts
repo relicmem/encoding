@@ -12,8 +12,8 @@ import {
 import type { EncodingWarning } from "../contracts/diagnostics.js";
 import type { DecodedDocument } from "../contracts/document.js";
 import type {
-  RmemEncodingName,
-  RmemEncodingProfileName,
+  RelicMEMEncodingName,
+  RelicMEMEncodingProfileName,
   SourceMapMode,
 } from "../contracts/encoding.js";
 import type { EncodingProfile } from "../contracts/profile.js";
@@ -24,9 +24,9 @@ import { buildSyntheticUtf8StringOffsetMap } from "./OffsetMapBuilder.js";
 import { createSourceBuffer } from "./SourceBuffer.js";
 
 export interface DecodedStringInputOptions {
-  readonly profile?: RmemEncodingProfileName | EncodingProfile;
+  readonly profile?: RelicMEMEncodingProfileName | EncodingProfile;
   readonly explicitEncoding?: string;
-  readonly defaultEncoding?: RmemEncodingName;
+  readonly defaultEncoding?: RelicMEMEncodingName;
   readonly sourceMap?: SourceMapMode;
 }
 
@@ -115,7 +115,7 @@ function resolveStringInputEncoding(
 function createSyntheticSourceMapWarnings(
   text: string,
   bytes: Uint8Array,
-  encoding: RmemEncodingName,
+  encoding: RelicMEMEncodingName,
   options: DecodedStringInputOptions,
 ): readonly EncodingWarning[] {
   if (options.sourceMap !== "exact") {

@@ -4,7 +4,7 @@ import type { EncodingResult } from "./diagnostics.js";
 import type { EncodingDetectionResult } from "./detection.js";
 import type { EncodingProfile } from "./profile.js";
 
-export type RmemEncodingName =
+export type RelicMEMEncodingName =
   | "utf-8"
   | "utf-16le"
   | "utf-16be"
@@ -15,7 +15,11 @@ export type RmemEncodingName =
   | "koi8-r"
   | "cp866";
 
-export type RmemEncodingProfileName = "strictUtf8" | "rmem" | "legacyCyrillic" | "webCompat";
+export type RelicMEMEncodingProfileName =
+  | "strictUtf8"
+  | "relicmem"
+  | "legacyCyrillic"
+  | "webCompat";
 
 export type SourceMapMode = "exact" | "line" | "none";
 
@@ -39,10 +43,10 @@ export interface EncodingMetadata {
 }
 
 export interface DecodeDocumentOptions {
-  readonly profile?: RmemEncodingProfileName | EncodingProfile;
+  readonly profile?: RelicMEMEncodingProfileName | EncodingProfile;
   readonly explicitEncoding?: string;
-  readonly defaultEncoding?: RmemEncodingName;
-  readonly allowedEncodings?: readonly RmemEncodingName[];
+  readonly defaultEncoding?: RelicMEMEncodingName;
+  readonly allowedEncodings?: readonly RelicMEMEncodingName[];
   readonly minConfidence?: number;
   readonly metadata?: EncodingMetadata;
   readonly stripBom?: boolean;
@@ -54,10 +58,10 @@ export interface DecodeDocumentOptions {
 }
 
 export interface DetectEncodingOptions {
-  readonly profile?: RmemEncodingProfileName | EncodingProfile;
+  readonly profile?: RelicMEMEncodingProfileName | EncodingProfile;
   readonly explicitEncoding?: string;
-  readonly defaultEncoding?: RmemEncodingName;
-  readonly allowedEncodings?: readonly RmemEncodingName[];
+  readonly defaultEncoding?: RelicMEMEncodingName;
+  readonly allowedEncodings?: readonly RelicMEMEncodingName[];
   readonly minConfidence?: number;
   readonly metadata?: EncodingMetadata;
   readonly sampleSizeBytes?: number;

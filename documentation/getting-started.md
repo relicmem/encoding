@@ -10,7 +10,7 @@ import {
   decodeDocument,
   decodeDocumentSync,
   detectEncoding,
-} from "@rmem/encoding";
+} from "@relicmem/encoding";
 ```
 
 ## Декодування byte input
@@ -20,7 +20,7 @@ iterables і `ReadableStream<Uint8Array>`.
 
 ```ts
 const decoded = await decodeDocument(bytes, {
-  profile: "rmem",
+  profile: "relicmem",
   sourceMap: "exact",
 });
 
@@ -70,7 +70,7 @@ decoded chunks без втрати byte ranges.
 
 ```ts
 const stream = createDecodingStream({
-  profile: "rmem",
+  profile: "relicmem",
   sourceMap: "exact",
 });
 

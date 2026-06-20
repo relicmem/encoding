@@ -6,11 +6,11 @@ import {
   mergeEncodingWarnings,
 } from "../contracts/diagnostics.js";
 import type { EncodingWarning } from "../contracts/diagnostics.js";
-import type { RmemEncodingName } from "../contracts/encoding.js";
-import { RMEM_ENCODING_NAMES, isRmemEncodingName } from "../encoding/EncodingRegistry.js";
+import type { RelicMEMEncodingName } from "../contracts/encoding.js";
+import { RELICMEM_ENCODING_NAMES, isRelicMEMEncodingName } from "../encoding/EncodingRegistry.js";
 
 export interface CreateEncodingCandidateOptions {
-  readonly encoding: RmemEncodingName;
+  readonly encoding: RelicMEMEncodingName;
   readonly confidence: number;
   readonly source: EncodingDetectionSource;
   readonly reason: string;
@@ -48,7 +48,7 @@ const DEFAULT_AMBIGUOUS_SOURCES = Object.freeze([
   "heuristic",
 ] as const satisfies readonly EncodingDetectionSource[]);
 
-const ENCODING_ORDER = buildPriorityLookup(RMEM_ENCODING_NAMES);
+const ENCODING_ORDER = buildPriorityLookup(RELICMEM_ENCODING_NAMES);
 const SOURCE_ORDER = buildPriorityLookup(ENCODING_CANDIDATE_SOURCE_PRIORITY);
 
 export function createEncodingCandidate(
@@ -70,7 +70,7 @@ export function createEncodingCandidate(
 }
 
 export function createFallbackEncodingCandidate(options: {
-  readonly encoding: RmemEncodingName;
+  readonly encoding: RelicMEMEncodingName;
   readonly confidence?: number;
   readonly reason?: string;
 }): EncodingCandidate {
@@ -360,8 +360,8 @@ function normalizeBomLength(bomLength: number | undefined): number {
   return value;
 }
 
-function assertCandidateEncoding(encoding: unknown): asserts encoding is RmemEncodingName {
-  if (typeof encoding !== "string" || !isRmemEncodingName(encoding)) {
+function assertCandidateEncoding(encoding: unknown): asserts encoding is RelicMEMEncodingName {
+  if (typeof encoding !== "string" || !isRelicMEMEncodingName(encoding)) {
     throw createEncodingError({
       code: "ENCODING_UNSUPPORTED_ENCODING",
       message: "Candidate encoding must be a supported canonical encoding.",
@@ -422,7 +422,7 @@ function sourcePriority(source: EncodingDetectionSource): number {
   return SOURCE_ORDER.get(source) ?? Number.MAX_SAFE_INTEGER;
 }
 
-function encodingPriority(encoding: RmemEncodingName): number {
+function encodingPriority(encoding: RelicMEMEncodingName): number {
   return ENCODING_ORDER.get(encoding) ?? Number.MAX_SAFE_INTEGER;
 }
 

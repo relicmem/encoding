@@ -8,11 +8,11 @@ import {
 } from "../src/encoding/OptionsNormalization.js";
 
 describe("decode and detect options normalization", () => {
-  it("normalizes default rmem decode options into a fully validated immutable shape", () => {
+  it("normalizes default relicmem decode options into a fully validated immutable shape", () => {
     const options = normalizeDecodeDocumentOptions();
 
     expect(options.profile).toMatchObject({
-      name: "rmem",
+      name: "relicmem",
       defaultEncoding: "utf-8",
       minConfidence: 0.75,
       legacyHeuristics: true,

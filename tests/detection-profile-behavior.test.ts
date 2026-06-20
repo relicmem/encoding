@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { EncodingError, detectEncoding } from "../src/index.js";
-import type { EncodingDetectionResult, RmemEncodingName } from "../src/index.js";
+import type { EncodingDetectionResult, RelicMEMEncodingName } from "../src/index.js";
 import { loadFixture } from "./support/fixtures.js";
 
 const encoder = new TextEncoder();
@@ -25,7 +25,7 @@ const LEGACY_CYRILLIC_FIXTURES = Object.freeze([
   },
 ] as const satisfies readonly {
   readonly id: string;
-  readonly encoding: RmemEncodingName;
+  readonly encoding: RelicMEMEncodingName;
 }[]);
 
 describe("detection and profile behavior", () => {
@@ -167,9 +167,9 @@ describe("detection and profile behavior", () => {
     });
   });
 
-  it("does not let rmem choose legacy encoding for valid UTF-8 Cyrillic text", () => {
+  it("does not let relicmem choose legacy encoding for valid UTF-8 Cyrillic text", () => {
     const result = detectEncoding(encoder.encode("Привіт, документе."), {
-      profile: "rmem",
+      profile: "relicmem",
     });
 
     expect(result).toMatchObject({
@@ -283,7 +283,7 @@ describe("detection and profile behavior", () => {
 
 function candidatePairs(
   result: EncodingDetectionResult,
-): readonly (readonly [RmemEncodingName, string])[] {
+): readonly (readonly [RelicMEMEncodingName, string])[] {
   return result.candidates.map((candidate) => [candidate.encoding, candidate.source] as const);
 }
 

@@ -8,12 +8,12 @@ import {
   isEncodingError,
 } from "../contracts/diagnostics.js";
 import type { EncodingResult, EncodingWarning } from "../contracts/diagnostics.js";
-import type { RmemEncodingName } from "../contracts/encoding.js";
+import type { RelicMEMEncodingName } from "../contracts/encoding.js";
 import type { EncodingProfile } from "../contracts/profile.js";
-import { isRmemEncodingName } from "../encoding/EncodingRegistry.js";
+import { isRelicMEMEncodingName } from "../encoding/EncodingRegistry.js";
 import { decodeSingleByteCodePoint } from "../encoding/SingleByteEncoding.js";
 import type { SingleByteEncodingName } from "../encoding/SingleByteEncoding.js";
-import { RMEM_PROFILE } from "../profile/EncodingProfiles.js";
+import { RELICMEM_PROFILE } from "../profile/EncodingProfiles.js";
 import { detectByteOrderMark } from "./BomDetector.js";
 import type { EncodingByteOrderMark } from "./BomDetector.js";
 import {
@@ -39,7 +39,7 @@ export interface LegacyUtf8ValidationSignal {
 
 export interface DetectLegacyEncodingOptions {
   readonly profile?: EncodingProfile;
-  readonly allowedEncodings?: readonly RmemEncodingName[];
+  readonly allowedEncodings?: readonly RelicMEMEncodingName[];
   readonly explicitEncoding?: NormalizedEncodingLabel;
   readonly minConfidence?: number;
   readonly utf8Validation?: LegacyUtf8ValidationSignal;
@@ -78,7 +78,7 @@ export interface LegacyEncodingDetectionResult {
 
 interface NormalizedDetectLegacyEncodingOptions {
   readonly profile: EncodingProfile;
-  readonly allowedEncodings: readonly RmemEncodingName[];
+  readonly allowedEncodings: readonly RelicMEMEncodingName[];
   readonly explicitEncoding?: NormalizedEncodingLabel;
   readonly minConfidence: number;
   readonly utf8Validation?: LegacyUtf8ValidationSignal;
@@ -483,7 +483,7 @@ function isViableLegacyScore(score: LegacyEncodingHeuristicScore): boolean {
 
 function createCandidateFromScore(
   score: LegacyEncodingHeuristicScore,
-  allowedEncodings: readonly RmemEncodingName[],
+  allowedEncodings: readonly RelicMEMEncodingName[],
 ): EncodingCandidate | undefined {
   if (!allowedEncodings.includes(score.encoding)) {
     return undefined;
@@ -505,7 +505,7 @@ function createCandidateFromScore(
 
 function createDisallowedScoreWarnings(
   scores: readonly LegacyEncodingHeuristicScore[],
-  allowedEncodings: readonly RmemEncodingName[],
+  allowedEncodings: readonly RelicMEMEncodingName[],
 ): readonly EncodingWarning[] {
   return scores
     .filter((score) => !allowedEncodings.includes(score.encoding))
@@ -727,7 +727,7 @@ function freezeEncodingByteOrderMark(
 function normalizeDetectLegacyEncodingOptions(
   options: DetectLegacyEncodingOptions | undefined,
 ): NormalizedDetectLegacyEncodingOptions {
-  const profile = options?.profile ?? RMEM_PROFILE;
+  const profile = options?.profile ?? RELICMEM_PROFILE;
   const allowedEncodings = normalizeAllowedEncodings(options?.allowedEncodings, profile);
   const minConfidence = normalizeMinConfidence(options?.minConfidence, profile.minConfidence);
   const utf8Validation = normalizeUtf8ValidationSignal(options?.utf8Validation);
@@ -747,9 +747,9 @@ function normalizeDetectLegacyEncodingOptions(
 function normalizeAllowedEncodings(
   allowedEncodings: unknown,
   profile: EncodingProfile,
-): readonly RmemEncodingName[] {
+): readonly RelicMEMEncodingName[] {
   const input = allowedEncodings ?? profile.allowedEncodings;
-  const normalized: RmemEncodingName[] = [];
+  const normalized: RelicMEMEncodingName[] = [];
 
   if (!Array.isArray(input)) {
     throw createEncodingError({
@@ -763,7 +763,7 @@ function normalizeAllowedEncodings(
   }
 
   for (const encoding of input as readonly unknown[]) {
-    if (typeof encoding !== "string" || !isRmemEncodingName(encoding)) {
+    if (typeof encoding !== "string" || !isRelicMEMEncodingName(encoding)) {
       throw createEncodingError({
         code: "ENCODING_UNSUPPORTED_ENCODING",
         message: "Allowed encodings must contain only supported canonical encodings.",
@@ -877,10 +877,10 @@ function freezeNormalizedEncodingLabel(
 }
 
 function shouldSkipForValidUtf8(options: NormalizedDetectLegacyEncodingOptions): boolean {
-  return options.profile.name === "rmem" && options.utf8Validation?.valid === true;
+  return options.profile.name === "relicmem" && options.utf8Validation?.valid === true;
 }
 
-function hasAllowedLegacyEncoding(allowedEncodings: readonly RmemEncodingName[]): boolean {
+function hasAllowedLegacyEncoding(allowedEncodings: readonly RelicMEMEncodingName[]): boolean {
   return LEGACY_HEURISTIC_ENCODINGS.some((encoding) => allowedEncodings.includes(encoding));
 }
 

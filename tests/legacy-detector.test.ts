@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { EncodingError, normalizeEncodingLabel } from "../src/index.js";
-import type { RmemEncodingName } from "../src/index.js";
+import type { RelicMEMEncodingName } from "../src/index.js";
 import { detectLegacyEncoding, tryDetectLegacyEncoding } from "../src/detector/LegacyDetector.js";
 import {
   LEGACY_CYRILLIC_PROFILE,
-  RMEM_PROFILE,
+  RELICMEM_PROFILE,
   STRICT_UTF8_PROFILE,
   WEB_COMPAT_PROFILE,
 } from "../src/profile/EncodingProfiles.js";
@@ -44,7 +44,7 @@ const CYRILLIC_FIXTURES = Object.freeze([
     ],
   },
 ] as const satisfies readonly {
-  readonly encoding: RmemEncodingName;
+  readonly encoding: RelicMEMEncodingName;
   readonly bytes: readonly number[];
 }[]);
 
@@ -120,7 +120,7 @@ describe("legacy Cyrillic detector", () => {
   it("does not let legacy heuristics override explicit encoding or BOM", () => {
     const explicitEncoding = normalizeEncodingLabel("utf-8", {
       source: "explicit",
-      profile: RMEM_PROFILE,
+      profile: RELICMEM_PROFILE,
     });
     const explicitResult = detectLegacyEncoding(new Uint8Array([0xcf, 0xf0, 0xe8]), {
       explicitEncoding,
@@ -137,11 +137,11 @@ describe("legacy Cyrillic detector", () => {
     expect(bomResult.ignoredReason).toBe("bom");
   });
 
-  it("respects the rmem rule that valid UTF-8 suppresses legacy heuristics", () => {
+  it("respects the relicmem rule that valid UTF-8 suppresses legacy heuristics", () => {
     const result = detectLegacyEncoding(
       new TextEncoder().encode("\u041f\u0440\u0438\u0432\u0456\u0442"),
       {
-        profile: RMEM_PROFILE,
+        profile: RELICMEM_PROFILE,
         utf8Validation: {
           valid: true,
         },
@@ -202,7 +202,7 @@ describe("legacy Cyrillic detector", () => {
   it("returns structured failures for malformed detector options", () => {
     expect(() =>
       detectLegacyEncoding(new Uint8Array([0xcf]), {
-        allowedEncodings: ["utf-8", "shift-jis" as RmemEncodingName],
+        allowedEncodings: ["utf-8", "shift-jis" as RelicMEMEncodingName],
       }),
     ).toThrow(EncodingError);
 

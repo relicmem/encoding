@@ -8,21 +8,21 @@ import {
   DEFAULT_ENCODING_PROFILE_NAME,
   LEGACY_CYRILLIC_ENCODINGS,
   LEGACY_CYRILLIC_PROFILE,
-  RMEM_PROFILE,
+  RELICMEM_PROFILE,
   STRICT_UTF8_PROFILE,
   WEB_COMPAT_PROFILE,
   resolveEncodingProfilePolicy,
 } from "../src/profile/EncodingProfiles.js";
 
 describe("built-in encoding profiles", () => {
-  it("uses rmem as the default CLI/import profile policy", () => {
+  it("uses relicmem as the default CLI/import profile policy", () => {
     const policy = resolveEncodingProfilePolicy();
 
-    expect(DEFAULT_ENCODING_PROFILE_NAME).toBe("rmem");
-    expect(policy).toBe(BUILT_IN_ENCODING_PROFILE_POLICIES.rmem);
-    expect(policy.profile).toEqual(RMEM_PROFILE);
+    expect(DEFAULT_ENCODING_PROFILE_NAME).toBe("relicmem");
+    expect(policy).toBe(BUILT_IN_ENCODING_PROFILE_POLICIES.relicmem);
+    expect(policy.profile).toEqual(RELICMEM_PROFILE);
     expect(policy.profile).toMatchObject({
-      name: "rmem",
+      name: "relicmem",
       defaultEncoding: "utf-8",
       minConfidence: 0.75,
       legacyHeuristics: true,
@@ -109,7 +109,7 @@ describe("built-in encoding profiles", () => {
   });
 
   it("freezes built-in profile metadata and policy defaults", () => {
-    expect(BUILT_IN_ENCODING_PROFILES.rmem).toBe(RMEM_PROFILE);
+    expect(BUILT_IN_ENCODING_PROFILES.relicmem).toBe(RELICMEM_PROFILE);
     expect(Object.isFrozen(BUILT_IN_ENCODING_PROFILES)).toBe(true);
     expect(Object.isFrozen(BUILT_IN_ENCODING_PROFILE_POLICIES)).toBe(true);
 
@@ -170,6 +170,6 @@ describe("built-in encoding profiles", () => {
       }),
     ).toThrow(EncodingError);
 
-    expect(() => resolveEncodingProfilePolicy("universal" as "rmem")).toThrow(EncodingError);
+    expect(() => resolveEncodingProfilePolicy("universal" as "relicmem")).toThrow(EncodingError);
   });
 });

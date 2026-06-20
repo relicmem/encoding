@@ -118,7 +118,7 @@ describe("composite detection pipeline", () => {
     expect(result.warnings).toEqual([]);
   });
 
-  it("selects valid UTF-8 before legacy heuristics in the default rmem profile", () => {
+  it("selects valid UTF-8 before legacy heuristics in the default relicmem profile", () => {
     const result = detectCompositeEncoding(new TextEncoder().encode("Привіт, документе."));
 
     expect(result).toMatchObject({

@@ -1,4 +1,4 @@
-import type { ReplacementPolicy, RmemEncodingName } from "../contracts/encoding.js";
+import type { ReplacementPolicy, RelicMEMEncodingName } from "../contracts/encoding.js";
 import {
   createEncodingError,
   encodingFailure,
@@ -26,7 +26,7 @@ export interface OffsetMapBuilderOptions {
 }
 
 export interface ExactOffsetMapBuilderOptions extends OffsetMapBuilderOptions {
-  readonly encoding: RmemEncodingName;
+  readonly encoding: RelicMEMEncodingName;
 }
 
 export interface Utf16OffsetMapBuilderOptions extends OffsetMapBuilderOptions {
@@ -56,7 +56,7 @@ interface NormalizedBuilderOptions {
 }
 
 interface BuildContext {
-  readonly encoding: RmemEncodingName;
+  readonly encoding: RelicMEMEncodingName;
   readonly options: NormalizedBuilderOptions;
   readonly segments: SegmentAccumulator;
   readonly warnings: EncodingWarning[];
@@ -369,7 +369,7 @@ class SegmentAccumulator {
 }
 
 function createBuildContext(
-  encoding: RmemEncodingName,
+  encoding: RelicMEMEncodingName,
   options: OffsetMapBuilderOptions,
 ): BuildContext {
   return {

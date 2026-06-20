@@ -4,7 +4,7 @@ import {
   freezeEncodingWarnings,
 } from "../contracts/diagnostics.js";
 import type { EncodingError, EncodingWarning } from "../contracts/diagnostics.js";
-import type { ReplacementPolicy, RmemEncodingName } from "../contracts/encoding.js";
+import type { ReplacementPolicy, RelicMEMEncodingName } from "../contracts/encoding.js";
 import type { SourceByteRange, TextRange } from "../contracts/source.js";
 
 export const DEFAULT_DECODING_REPLACEMENT_CHARACTER = "\uFFFD";
@@ -21,7 +21,7 @@ export interface NormalizeControlledDecodingPolicyOptions {
 }
 
 export interface InvalidSequenceDiagnosticOptions {
-  readonly encoding: RmemEncodingName;
+  readonly encoding: RelicMEMEncodingName;
   readonly reason: string;
   readonly byteRange: SourceByteRange;
   readonly textRange?: TextRange;

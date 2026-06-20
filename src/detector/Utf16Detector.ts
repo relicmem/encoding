@@ -8,10 +8,10 @@ import {
   isEncodingError,
 } from "../contracts/diagnostics.js";
 import type { EncodingResult, EncodingWarning } from "../contracts/diagnostics.js";
-import type { RmemEncodingName } from "../contracts/encoding.js";
+import type { RelicMEMEncodingName } from "../contracts/encoding.js";
 import type { EncodingProfile } from "../contracts/profile.js";
-import { isRmemEncodingName } from "../encoding/EncodingRegistry.js";
-import { RMEM_PROFILE } from "../profile/EncodingProfiles.js";
+import { isRelicMEMEncodingName } from "../encoding/EncodingRegistry.js";
+import { RELICMEM_PROFILE } from "../profile/EncodingProfiles.js";
 import { detectByteOrderMark } from "./BomDetector.js";
 import type { EncodingByteOrderMark } from "./BomDetector.js";
 import {
@@ -33,7 +33,7 @@ export type Utf16HeuristicByteOrder = "le" | "be";
 
 export interface DetectUtf16Options {
   readonly profile?: EncodingProfile;
-  readonly allowedEncodings?: readonly RmemEncodingName[];
+  readonly allowedEncodings?: readonly RelicMEMEncodingName[];
   readonly explicitEncoding?: NormalizedEncodingLabel;
   readonly minConfidence?: number;
 }
@@ -68,7 +68,7 @@ export interface Utf16DetectionResult {
 
 interface NormalizedDetectUtf16Options {
   readonly profile: EncodingProfile;
-  readonly allowedEncodings: readonly RmemEncodingName[];
+  readonly allowedEncodings: readonly RelicMEMEncodingName[];
   readonly explicitEncoding?: NormalizedEncodingLabel;
   readonly minConfidence: number;
 }
@@ -312,7 +312,7 @@ function scoreUtf16ByteOrder(
 
 function createCandidateFromScore(
   score: Utf16ByteOrderHeuristicScore,
-  allowedEncodings: readonly RmemEncodingName[],
+  allowedEncodings: readonly RelicMEMEncodingName[],
 ): EncodingCandidate | undefined {
   if (!allowedEncodings.includes(score.encoding)) {
     return undefined;
@@ -393,7 +393,7 @@ function createLowConfidenceCandidateWarning(
 
 function createDisallowedScoreWarnings(
   scores: readonly Utf16ByteOrderHeuristicScore[],
-  allowedEncodings: readonly RmemEncodingName[],
+  allowedEncodings: readonly RelicMEMEncodingName[],
 ): readonly EncodingWarning[] {
   return scores
     .filter((score) => !allowedEncodings.includes(score.encoding))
@@ -564,7 +564,7 @@ function freezeEncodingByteOrderMark(
 function normalizeDetectUtf16Options(
   options: DetectUtf16Options | undefined,
 ): NormalizedDetectUtf16Options {
-  const profile = options?.profile ?? RMEM_PROFILE;
+  const profile = options?.profile ?? RELICMEM_PROFILE;
   const allowedEncodings = normalizeAllowedEncodings(options?.allowedEncodings, profile);
   const minConfidence = normalizeMinConfidence(options?.minConfidence, profile.minConfidence);
 
@@ -582,9 +582,9 @@ function normalizeDetectUtf16Options(
 function normalizeAllowedEncodings(
   allowedEncodings: unknown,
   profile: EncodingProfile,
-): readonly RmemEncodingName[] {
+): readonly RelicMEMEncodingName[] {
   const input = allowedEncodings ?? profile.allowedEncodings;
-  const normalized: RmemEncodingName[] = [];
+  const normalized: RelicMEMEncodingName[] = [];
 
   if (!Array.isArray(input)) {
     throw createEncodingError({
@@ -598,7 +598,7 @@ function normalizeAllowedEncodings(
   }
 
   for (const encoding of input as readonly unknown[]) {
-    if (typeof encoding !== "string" || !isRmemEncodingName(encoding)) {
+    if (typeof encoding !== "string" || !isRelicMEMEncodingName(encoding)) {
       throw createEncodingError({
         code: "ENCODING_UNSUPPORTED_ENCODING",
         message: "Allowed encodings must contain only supported canonical encodings.",
@@ -778,7 +778,7 @@ function isLowSurrogate(codeUnit: number): boolean {
   return codeUnit >= 0xdc00 && codeUnit <= 0xdfff;
 }
 
-function isUtf16Encoding(encoding: RmemEncodingName): encoding is "utf-16le" | "utf-16be" {
+function isUtf16Encoding(encoding: RelicMEMEncodingName): encoding is "utf-16le" | "utf-16be" {
   return encoding === "utf-16le" || encoding === "utf-16be";
 }
 

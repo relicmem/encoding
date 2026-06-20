@@ -18,7 +18,7 @@ const PUBLIC_RUNTIME_EXPORTS = Object.freeze([
   "BUILT_IN_ENCODING_PROFILES",
   "ENCODING_DIAGNOSTIC_CODES",
   "EncodingError",
-  "RMEM_ENCODING_NAMES",
+  "RELICMEM_ENCODING_NAMES",
   "aliasesForEncoding",
   "createDecodingStream",
   "createEncodingError",
@@ -30,7 +30,7 @@ const PUBLIC_RUNTIME_EXPORTS = Object.freeze([
   "encodingSuccess",
   "freezeEncodingWarnings",
   "isEncodingError",
-  "isRmemEncodingName",
+  "isRelicMEMEncodingName",
   "mergeEncodingWarnings",
   "normalizeEncodingLabel",
   "tryDecodeDocument",
@@ -73,7 +73,7 @@ describe("package release readiness", () => {
   it("publishes only the built package entrypoint and type declarations", async () => {
     const metadata = await readPackageMetadata();
 
-    expect(metadata.name).toBe("@rmem/encoding");
+    expect(metadata.name).toBe("@relicmem/encoding");
     expect(metadata.files).toEqual(["dist"]);
     expect(metadata.main).toBe("./dist/index.js");
     expect(metadata.types).toBe("./dist/index.d.ts");

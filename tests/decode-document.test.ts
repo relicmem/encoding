@@ -4,7 +4,7 @@ import { EncodingError, decodeDocument, decodeDocumentSync } from "../src/index.
 import type {
   DecodeDocumentFunction,
   DecodeDocumentOptions,
-  RmemEncodingName,
+  RelicMEMEncodingName,
 } from "../src/index.js";
 
 describe("decodeDocument", () => {
@@ -65,7 +65,7 @@ describe("decodeDocument", () => {
   });
 
   it("keeps an immutable options snapshot while collecting async iterable chunks", async () => {
-    const allowedEncodings: RmemEncodingName[] = ["utf-8"];
+    const allowedEncodings: RelicMEMEncodingName[] = ["utf-8"];
     const options: MutableDecodeDocumentOptions = {
       profile: "strictUtf8",
       allowedEncodings,
@@ -132,7 +132,7 @@ function createReadableStream(...chunks: readonly Uint8Array[]): ReadableStream<
 
 async function* createMutatingAsyncChunks(
   options: MutableDecodeDocumentOptions,
-  allowedEncodings: RmemEncodingName[],
+  allowedEncodings: RelicMEMEncodingName[],
 ): AsyncIterable<Uint8Array> {
   await Promise.resolve();
 

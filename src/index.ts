@@ -4,9 +4,9 @@ export { decodeDocumentSync } from "./DecodeDocumentSync.js";
 export { detectEncoding } from "./DetectEncoding.js";
 export { tryDecodeDocument } from "./TryDecodeDocument.js";
 export {
-  RMEM_ENCODING_NAMES,
+  RELICMEM_ENCODING_NAMES,
   aliasesForEncoding,
-  isRmemEncodingName,
+  isRelicMEMEncodingName,
   normalizeEncodingLabel,
   tryNormalizeEncodingLabel,
 } from "./encoding/EncodingRegistry.js";

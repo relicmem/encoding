@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { EncodingError, detectEncoding } from "../src/index.js";
-import type { DecodeDocumentOptions, RmemEncodingName } from "../src/index.js";
+import type { DecodeDocumentOptions, RelicMEMEncodingName } from "../src/index.js";
 import { createDetectionSampler } from "../src/stream/DetectionSampler.js";
 
 describe("DetectionSampler", () => {
@@ -161,7 +161,7 @@ describe("DetectionSampler", () => {
   });
 
   it("keeps an immutable options snapshot after sampler construction", () => {
-    const allowedEncodings: RmemEncodingName[] = ["utf-8"];
+    const allowedEncodings: RelicMEMEncodingName[] = ["utf-8"];
     const options: MutableDecodeDocumentOptions = {
       profile: "strictUtf8",
       allowedEncodings,

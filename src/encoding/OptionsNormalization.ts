@@ -7,13 +7,13 @@ import type {
   DetectEncodingOptions,
   EncodingMetadata,
   ReplacementPolicy,
-  RmemEncodingName,
+  RelicMEMEncodingName,
   SourceMapMode,
 } from "../contracts/encoding.js";
 import type { EncodingProfile } from "../contracts/profile.js";
 import type { EncodingProfilePolicy } from "../profile/EncodingProfiles.js";
 import { resolveEncodingProfilePolicy } from "../profile/EncodingProfiles.js";
-import { isRmemEncodingName, normalizeEncodingLabel } from "./EncodingRegistry.js";
+import { isRelicMEMEncodingName, normalizeEncodingLabel } from "./EncodingRegistry.js";
 import { sniffEncodingMetadata } from "./MetadataSniffing.js";
 import type { EncodingMetadataSniffingResult } from "./MetadataSniffing.js";
 
@@ -21,7 +21,7 @@ export interface NormalizedDetectEncodingOptions {
   readonly profile: EncodingProfile;
   readonly explicitEncoding?: NormalizedEncodingLabel;
   readonly defaultEncoding: NormalizedEncodingLabel;
-  readonly allowedEncodings: readonly RmemEncodingName[];
+  readonly allowedEncodings: readonly RelicMEMEncodingName[];
   readonly minConfidence: number;
   readonly metadata?: EncodingMetadata;
   readonly metadataSniffing: EncodingMetadataSniffingResult;
@@ -40,7 +40,7 @@ interface CommonNormalizedOptions {
   readonly policy: EncodingProfilePolicy;
   readonly explicitEncoding?: NormalizedEncodingLabel;
   readonly defaultEncoding: NormalizedEncodingLabel;
-  readonly allowedEncodings: readonly RmemEncodingName[];
+  readonly allowedEncodings: readonly RelicMEMEncodingName[];
   readonly minConfidence: number;
   readonly metadata?: EncodingMetadata;
   readonly metadataSniffing: EncodingMetadataSniffingResult;
@@ -145,9 +145,9 @@ function normalizeCommonEncodingOptions(
 }
 
 function resolveAllowedEncodings(
-  allowedEncodings: readonly RmemEncodingName[] | undefined,
+  allowedEncodings: readonly RelicMEMEncodingName[] | undefined,
   profile: EncodingProfile,
-): readonly RmemEncodingName[] {
+): readonly RelicMEMEncodingName[] {
   if (allowedEncodings === undefined) {
     return profile.allowedEncodings;
   }
@@ -164,7 +164,7 @@ function resolveAllowedEncodings(
 function resolveExplicitEncoding(
   explicitEncoding: string | undefined,
   profile: EncodingProfile,
-  allowedEncodings: readonly RmemEncodingName[],
+  allowedEncodings: readonly RelicMEMEncodingName[],
 ): NormalizedEncodingLabel | undefined {
   if (explicitEncoding === undefined) {
     return undefined;
@@ -181,9 +181,9 @@ function resolveExplicitEncoding(
 }
 
 function resolveDefaultEncoding(
-  defaultEncoding: RmemEncodingName | undefined,
+  defaultEncoding: RelicMEMEncodingName | undefined,
   profile: EncodingProfile,
-  allowedEncodings: readonly RmemEncodingName[],
+  allowedEncodings: readonly RelicMEMEncodingName[],
 ): NormalizedEncodingLabel {
   const label = normalizeEncodingLabel(defaultEncoding ?? profile.defaultEncoding, {
     source: defaultEncoding === undefined ? "profile" : "default",
@@ -359,7 +359,7 @@ function normalizeEncodingNameList(
   values: unknown,
   option: string,
   options: { readonly allowEmpty: boolean },
-): readonly RmemEncodingName[] {
+): readonly RelicMEMEncodingName[] {
   if (!Array.isArray(values)) {
     throw invalidOptionsError("Encoding list option must be an array.", {
       option,
@@ -367,7 +367,7 @@ function normalizeEncodingNameList(
     });
   }
 
-  const normalized: RmemEncodingName[] = [];
+  const normalized: RelicMEMEncodingName[] = [];
 
   for (const value of values) {
     const encoding = normalizeCanonicalEncoding(value, option);
@@ -386,8 +386,8 @@ function normalizeEncodingNameList(
   return Object.freeze(normalized);
 }
 
-function normalizeCanonicalEncoding(value: unknown, option: string): RmemEncodingName {
-  if (typeof value !== "string" || !isRmemEncodingName(value)) {
+function normalizeCanonicalEncoding(value: unknown, option: string): RelicMEMEncodingName {
+  if (typeof value !== "string" || !isRelicMEMEncodingName(value)) {
     throw invalidOptionsError("Unsupported canonical encoding.", {
       option,
       encoding: value,
@@ -398,8 +398,8 @@ function normalizeCanonicalEncoding(value: unknown, option: string): RmemEncodin
 }
 
 function assertEncodingSubset(
-  values: readonly RmemEncodingName[],
-  allowedEncodings: readonly RmemEncodingName[],
+  values: readonly RelicMEMEncodingName[],
+  allowedEncodings: readonly RelicMEMEncodingName[],
   option: string,
 ): void {
   for (const encoding of values) {
@@ -408,8 +408,8 @@ function assertEncodingSubset(
 }
 
 function assertEncodingAllowed(
-  encoding: RmemEncodingName,
-  allowedEncodings: readonly RmemEncodingName[],
+  encoding: RelicMEMEncodingName,
+  allowedEncodings: readonly RelicMEMEncodingName[],
   option: string,
 ): void {
   if (!allowedEncodings.includes(encoding)) {

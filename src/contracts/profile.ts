@@ -1,11 +1,11 @@
-import type { RmemEncodingName } from "./encoding.js";
+import type { RelicMEMEncodingName } from "./encoding.js";
 
 export interface EncodingProfile {
   readonly name: string;
-  readonly allowedEncodings: readonly RmemEncodingName[];
-  readonly asciiCompatibleEncodings: readonly RmemEncodingName[];
-  readonly nativeByteSafeEncodings: readonly RmemEncodingName[];
-  readonly defaultEncoding: RmemEncodingName;
+  readonly allowedEncodings: readonly RelicMEMEncodingName[];
+  readonly asciiCompatibleEncodings: readonly RelicMEMEncodingName[];
+  readonly nativeByteSafeEncodings: readonly RelicMEMEncodingName[];
+  readonly defaultEncoding: RelicMEMEncodingName;
   readonly minConfidence: number;
   readonly legacyHeuristics: boolean;
   readonly utf16Heuristics: boolean;

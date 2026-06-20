@@ -2,12 +2,12 @@ import type { DecoderBackendName } from "../contracts/backend.js";
 import { createEncodingError } from "../contracts/diagnostics.js";
 import type {
   ReplacementPolicy,
-  RmemEncodingName,
-  RmemEncodingProfileName,
+  RelicMEMEncodingName,
+  RelicMEMEncodingProfileName,
   SourceMapMode,
 } from "../contracts/encoding.js";
 import type { EncodingProfile } from "../contracts/profile.js";
-import { RMEM_ENCODING_NAMES, isRmemEncodingName } from "../encoding/EncodingRegistry.js";
+import { RELICMEM_ENCODING_NAMES, isRelicMEMEncodingName } from "../encoding/EncodingRegistry.js";
 
 export interface EncodingProfilePolicy {
   readonly profile: EncodingProfile;
@@ -19,7 +19,8 @@ export interface EncodingProfilePolicy {
   readonly sampleSizeBytes: number;
 }
 
-export const DEFAULT_ENCODING_PROFILE_NAME = "rmem" as const satisfies RmemEncodingProfileName;
+export const DEFAULT_ENCODING_PROFILE_NAME =
+  "relicmem" as const satisfies RelicMEMEncodingProfileName;
 export const DEFAULT_REPLACEMENT_CHARACTER = "\uFFFD";
 export const DEFAULT_SAMPLE_SIZE_BYTES = 64 * 1024;
 
@@ -30,12 +31,12 @@ export const SINGLE_BYTE_ENCODINGS = Object.freeze([
   "iso-8859-5",
   "koi8-r",
   "cp866",
-] as const satisfies readonly RmemEncodingName[]);
+] as const satisfies readonly RelicMEMEncodingName[]);
 
 export const ASCII_COMPATIBLE_ENCODINGS = Object.freeze([
   "utf-8",
   ...SINGLE_BYTE_ENCODINGS,
-] as const satisfies readonly RmemEncodingName[]);
+] as const satisfies readonly RelicMEMEncodingName[]);
 
 export const LEGACY_CYRILLIC_ENCODINGS = Object.freeze([
   "utf-8",
@@ -43,7 +44,7 @@ export const LEGACY_CYRILLIC_ENCODINGS = Object.freeze([
   "koi8-r",
   "cp866",
   "iso-8859-5",
-] as const satisfies readonly RmemEncodingName[]);
+] as const satisfies readonly RelicMEMEncodingName[]);
 
 export const STRICT_UTF8_PROFILE = freezeEncodingProfile({
   name: "strictUtf8",
@@ -57,9 +58,9 @@ export const STRICT_UTF8_PROFILE = freezeEncodingProfile({
   metadataSniffing: false,
 });
 
-export const RMEM_PROFILE = freezeEncodingProfile({
-  name: "rmem",
-  allowedEncodings: RMEM_ENCODING_NAMES,
+export const RELICMEM_PROFILE = freezeEncodingProfile({
+  name: "relicmem",
+  allowedEncodings: RELICMEM_ENCODING_NAMES,
   asciiCompatibleEncodings: ASCII_COMPATIBLE_ENCODINGS,
   nativeByteSafeEncodings: ASCII_COMPATIBLE_ENCODINGS,
   defaultEncoding: "utf-8",
@@ -83,7 +84,7 @@ export const LEGACY_CYRILLIC_PROFILE = freezeEncodingProfile({
 
 export const WEB_COMPAT_PROFILE = freezeEncodingProfile({
   name: "webCompat",
-  allowedEncodings: RMEM_ENCODING_NAMES,
+  allowedEncodings: RELICMEM_ENCODING_NAMES,
   asciiCompatibleEncodings: ASCII_COMPATIBLE_ENCODINGS,
   nativeByteSafeEncodings: ASCII_COMPATIBLE_ENCODINGS,
   defaultEncoding: "windows-1252",
@@ -94,16 +95,16 @@ export const WEB_COMPAT_PROFILE = freezeEncodingProfile({
 });
 
 export const BUILT_IN_ENCODING_PROFILES: Readonly<
-  Record<RmemEncodingProfileName, EncodingProfile>
+  Record<RelicMEMEncodingProfileName, EncodingProfile>
 > = Object.freeze({
   strictUtf8: STRICT_UTF8_PROFILE,
-  rmem: RMEM_PROFILE,
+  relicmem: RELICMEM_PROFILE,
   legacyCyrillic: LEGACY_CYRILLIC_PROFILE,
   webCompat: WEB_COMPAT_PROFILE,
 });
 
 export const BUILT_IN_ENCODING_PROFILE_POLICIES: Readonly<
-  Record<RmemEncodingProfileName, EncodingProfilePolicy>
+  Record<RelicMEMEncodingProfileName, EncodingProfilePolicy>
 > = Object.freeze({
   strictUtf8: createProfilePolicy({
     profile: STRICT_UTF8_PROFILE,
@@ -114,8 +115,8 @@ export const BUILT_IN_ENCODING_PROFILE_POLICIES: Readonly<
     backendPreference: ["native", "text-decoder"],
     sampleSizeBytes: DEFAULT_SAMPLE_SIZE_BYTES,
   }),
-  rmem: createProfilePolicy({
-    profile: RMEM_PROFILE,
+  relicmem: createProfilePolicy({
+    profile: RELICMEM_PROFILE,
     stripBom: true,
     sourceMap: "exact",
     replacementPolicy: "fatal",
@@ -144,7 +145,7 @@ export const BUILT_IN_ENCODING_PROFILE_POLICIES: Readonly<
 });
 
 export function resolveEncodingProfilePolicy(
-  profile?: RmemEncodingProfileName | EncodingProfile,
+  profile?: RelicMEMEncodingProfileName | EncodingProfile,
 ): EncodingProfilePolicy;
 export function resolveEncodingProfilePolicy(profile?: unknown): EncodingProfilePolicy {
   if (profile === undefined) {
@@ -244,10 +245,10 @@ export function normalizeCustomEncodingProfile(profile: object): EncodingProfile
   });
 }
 
-export function isBuiltInEncodingProfileName(value: string): value is RmemEncodingProfileName {
+export function isBuiltInEncodingProfileName(value: string): value is RelicMEMEncodingProfileName {
   return (
     value === "strictUtf8" ||
-    value === "rmem" ||
+    value === "relicmem" ||
     value === "legacyCyrillic" ||
     value === "webCompat"
   );
@@ -291,7 +292,7 @@ function normalizeEncodingNameList(
   values: unknown,
   option: string,
   options: { readonly allowEmpty: boolean },
-): readonly RmemEncodingName[] {
+): readonly RelicMEMEncodingName[] {
   if (!Array.isArray(values)) {
     throw invalidProfileError("Encoding list option must be an array.", {
       option,
@@ -299,7 +300,7 @@ function normalizeEncodingNameList(
     });
   }
 
-  const normalized: RmemEncodingName[] = [];
+  const normalized: RelicMEMEncodingName[] = [];
 
   for (const value of values) {
     const encoding = normalizeCanonicalEncoding(value, option);
@@ -318,8 +319,8 @@ function normalizeEncodingNameList(
   return Object.freeze(normalized);
 }
 
-function normalizeCanonicalEncoding(value: unknown, option: string): RmemEncodingName {
-  if (typeof value !== "string" || !isRmemEncodingName(value)) {
+function normalizeCanonicalEncoding(value: unknown, option: string): RelicMEMEncodingName {
+  if (typeof value !== "string" || !isRelicMEMEncodingName(value)) {
     throw invalidProfileError("Unsupported canonical encoding.", {
       option,
       encoding: value,
@@ -341,8 +342,8 @@ function normalizeMinConfidence(value: unknown, option: string): number {
 }
 
 function assertEncodingSubset(
-  values: readonly RmemEncodingName[],
-  allowedEncodings: readonly RmemEncodingName[],
+  values: readonly RelicMEMEncodingName[],
+  allowedEncodings: readonly RelicMEMEncodingName[],
   option: string,
 ): void {
   for (const encoding of values) {
@@ -351,8 +352,8 @@ function assertEncodingSubset(
 }
 
 function assertEncodingAllowed(
-  encoding: RmemEncodingName,
-  allowedEncodings: readonly RmemEncodingName[],
+  encoding: RelicMEMEncodingName,
+  allowedEncodings: readonly RelicMEMEncodingName[],
   option: string,
 ): void {
   if (!allowedEncodings.includes(encoding)) {
