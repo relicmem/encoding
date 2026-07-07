@@ -16,8 +16,8 @@ specification; the files here describe how to integrate the library safely.
   internal imports.
 - [Encoding data provenance](encoding-data-provenance.md) - source URLs, audit date, and review
   rules for embedded labels and mapping tables.
-- [Release notes v1 candidate](release-notes-v1.md) - compatibility, public API, dependency
-  footprint, and known limitations before v1 delivery.
+- [Release notes for 0.0.2](release-notes-v1.md) - compatibility, public API, dependency
+  footprint, and known limitations for the 0.0.2 release.
 - [Release automation](release-automation.md) - GitHub workflow, npm scripts, publish gate,
   secrets, and recovery steps.
 - [Contributor notes](contributors.md) - contributor rules, including runtime message language.

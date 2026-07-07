@@ -21,7 +21,7 @@ guard that must match package metadata.
 PowerShell preview example for an already updated version:
 
 ```powershell
-$env:RELEASE_VERSION = "0.1.0"
+$env:RELEASE_VERSION = "0.0.2"
 npm run release:check
 ```
 
@@ -49,7 +49,7 @@ runtime contents.
 
 ## GitHub workflow
 
-Workflow `.github/workflows/release.yml` runs only manually through `workflow_dispatch`.
+Workflow `.github/workflows/npm-release.yml` runs only manually through `workflow_dispatch`.
 Inputs:
 
 - `mode`: `preview` or `publish`;

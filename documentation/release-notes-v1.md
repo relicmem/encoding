@@ -1,8 +1,8 @@
-# Release notes v1 candidate
+# Release notes for 0.0.2
 
-This document records the release-readiness state for the first production delivery of
-`@relicmem/encoding`. Actual versioning, tag policy, publish gate, and recovery workflow belong to
-the separate task `ENC-046`.
+This document records the release-readiness state for `@relicmem/encoding@0.0.2`. Actual
+versioning, tag policy, publish gate, and recovery workflow belong to the separate task `ENC-046`
+and the manual `npm-release` GitHub workflow.
 
 ## Compatibility
 
@@ -74,8 +74,9 @@ fixtures, and release scripts are repository-only.
 - `string` input has already been decoded and creates synthetic UTF-8 bytes, so source-perfect
   workflows should pass byte input.
 - Non-exact backends cannot satisfy `sourceMap: "exact"` for `relicmem` parser integration.
-- Package version `0.0.2` carries the public encode API milestone. Future production releases
-  should update the `package.json` version in a reviewed commit before running the publish gate.
+- Package version `0.0.2` carries the public encode API milestone and the backend registry boundary
+  cleanup required before publishing it. Future releases should update the `package.json` version
+  in a reviewed commit before running the publish gate.
 
 ## Release-readiness checks
 
