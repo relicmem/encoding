@@ -19,7 +19,9 @@ import {
   decodeDocument,
   decodeDocumentSync,
   detectEncoding,
+  encodeText,
   tryDecodeDocument,
+  tryEncodeText,
 } from "@relicmem/encoding";
 ```
 
@@ -52,6 +54,18 @@ const detection = detectEncoding(bytes, {
 
 Detect-only does not decode the full document and does not build a source map. Use it for routing,
 logging, diagnostics, and tests.
+
+## Encode API
+
+```ts
+const trigger = encodeText("#", "windows-1251");
+const result = tryEncodeText("A😀", "windows-1251");
+```
+
+Use `encodeText`, `tryEncodeText`, and `canEncodeText` from the package root for parser triggers
+and byte matcher fragments. Do not import decoder backend modules. Default encode policy is
+`replacementPolicy: "fatal"`; replacement mode returns bytes plus
+`ENCODING_UNMAPPABLE_CHARACTER_REPLACED`.
 
 ## Stream API
 

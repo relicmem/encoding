@@ -11,6 +11,7 @@ integrators with a decoded document that includes:
 - exact byte-to-text source maps where the active profile requires them;
 - a line index without line ending normalization;
 - BOM, backend, warning, and error metadata;
+- fragment encoding for parser triggers and other byte-level matchers;
 - stream-safe decoding for split multibyte sequences.
 
 ## Quick Example
@@ -26,6 +27,15 @@ const decoded = await decodeDocument(bytes, {
 console.log(decoded.text);
 console.log(decoded.detection.encoding);
 console.log(decoded.lineIndex.positionAtTextOffset(0));
+```
+
+To compile short string fragments into bytes for the active encoding, use the root encode API:
+
+```ts
+import { encodeText } from "@relicmem/encoding";
+
+const trigger = encodeText("#", decoded.detection.encoding);
+console.log(trigger.bytes);
 ```
 
 Use byte input (`Uint8Array`, `ArrayBuffer`, iterables, or streams) when source ranges matter.

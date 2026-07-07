@@ -1,6 +1,6 @@
 {
   "name": "@relicmem/encoding",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Byte-to-text intake layer for relicmem documents.",
   "license": "Apache-2.0",
   "type": "module",

@@ -5,9 +5,9 @@ specification; the files here describe how to integrate the library safely.
 
 ## For Users
 
-- [Getting started](getting-started.md) - the shortest path to the decode, detect-only, and
+- [Getting started](getting-started.md) - the shortest path to the decode, detect-only, encode, and
   stream APIs.
-- [API reference](api.md) - core functions, options, and expected result shape.
+- [API reference](api.md) - core functions, options, encode helpers, and expected result shape.
 - [Encoding profiles](profiles.md) - when to use `relicmem`, `strictUtf8`,
   `legacyCyrillic`, and `webCompat`.
 - [Source mapping and diagnostics](source-mapping-and-diagnostics.md) - `OffsetMap`,

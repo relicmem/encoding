@@ -3,6 +3,8 @@ import { describe, expectTypeOf, it } from "vitest";
 import type {
   DecodeDocumentOptions,
   DecodedDocument,
+  EncodedText,
+  EncodeTextOptions,
   EncodingDetectionResult,
   EncodingInput,
   EncodingProfile,
@@ -24,6 +26,17 @@ describe("public contracts", () => {
       readonly detection: EncodingDetectionResult;
       readonly lineIndex: LineIndex;
       readonly offsetMap: OffsetMap;
+      readonly warnings: readonly unknown[];
+    }>();
+
+    expectTypeOf<EncodeTextOptions>().toExtend<{
+      readonly replacementPolicy?: "fatal" | "replace";
+      readonly replacementCharacter?: string;
+    }>();
+
+    expectTypeOf<EncodedText>().toExtend<{
+      readonly bytes: Uint8Array;
+      readonly encoding: string;
       readonly warnings: readonly unknown[];
     }>();
 

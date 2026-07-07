@@ -1,6 +1,7 @@
-import type { DecoderBackendName } from "./backend.js";
+import type { DecoderBackendInfo, DecoderBackendName } from "./backend.js";
+import type { NormalizedEncodingLabel } from "./detection.js";
 import type { DecodedDocument } from "./document.js";
-import type { EncodingResult } from "./diagnostics.js";
+import type { EncodingResult, EncodingWarning } from "./diagnostics.js";
 import type { EncodingDetectionResult } from "./detection.js";
 import type { EncodingProfile } from "./profile.js";
 
@@ -67,6 +68,19 @@ export interface DetectEncodingOptions {
   readonly sampleSizeBytes?: number;
 }
 
+export interface EncodeTextOptions {
+  readonly replacementPolicy?: ReplacementPolicy;
+  readonly replacementCharacter?: string;
+}
+
+export interface EncodedText {
+  readonly bytes: Uint8Array;
+  readonly warnings: readonly EncodingWarning[];
+  readonly encoding: RelicMEMEncodingName;
+  readonly label: NormalizedEncodingLabel;
+  readonly backend: DecoderBackendInfo;
+}
+
 export type DecodeDocumentFunction = (
   input: EncodingInput,
   options?: DecodeDocumentOptions,
@@ -86,3 +100,21 @@ export type DetectEncodingFunction = (
   input: Uint8Array,
   options?: DetectEncodingOptions,
 ) => EncodingDetectionResult;
+
+export type EncodeTextFunction = (
+  input: string,
+  encoding: string,
+  options?: EncodeTextOptions,
+) => EncodedText;
+
+export type TryEncodeTextFunction = (
+  input: string,
+  encoding: string,
+  options?: EncodeTextOptions,
+) => EncodingResult<EncodedText>;
+
+export type CanEncodeTextFunction = (
+  input: string,
+  encoding: string,
+  options?: EncodeTextOptions,
+) => boolean;

@@ -20,6 +20,7 @@ The root package export is intended for integrators and contains:
 
 - `decodeDocument`, `decodeDocumentSync`, `tryDecodeDocument`;
 - `detectEncoding`;
+- `encodeText`, `tryEncodeText`, `canEncodeText`;
 - `createDecodingStream`;
 - public contracts, `EncodingError`, warning/result helpers;
 - encoding label helpers `normalizeEncodingLabel`, `tryNormalizeEncodingLabel`,
@@ -73,9 +74,8 @@ fixtures, and release scripts are repository-only.
 - `string` input has already been decoded and creates synthetic UTF-8 bytes, so source-perfect
   workflows should pass byte input.
 - Non-exact backends cannot satisfy `sourceMap: "exact"` for `relicmem` parser integration.
-- Package version `0.0.0` is a placeholder for unreleased workspace state. The release workflow
-  blocks real publication of this version; a production release should update the `package.json`
-  version in a reviewed commit.
+- Package version `0.0.2` carries the public encode API milestone. Future production releases
+  should update the `package.json` version in a reviewed commit before running the publish gate.
 
 ## Release-readiness checks
 

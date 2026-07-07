@@ -1,7 +1,7 @@
 # Parser Integration
 
-`@relicmem/md-parser` should depend on the public `DecodedDocument`, not on internal detector,
-decoder, source model, or profile policy classes.
+`@relicmem/md-parser` should depend on the public `DecodedDocument` and root encode functions, not
+on internal detector, decoder, source model, backend, or profile policy classes.
 
 ## Basic Flow
 
@@ -29,6 +29,23 @@ const result = await parser.parse({
   mode,
 });
 ```
+
+## Trigger Encoding
+
+Compile parser triggers through the root encode API instead of importing backend internals:
+
+```ts
+import { canEncodeText, encodeText, tryEncodeText } from "@relicmem/encoding";
+
+const trigger = tryEncodeText("#", decoded.detection.encoding);
+
+if (!trigger.ok) {
+  // Convert trigger.error into a compile-time parser diagnostic.
+}
+```
+
+`canEncodeText` is useful for guard checks, while `encodeText` should be used when the caller wants
+bytes and structured replacement warnings.
 
 ## Mode Selection
 

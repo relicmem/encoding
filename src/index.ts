@@ -2,6 +2,7 @@ export * from "./contracts/index.js";
 export { decodeDocument } from "./DecodeDocument.js";
 export { decodeDocumentSync } from "./DecodeDocumentSync.js";
 export { detectEncoding } from "./DetectEncoding.js";
+export { canEncodeText, encodeText, tryEncodeText } from "./EncodeText.js";
 export { tryDecodeDocument } from "./TryDecodeDocument.js";
 export {
   RELICMEM_ENCODING_NAMES,

@@ -68,6 +68,46 @@ If `sampleSizeBytes` is smaller than the full byte input and detection relies on
 heuristics, the result contains `ENCODING_TRUNCATED_SAMPLE`, and the confidence of the
 sample-derived candidate is capped at `0.99`.
 
+## `encodeText(input, encoding, options?)`
+
+Encodes a string fragment into bytes with a canonical or alias encoding label. This is intended for
+parser trigger compilation, matchers, and other small fragments; it does not add a BOM.
+
+```ts
+const trigger = encodeText("#", "windows-1251");
+
+console.log(trigger.bytes); // Uint8Array [0x23]
+console.log(trigger.encoding); // "windows-1251"
+console.log(trigger.backend.name); // "native"
+```
+
+`encoding` is normalized through the public label registry. Fatal unmappable characters throw
+`EncodingError` with `code: "ENCODING_UNMAPPABLE_CHARACTER"` and a `textRange`.
+
+```ts
+const result = tryEncodeText("A😀", "windows-1251");
+
+if (!result.ok) {
+  console.error(result.error.code);
+  console.error(result.error.textRange);
+}
+```
+
+Use `replacementPolicy: "replace"` to produce bytes and a warning instead of throwing:
+
+```ts
+const encoded = encodeText("A😀", "windows-1251", {
+  replacementPolicy: "replace",
+});
+
+console.log(encoded.bytes); // Uint8Array [0x41, 0x3f]
+console.log(encoded.warnings[0].code); // "ENCODING_UNMAPPABLE_CHARACTER_REPLACED"
+```
+
+`tryEncodeText(input, encoding, options?)` returns `EncodingResult<EncodedText>` for unsupported
+labels, unsupported encode capabilities, and unmappable characters. `canEncodeText` returns a
+boolean for the same inputs and options.
+
 ## `createDecodingStream(options?)`
 
 Incremental API for stream workflows.

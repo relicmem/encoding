@@ -10,6 +10,7 @@ import {
   decodeDocument,
   decodeDocumentSync,
   detectEncoding,
+  encodeText,
 } from "@relicmem/encoding";
 ```
 
@@ -61,6 +62,21 @@ Under `webCompat`, the HTML/WHATWG label `latin1` can normalize to `windows-1252
 keeps both the input label and the canonical encoding.
 If you reduce `sampleSizeBytes`, check `detection.warnings`: sample-limited byte-derived detection
 returns `ENCODING_TRUNCATED_SAMPLE` instead of silently reporting full-document confidence.
+
+## Encode Text Fragments
+
+Use `encodeText` when an integration needs byte sequences for short string fragments, such as
+parser triggers or byte-level matchers.
+
+```ts
+const encoded = encodeText("#", "windows-1251");
+
+console.log(encoded.bytes); // Uint8Array [0x23]
+```
+
+By default, unmappable characters are fatal and produce `EncodingError`. With
+`replacementPolicy: "replace"`, the API returns replacement bytes and an
+`ENCODING_UNMAPPABLE_CHARACTER_REPLACED` warning.
 
 ## Stream Decoding
 

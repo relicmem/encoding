@@ -6,7 +6,9 @@ import {
   decodeDocument,
   decodeDocumentSync,
   detectEncoding,
+  encodeText,
   tryDecodeDocument,
+  tryEncodeText,
 } from "../src/index.js";
 import type { DecodedChunk, DecodedDocument, EncodingProfile } from "../src/index.js";
 import { loadFixture } from "./support/fixtures.js";
@@ -107,6 +109,22 @@ describe("public documentation examples", () => {
         canonical: "windows-1252",
       },
     });
+  });
+
+  it("encodes parser trigger fragments through the package root", () => {
+    const trigger = encodeText("#", "windows-1251");
+    const unsupported = tryEncodeText("A\ud83d\ude00", "windows-1251");
+    const replaced = encodeText("A\ud83d\ude00", "windows-1251", {
+      replacementPolicy: "replace",
+    });
+
+    expect([...trigger.bytes]).toEqual([0x23]);
+    expect(trigger.encoding).toBe("windows-1251");
+    expect(unsupported.ok).toBe(false);
+    expect([...replaced.bytes]).toEqual([0x41, 0x3f]);
+    expect(replaced.warnings.map((warning) => warning.code)).toEqual([
+      "ENCODING_UNMAPPABLE_CHARACTER_REPLACED",
+    ]);
   });
 
   it("keeps stream chunks and final document ranges source-aware", () => {

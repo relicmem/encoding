@@ -28,12 +28,15 @@ const PUBLIC_RUNTIME_EXPORTS = Object.freeze([
   "detectEncoding",
   "encodingFailure",
   "encodingSuccess",
+  "canEncodeText",
+  "encodeText",
   "freezeEncodingWarnings",
   "isEncodingError",
   "isRelicMEMEncodingName",
   "mergeEncodingWarnings",
   "normalizeEncodingLabel",
   "tryDecodeDocument",
+  "tryEncodeText",
   "tryNormalizeEncodingLabel",
 ]);
 
