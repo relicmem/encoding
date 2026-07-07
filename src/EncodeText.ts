@@ -1,6 +1,5 @@
-import type { DecoderBackend, DecoderBackendInfo } from "./contracts/backend.js";
+import type { DecoderBackendInfo } from "./contracts/backend.js";
 import {
-  createEncodingError,
   encodingFailure,
   encodingSuccess,
   freezeEncodingWarnings,
@@ -9,13 +8,8 @@ import {
 import type { EncodingResult } from "./contracts/diagnostics.js";
 import type { EncodedText, EncodeTextOptions, RelicMEMEncodingName } from "./contracts/encoding.js";
 import type { NormalizedEncodingLabel } from "./contracts/detection.js";
-import { DEFAULT_DECODER_REGISTRY } from "./DecodeDocumentCore.js";
+import { selectDefaultEncoderBackend } from "./decoder/index.js";
 import { normalizeEncodingLabel } from "./encoding/EncodingRegistry.js";
-
-interface EncoderBackendSelection {
-  readonly backend: DecoderBackend;
-  readonly info: DecoderBackendInfo;
-}
 
 export function encodeText(
   input: string,
@@ -25,7 +19,7 @@ export function encodeText(
   const label = normalizeEncodingLabel(encoding, {
     source: "explicit",
   });
-  const selection = selectTextEncoderBackend(label.canonical);
+  const selection = selectDefaultEncoderBackend(label.canonical);
   const result = selection.backend.encode(input, label.canonical, options);
 
   return freezeEncodedText({
@@ -59,27 +53,6 @@ export function canEncodeText(
   options?: EncodeTextOptions,
 ): boolean {
   return tryEncodeText(input, encoding, options).ok;
-}
-
-function selectTextEncoderBackend(encoding: RelicMEMEncodingName): EncoderBackendSelection {
-  const backend = DEFAULT_DECODER_REGISTRY.getBackend("native");
-  const info = DEFAULT_DECODER_REGISTRY.getBackendInfo("native");
-
-  if (backend !== undefined && info !== undefined && backend.canEncode(encoding)) {
-    return Object.freeze({
-      backend,
-      info,
-    });
-  }
-
-  throw createEncodingError({
-    code: "ENCODING_UNSUPPORTED_ENCODING",
-    message: "No registered decoder backend can encode the requested encoding.",
-    details: {
-      encoding,
-      requestedBackend: "native",
-    },
-  });
 }
 
 function freezeEncodedText(options: {

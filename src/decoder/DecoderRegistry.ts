@@ -18,11 +18,17 @@ export type DecoderBackendSkipReason =
   | "not-registered"
   | "decode-unsupported"
   | "exact-source-map-unavailable";
+export type EncoderBackendSkipReason = "not-registered" | "encode-unsupported";
 
 export interface SelectDecoderBackendOptions {
   readonly encoding: RelicMEMEncodingName;
   readonly profile: EncodingProfile;
   readonly sourceMap: SourceMapMode;
+  readonly backendPreference: readonly DecoderBackendName[];
+}
+
+export interface SelectEncoderBackendOptions {
+  readonly encoding: RelicMEMEncodingName;
   readonly backendPreference: readonly DecoderBackendName[];
 }
 
@@ -32,11 +38,23 @@ export interface DecoderBackendSelectionSkip {
   readonly info?: DecoderBackendInfo;
 }
 
+export interface EncoderBackendSelectionSkip {
+  readonly backend: DecoderBackendName;
+  readonly reason: EncoderBackendSkipReason;
+  readonly info?: DecoderBackendInfo;
+}
+
 export interface DecoderBackendSelection {
   readonly backend: DecoderBackend;
   readonly info: DecoderBackendInfo;
   readonly warnings: readonly EncodingWarning[];
   readonly skippedBackends: readonly DecoderBackendSelectionSkip[];
+}
+
+export interface EncoderBackendSelection {
+  readonly backend: DecoderBackend;
+  readonly info: DecoderBackendInfo;
+  readonly skippedBackends: readonly EncoderBackendSelectionSkip[];
 }
 
 interface RegisteredDecoderBackend {
@@ -48,6 +66,11 @@ interface NormalizedSelectionOptions {
   readonly encoding: RelicMEMEncodingName;
   readonly profileName: string;
   readonly sourceMap: SourceMapMode;
+  readonly backendPreference: readonly DecoderBackendName[];
+}
+
+interface NormalizedEncoderSelectionOptions {
+  readonly encoding: RelicMEMEncodingName;
   readonly backendPreference: readonly DecoderBackendName[];
 }
 
@@ -118,6 +141,31 @@ export class DecoderRegistry {
     }
 
     throw createSelectionError(normalizedOptions, skippedBackends);
+  }
+
+  selectEncoderBackend(options: SelectEncoderBackendOptions): EncoderBackendSelection {
+    const normalizedOptions = normalizeEncoderSelectionOptions(options);
+    const skippedBackends: EncoderBackendSelectionSkip[] = [];
+
+    for (const backendName of normalizedOptions.backendPreference) {
+      const entry = this.backendsByName.get(backendName);
+
+      if (entry === undefined) {
+        skippedBackends.push(createSkippedEncoderBackend(backendName, "not-registered"));
+        continue;
+      }
+
+      if (!entry.backend.canEncode(normalizedOptions.encoding)) {
+        skippedBackends.push(
+          createSkippedEncoderBackend(backendName, "encode-unsupported", entry.info),
+        );
+        continue;
+      }
+
+      return createEncoderSelection(entry, skippedBackends);
+    }
+
+    throw createEncoderSelectionError(normalizedOptions, skippedBackends);
   }
 }
 
@@ -191,6 +239,27 @@ function normalizeSelectionOptions(options: unknown): NormalizedSelectionOptions
     encoding,
     profileName,
     sourceMap,
+    backendPreference,
+  });
+}
+
+function normalizeEncoderSelectionOptions(options: unknown): NormalizedEncoderSelectionOptions {
+  if (typeof options !== "object" || options === null || Array.isArray(options)) {
+    throw createEncodingError({
+      code: "ENCODING_UNSUPPORTED_ENCODING",
+      message: "Encoder backend selection options must be an object.",
+      details: {
+        valueType: typeof options,
+      },
+    });
+  }
+
+  const selectionOptions = options as Partial<Record<keyof SelectEncoderBackendOptions, unknown>>;
+  const encoding = normalizeEncoding(selectionOptions.encoding);
+  const backendPreference = normalizeBackendPreference(selectionOptions.backendPreference);
+
+  return Object.freeze({
+    encoding,
     backendPreference,
   });
 }
@@ -308,6 +377,17 @@ function createSelection(
   });
 }
 
+function createEncoderSelection(
+  entry: RegisteredDecoderBackend,
+  skippedBackends: readonly EncoderBackendSelectionSkip[],
+): EncoderBackendSelection {
+  return Object.freeze({
+    backend: entry.backend,
+    info: entry.info,
+    skippedBackends: freezeSkippedEncoderBackends(skippedBackends),
+  });
+}
+
 function createBackendSubstitutionWarnings(
   options: NormalizedSelectionOptions,
   selectedInfo: DecoderBackendInfo,
@@ -364,11 +444,38 @@ function createSelectionError(
   });
 }
 
+function createEncoderSelectionError(
+  options: NormalizedEncoderSelectionOptions,
+  skippedBackends: readonly EncoderBackendSelectionSkip[],
+) {
+  return createEncodingError({
+    code: "ENCODING_UNSUPPORTED_ENCODING",
+    message: "No registered decoder backend can encode the requested encoding.",
+    details: {
+      encoding: options.encoding,
+      requestedBackends: Object.freeze([...options.backendPreference]),
+      skippedBackends: freezeSkippedEncoderBackendDetails(skippedBackends),
+    },
+  });
+}
+
 function createSkippedBackend(
   backend: DecoderBackendName,
   reason: DecoderBackendSkipReason,
   info?: DecoderBackendInfo,
 ): DecoderBackendSelectionSkip {
+  return Object.freeze({
+    backend,
+    reason,
+    ...optionalProperty("info", info),
+  });
+}
+
+function createSkippedEncoderBackend(
+  backend: DecoderBackendName,
+  reason: EncoderBackendSkipReason,
+  info?: DecoderBackendInfo,
+): EncoderBackendSelectionSkip {
   return Object.freeze({
     backend,
     reason,
@@ -386,8 +493,36 @@ function freezeSkippedBackends(
   );
 }
 
+function freezeSkippedEncoderBackends(
+  skippedBackends: readonly EncoderBackendSelectionSkip[],
+): readonly EncoderBackendSelectionSkip[] {
+  return Object.freeze(
+    skippedBackends.map((skippedBackend) =>
+      createSkippedEncoderBackend(
+        skippedBackend.backend,
+        skippedBackend.reason,
+        skippedBackend.info,
+      ),
+    ),
+  );
+}
+
 function freezeSkippedBackendDetails(
   skippedBackends: readonly DecoderBackendSelectionSkip[],
+): readonly Readonly<Record<string, unknown>>[] {
+  return Object.freeze(
+    skippedBackends.map((skippedBackend) =>
+      Object.freeze({
+        backend: skippedBackend.backend,
+        reason: skippedBackend.reason,
+        ...optionalProperty("exactSourceMap", skippedBackend.info?.exactSourceMap),
+      }),
+    ),
+  );
+}
+
+function freezeSkippedEncoderBackendDetails(
+  skippedBackends: readonly EncoderBackendSelectionSkip[],
 ): readonly Readonly<Record<string, unknown>>[] {
   return Object.freeze(
     skippedBackends.map((skippedBackend) =>

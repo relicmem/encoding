@@ -1,8 +1,4 @@
-import type {
-  BackendDecodeResult,
-  DecoderBackend,
-  DecoderBackendInfo,
-} from "./contracts/backend.js";
+import type { BackendDecodeResult, DecoderBackendInfo } from "./contracts/backend.js";
 import {
   createEncodingError,
   isEncodingError,
@@ -12,13 +8,8 @@ import type { EncodingError, EncodingWarning } from "./contracts/diagnostics.js"
 import type { EncodingDetectionResult } from "./contracts/detection.js";
 import type { DecodedDocument } from "./contracts/document.js";
 import type { OffsetMap, OffsetMapSegment } from "./contracts/source.js";
-import {
-  NATIVE_UNICODE_BACKEND,
-  createDecoderRegistry,
-  createTextDecoderBackend,
-  isTextDecoderBackendAvailable,
-} from "./decoder/index.js";
 import type { DecoderBackendSelection } from "./decoder/index.js";
+import { DEFAULT_DECODER_REGISTRY } from "./decoder/index.js";
 import { detectNormalizedCompositeEncoding } from "./detector/CompositeDetector.js";
 import type { NormalizedDecodeDocumentOptions } from "./encoding/OptionsNormalization.js";
 import { createDecodedDocument } from "./source/DecodedDocument.js";
@@ -28,8 +19,6 @@ import type {
   NormalizedEncodingInput,
   NormalizedStringInput,
 } from "./source/index.js";
-
-export const DEFAULT_DECODER_REGISTRY = createDecoderRegistry(createDefaultDecoderBackends());
 
 export function decodeNormalizedDocument(
   input: NormalizedEncodingInput,
@@ -177,16 +166,6 @@ function createSourceMapDisabledOffsetMap(byteLength: number, textLength: number
       kind: "encoded",
     },
   ]);
-}
-
-function createDefaultDecoderBackends(): readonly DecoderBackend[] {
-  const backends: DecoderBackend[] = [NATIVE_UNICODE_BACKEND];
-
-  if (isTextDecoderBackendAvailable()) {
-    backends.push(createTextDecoderBackend());
-  }
-
-  return Object.freeze(backends);
 }
 
 function inputLabelForDetection(

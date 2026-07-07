@@ -231,6 +231,81 @@ describe("decoder backend registry", () => {
 
     expect(() => new DecoderRegistry([firstNative, secondNative])).toThrow(EncodingError);
   });
+
+  it("selects the first preferred backend that supports encoding", () => {
+    const textDecoder = createTestBackend({
+      name: "text-decoder",
+      exactSourceMap: false,
+      supportedDecodings: ["utf-8"],
+    });
+    const native = createTestBackend({
+      name: "native",
+      exactSourceMap: true,
+      supportedDecodings: ["utf-8"],
+      supportedEncodings: ["windows-1251"],
+    });
+    const registry = new DecoderRegistry([textDecoder, native]);
+
+    const selection = registry.selectEncoderBackend({
+      encoding: "windows-1251",
+      backendPreference: ["text-decoder", "native"],
+    });
+
+    expect(selection.backend).toBe(native);
+    expect(selection.info).toEqual({
+      name: "native",
+      exactSourceMap: true,
+    });
+    expect(selection.skippedBackends).toEqual([
+      {
+        backend: "text-decoder",
+        reason: "encode-unsupported",
+        info: {
+          name: "text-decoder",
+          exactSourceMap: false,
+        },
+      },
+    ]);
+    expect(Object.isFrozen(selection)).toBe(true);
+    expect(Object.isFrozen(selection.info)).toBe(true);
+    expect(Object.isFrozen(selection.skippedBackends)).toBe(true);
+  });
+
+  it("returns a structured failure when no registered backend can encode", () => {
+    const registry = new DecoderRegistry([
+      createTestBackend({
+        name: "text-decoder",
+        exactSourceMap: false,
+        supportedDecodings: ["utf-8"],
+      }),
+    ]);
+
+    try {
+      registry.selectEncoderBackend({
+        encoding: "utf-8",
+        backendPreference: ["iconv-lite", "text-decoder"],
+      });
+      throw new Error("Expected unsupported encoder selection to fail.");
+    } catch (error) {
+      expect(error).toBeInstanceOf(EncodingError);
+      expect((error as EncodingError).code).toBe("ENCODING_UNSUPPORTED_ENCODING");
+      expect((error as EncodingError).details).toMatchObject({
+        encoding: "utf-8",
+        requestedBackends: ["iconv-lite", "text-decoder"],
+        skippedBackends: [
+          {
+            backend: "iconv-lite",
+            reason: "not-registered",
+          },
+          {
+            backend: "text-decoder",
+            reason: "encode-unsupported",
+            exactSourceMap: false,
+          },
+        ],
+      });
+    }
+  });
 });
 
 function selectionOptions(
@@ -251,8 +326,10 @@ function createTestBackend(options: {
   readonly name: DecoderBackendName;
   readonly exactSourceMap: boolean;
   readonly supportedDecodings: readonly RelicMEMEncodingName[];
+  readonly supportedEncodings?: readonly RelicMEMEncodingName[];
 }): DecoderBackend {
   const supportedDecodings = new Set(options.supportedDecodings);
+  const supportedEncodings = new Set(options.supportedEncodings ?? []);
 
   return {
     info: Object.freeze({
@@ -262,8 +339,8 @@ function createTestBackend(options: {
     canDecode(encoding) {
       return supportedDecodings.has(encoding);
     },
-    canEncode() {
-      return false;
+    canEncode(encoding) {
+      return supportedEncodings.has(encoding);
     },
     decode() {
       return Object.freeze({

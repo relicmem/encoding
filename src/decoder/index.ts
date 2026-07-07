@@ -7,8 +7,17 @@ export type {
   DecoderBackendSelection,
   DecoderBackendSelectionSkip,
   DecoderBackendSkipReason,
+  EncoderBackendSelection,
+  EncoderBackendSelectionSkip,
+  EncoderBackendSkipReason,
   SelectDecoderBackendOptions,
+  SelectEncoderBackendOptions,
 } from "./DecoderRegistry.js";
+export {
+  DEFAULT_DECODER_REGISTRY,
+  DEFAULT_ENCODER_BACKEND_PREFERENCE,
+  selectDefaultEncoderBackend,
+} from "./DefaultDecoderRegistry.js";
 export {
   NATIVE_UNICODE_BACKEND,
   NativeUnicodeBackend,
